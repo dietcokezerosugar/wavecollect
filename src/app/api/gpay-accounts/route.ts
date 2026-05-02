@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const accounts = await prisma.googlePayAccount.findMany({
-    where: { merchantId: "local-dev", status: { not: "INACTIVE" } },
+    where: { merchantId: "local-dev", NOT: { status: "DELETED" } },
     orderBy: { createdAt: "desc" },
   });
   return NextResponse.json({ status: "success", data: accounts });
@@ -17,12 +17,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ status: "failure", message: "name, email, upiId are required" }, { status: 400 });
   }
 
+  // GPay 9 Singleton Pattern: Check if account already exists
+  const existing = await prisma.googlePayAccount.findFirst({
+    where: { name, merchantId: "local-dev" }
+  });
+
+  if (existing) {
+    const updated = await prisma.googlePayAccount.update({
+      where: { id: existing.id },
+      data: { email, upiId, reportId: reportId || existing.reportId, status: "ACTIVE" }
+    });
+    return NextResponse.json({ status: "success", data: updated });
+  }
+
   const account = await prisma.googlePayAccount.create({
     data: {
       merchantId: "local-dev",
       name,
       email,
       upiId,
+      status: "ACTIVE",
       reportId: reportId || null,
     },
   });
@@ -38,9 +52,10 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ status: "failure", message: "Missing id" }, { status: 400 });
   }
 
+  // Truly hide from UI but keep in DB for history
   await prisma.googlePayAccount.update({
     where: { id },
-    data: { status: "INACTIVE" },
+    data: { status: "DELETED" },
   });
 
   return NextResponse.json({ status: "success" });

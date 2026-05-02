@@ -30,12 +30,31 @@ export default async function PaymentLinkPage({ params }: { params: { slug: stri
     );
   }
 
-  const intent = await PaymentEngine.createIntent({
-    amount: link.amount,
-    orderId,
-    apiKey: apiKey.key,
-  });
+  try {
+    const intent = await PaymentEngine.createIntent({
+      amount: link.amount,
+      orderId,
+      apiKey: apiKey.key,
+    });
 
-  // Redirect to the standard payment page
-  redirect(`/pay/${intent.paymentToken}`);
+    // Redirect to the standard payment page
+    redirect(`/pay/${intent.paymentToken}`);
+  } catch (error: any) {
+    console.error("Payment Intent Error:", error);
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFDFD] px-6 text-center">
+        <div className="w-20 h-20 bg-rose-50 rounded-[32px] flex items-center justify-center text-rose-500 mb-8 border border-rose-100">
+           <Zap className="w-10 h-10 fill-current" />
+        </div>
+        <h1 className="text-2xl font-black text-slate-900 mb-2">Service Unavailable</h1>
+        <p className="text-slate-500 max-w-xs leading-relaxed text-sm">
+          The merchant is currently unable to accept payments. Please contact support or try again later.
+        </p>
+        <div className="mt-12 pt-8 border-t border-slate-100 w-full max-w-xs flex items-center justify-between">
+           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Error Code: 503_NO_ROUTE</span>
+           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Wave Collect</span>
+        </div>
+      </div>
+    );
+  }
 }

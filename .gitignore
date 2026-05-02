@@ -47,3 +47,4 @@ next-env.d.ts
 /.downloads/
 /dev.db
 /dev.db-journal
+/logs/

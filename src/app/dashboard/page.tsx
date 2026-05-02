@@ -47,63 +47,58 @@ export default async function DashboardPage() {
         <p className="text-muted-foreground">Welcome back, Wave Collect Dev.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         {cards.map((card) => (
-          <div key={card.label} className="apple-card p-6 flex flex-col gap-4">
-            <div className={`w-12 h-12 ${card.bg} rounded-2xl flex items-center justify-center ${card.color}`}>
-              <card.icon className="w-6 h-6" />
+          <div key={card.label} className="apple-card p-4 md:p-6 flex flex-col gap-3 md:gap-4">
+            <div className={`w-10 h-10 md:w-12 md:h-12 ${card.bg} rounded-xl md:rounded-2xl flex items-center justify-center ${card.color}`}>
+              <card.icon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{card.label}</p>
-              <p className="text-3xl font-bold">{card.value}</p>
+              <p className="text-[10px] md:text-sm font-medium text-muted-foreground uppercase tracking-wider">{card.label}</p>
+              <p className="text-xl md:text-3xl font-bold">{card.value}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Recent Activity */}
-      <div className="apple-card overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="text-lg font-bold">Recent Payment Intents</h3>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-lg font-bold">Recent Intents</h3>
           <Link href="/dashboard/transactions" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
             View All <ArrowUpRight className="w-3 h-3" />
           </Link>
         </div>
-        <div className="p-0">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              <tr>
-                <th className="px-6 py-4">Reference</th>
-                <th className="px-6 py-4">Amount</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {recentIntents.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground italic">
-                    No payment intents yet. Use the API to create your first one.
-                  </td>
-                </tr>
-              ) : (
-                recentIntents.map((intent) => (
-                  <tr key={intent.id} className="hover:bg-gray-50 transition-colors text-sm">
-                    <td className="px-6 py-4 font-mono font-medium text-gray-900">{intent.referenceId}</td>
-                    <td className="px-6 py-4 font-bold">₹{intent.amount.toLocaleString()}</td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${statusBadge(intent.status)}`}>
-                        {intent.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground text-xs">
+        
+        <div className="grid gap-3">
+          {recentIntents.length === 0 ? (
+            <div className="apple-card p-12 text-center text-muted-foreground italic text-sm">
+              No payment intents yet.
+            </div>
+          ) : (
+            recentIntents.map((intent) => (
+              <div key={intent.id} className="apple-card p-4 flex items-center justify-between gap-4 active:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-2 h-2 rounded-full shrink-0 ${
+                    intent.status === "SUCCESS" ? "bg-green-500" : 
+                    intent.status === "PENDING" ? "bg-yellow-500" : "bg-gray-300"
+                  }`} />
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold font-mono truncate">{intent.referenceId}</p>
+                    <p className="text-[10px] text-muted-foreground">
                       {intent.createdAt.toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-sm font-black text-gray-900">₹{intent.amount.toLocaleString()}</p>
+                  <span className={`text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full ${statusBadge(intent.status)}`}>
+                    {intent.status}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

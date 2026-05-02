@@ -47,14 +47,25 @@ export class PaymentEngine {
     }
 
     // ── 4. Select Merchant GPay Account (Enforce limits & Randomize) ─
-    const activeAccounts = keyData.merchant.gpayAccounts.filter(a => {
+    const allAccounts = keyData.merchant.gpayAccounts;
+    
+    if (allAccounts.length === 0) {
+      throw new Error("ROUTING_ERROR: No Google Pay accounts linked to this merchant.");
+    }
+
+    const activeAccounts = allAccounts.filter(a => {
       if (a.status !== "ACTIVE") return false;
       if (a.monthlyLimit > 0 && a.usedAmount >= a.monthlyLimit) return false;
       return true;
     });
-
+ 
     if (activeAccounts.length === 0) {
-      throw new Error("No active Google Pay accounts available (or all have reached their monthly limits)");
+      const atLimit = allAccounts.some(a => a.monthlyLimit > 0 && a.usedAmount >= a.monthlyLimit);
+      if (atLimit) {
+        throw new Error("ROUTING_ERROR: All linked accounts have reached their monthly processing limits.");
+      } else {
+        throw new Error("ROUTING_ERROR: All linked accounts are currently set to INACTIVE.");
+      }
     }
     const account = activeAccounts[Math.floor(Math.random() * activeAccounts.length)];
 

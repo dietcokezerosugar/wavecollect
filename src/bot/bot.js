@@ -10,7 +10,7 @@ process.env.PLAYWRIGHT_CHROMIUM_USE_HEADLESS_NEW = '1';
 const ACCOUNT_NAME = process.argv[2];
 if (!ACCOUNT_NAME) { console.error('Required bot name via args'); process.exit(1); }
 
-// Stable deterministic port based on account name
+// Deterministic port for the bot's internal control UI
 const BOT_PORT = 5000 + (parseInt(Buffer.from(ACCOUNT_NAME).toString('hex').slice(0, 4), 16) % 1000);
 
 const SESSION_DIR = path.join(__dirname, `../../.sessions/session-${ACCOUNT_NAME}`);
@@ -19,27 +19,40 @@ const DOWNLOAD_DIR = path.join(__dirname, `../../.downloads/${ACCOUNT_NAME}`);
 if (!fs.existsSync(SESSION_DIR)) fs.mkdirSync(SESSION_DIR, { recursive: true });
 if (!fs.existsSync(DOWNLOAD_DIR)) fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
 
-let accountConfig = { report_id: null, download_interval_sec: 40, email: '' };
+let accountConfig = { report_id: null, download_interval_sec: 30, email: '' };
 let engineContext = null;
 let enginePage = null;
 let engineRunning = false;
 let isInitialLoad = true;
 const knownTransactions = new Set();
 
+const startTime = new Date();
+let totalSweeps = 0;
+let webhookStats = { success: 0, failure: 0 };
+
 let statsEngineA = { captured: 0, lastCapture: null };
 let statsEngineB = { captured: 0, lastCapture: null, lastDownload: null };
 
+const cors = require('cors');
+
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 let uiClients = [];
+let recentLogs = [];
 function log(msg) { 
-    console.log(`[${new Date().toISOString()}] [${ACCOUNT_NAME}] ${msg}`); 
+    const formatted = `[${new Date().toISOString()}] [${ACCOUNT_NAME}] ${msg}`;
+    console.log(formatted); 
+    
+    recentLogs.push(formatted);
+    if (recentLogs.length > 100) recentLogs.shift();
+
     let safeMsg = `[${ACCOUNT_NAME}] ${msg}`.replace(/\n/g, '<br>');
     uiClients.forEach(client => client.write(`data: ${safeMsg}\n\n`));
 }
 
-// Fetch config from Wave Collect
+// GPay 9 Standard: Fetch configuration from Wave Collect Hub
 async function fetchConfig() {
     try {
         const res = await axios.get(`http://localhost:3000/api/bots/config?name=${encodeURIComponent(ACCOUNT_NAME)}`);
@@ -51,7 +64,7 @@ async function fetchConfig() {
     }
 }
 
-// Update report_id in Wave Collect
+// GPay 9 Standard: Auto-update discovered Merchant ID
 async function updateReportId(reportId) {
     try {
         await axios.post('http://localhost:3000/api/bots/config', {
@@ -71,17 +84,15 @@ app.get('/api/control/logs', (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
     uiClients.push(res);
-    res.write(`data: [SYSTEM] Dual-Engine stream for ${ACCOUNT_NAME}...<br>\n\n`);
     req.on('close', () => uiClients = uiClients.filter(c => c !== res));
 });
 
 function normalizeFromXHR(trx) {
-    const amt = parseFloat(trx.amount) || 0;
     return {
         externalId: trx.merchantTransactionId || '',
         utr: trx.utr || null,
         payerName: trx.payerName || 'Unknown',
-        amount: amt,
+        amount: parseFloat(trx.amount) || 0,
         payerUpiId: trx.payerUpiId || null,
         timestamp: trx.timestamp || new Date().toISOString(),
         note: trx.note || null
@@ -91,20 +102,21 @@ function normalizeFromXHR(trx) {
 async function syncToHub(rows, engine) {
     if (!rows || rows.length === 0) return;
     try {
-        const res = await axios.post('http://localhost:3000/api/v1/report', {
+        await axios.post('http://localhost:3000/api/v1/report', {
             account: ACCOUNT_NAME,
             timestamp: new Date().toISOString(),
             transactions: rows
         }, { timeout: 15000 });
-        log(`[${engine}] Synced ${rows.length} rows → Hub acknowledged`);
+        log(`[${engine}] Synced ${rows.length} rows → Hub`);
+        webhookStats.success++;
     } catch (e) {
         log(`[${engine}] Hub sync failed: ${e.message}`);
+        webhookStats.failure++;
     }
 }
 
 async function processEngineA(payload) {
     if (!payload || payload.length === 0) return;
-
     const exportRows = payload.map(trx => normalizeFromXHR(trx));
     const newOnes = payload.filter(t => !knownTransactions.has(t.merchantTransactionId));
     for (const trx of payload) { knownTransactions.add(trx.merchantTransactionId); }
@@ -113,46 +125,34 @@ async function processEngineA(payload) {
         await syncToHub(exportRows, 'ENGINE-A');
         statsEngineA.captured += newOnes.length;
         statsEngineA.lastCapture = new Date().toISOString();
-
         for (const trx of newOnes) {
-            log(`[ENGINE-A] ⚡ NEW: ₹${trx.amount} from ${trx.payerName} | ${trx.note}`);
+            log(`[ENGINE-A] ⚡ NEW: ₹${trx.amount} | ${trx.payerName} | ${trx.note}`);
         }
     } else if (isInitialLoad) {
-        log(`[ENGINE-A] Initial load: ${exportRows.length} transactions processed`);
+        log(`[ENGINE-A] Initial load complete. Tracking ${exportRows.length} historical txns.`);
     }
     isInitialLoad = false;
 }
 
 function parseCSV(text) {
     const results = [];
-    const lines = text.split(/\\r?\\n/);
+    const lines = text.split(/\r?\n/);
     if (lines.length < 1) return results;
-
-    const headers = lines[0].replace(/^\\ufeff/, '').split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    const headers = lines[0].replace(/^\ufeff/, '').split(',').map(h => h.trim().replace(/^"|"$/g, ''));
 
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
-
         const values = [];
-        let current = '';
-        let inQuotes = false;
-
+        let current = ''; let inQuotes = false;
         for (let char of line) {
             if (char === '"') inQuotes = !inQuotes;
-            else if (char === ',' && !inQuotes) {
-                values.push(current.trim().replace(/^"|"$/g, ''));
-                current = '';
-            } else {
-                current += char;
-            }
+            else if (char === ',' && !inQuotes) { values.push(current.trim().replace(/^"|"$/g, '')); current = ''; }
+            else { current += char; }
         }
         values.push(current.trim().replace(/^"|"$/g, ''));
-
         const row = {};
         headers.forEach((header, idx) => { row[header] = values[idx] || ''; });
-        
-        // Map CSV headers to Wave Collect expected format
         results.push({
             externalId: row['Transaction ID'] || '',
             payerName: row['Payer name'] || row['Payer'] || 'Unknown',
@@ -166,30 +166,18 @@ function parseCSV(text) {
 }
 
 async function runEngineB() {
-    if (!engineRunning || !enginePage) return;
-
+    if (!engineRunning || !enginePage || !accountConfig.report_id) return;
     try {
         const reportUrl = `https://pay.google.com/g4b/reports/${accountConfig.report_id}`;
         const reportPage = await engineContext.newPage();
-        
         try {
             await reportPage.goto(reportUrl, { timeout: 30000, waitUntil: 'load' });
             await reportPage.waitForTimeout(3000);
-
             await reportPage.evaluate(() => {
                 const radio = document.querySelector('input[type="radio"][value="today"]');
                 if (radio && !radio.checked) radio.click();
             });
             await reportPage.waitForTimeout(1500);
-
-            const btnLocator = reportPage.locator('button:has-text("Download report")');
-            const count = await btnLocator.count();
-
-            if (count === 0) {
-                log('[ENGINE-B] No download button found');
-                await reportPage.close();
-                return;
-            }
 
             const oldFiles = fs.readdirSync(DOWNLOAD_DIR);
             for (const file of oldFiles) fs.unlinkSync(path.join(DOWNLOAD_DIR, file));
@@ -214,30 +202,22 @@ async function runEngineB() {
                 downloadObj = firstAction;
             } else {
                 log('[ENGINE-B] Download timeout');
-                await reportPage.close();
-                return;
+                await reportPage.close(); return;
             }
 
-            const dlPath = path.join(DOWNLOAD_DIR, \`report_\${Date.now()}.csv\`);
+            const dlPath = path.join(DOWNLOAD_DIR, `report_${Date.now()}.csv`);
             await downloadObj.saveAs(dlPath);
-
             const csvText = fs.readFileSync(dlPath, 'utf-8');
             const rows = parseCSV(csvText);
-            
-            log(\`[ENGINE-B] 📄 CSV captured: \${rows.length} rows\`);
-            
+            log(`[ENGINE-B] 📄 CSV captured: ${rows.length} rows`);
             await syncToHub(rows, 'ENGINE-B'); 
             statsEngineB.captured += rows.length;
             statsEngineB.lastDownload = new Date().toISOString();
-
-            await downloadObj.delete().catch(() => {});
-            
         } finally {
             await reportPage.close().catch(() => {});
         }
-
     } catch (e) {
-        log(\`[ENGINE-B] CSV cycle error: \${e.message}\`);
+        log(`[ENGINE-B] CSV cycle error: ${e.message}`);
     }
 }
 
@@ -245,17 +225,13 @@ async function runDualPollingLoop() {
     if (!engineRunning) return;
     try {
         log('[DUAL] 🔄 Sweep cycle starting...');
-        
+        totalSweeps++;
         await enginePage.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
         log('[ENGINE-A] ⚡ XHR sweep complete');
-
-        if (statsEngineB.captured === 0 || Math.random() < 0.3) {
-            await runEngineB();
-        }
-        
-        setTimeout(runDualPollingLoop, (accountConfig.download_interval_sec || 40) * 1000);
+        if (statsEngineB.captured === 0 || Math.random() < 0.2) await runEngineB();
+        setTimeout(runDualPollingLoop, (accountConfig.download_interval_sec || 30) * 1000);
     } catch(e) {
-        log(\`[CRASH] Playwright stalled: \${e.message}. Auto-recovering...\`);
+        log(`[CRASH] Playwright stalled: ${e.message}. Recovering...`);
         engineRunning = false;
         try { await engineContext.close(); } catch(x){}
         engineContext = null; enginePage = null;
@@ -267,132 +243,88 @@ async function bootEngine() {
     await fetchConfig();
     let merchantUrl = 'https://pay.google.com/g4b/signup';
     if (accountConfig.report_id) {
-        merchantUrl = \`https://pay.google.com/g4b/transactions/\${accountConfig.report_id}\`;
+        merchantUrl = `https://pay.google.com/g4b/transactions/${accountConfig.report_id}`;
     }
 
     try {
-        log(\`🚀 Booting Dual-Engine for \${ACCOUNT_NAME}...\`);
-
+        log(`🚀 GPay 9 Engine Booting for ${ACCOUNT_NAME}...`);
+        
+        // GPay 9 Resilience: Clean up locks
         const lockPath = path.join(SESSION_DIR, 'SingletonLock');
-        const lockFile = path.join(SESSION_DIR, 'lockfile');
         if (fs.existsSync(lockPath)) fs.unlinkSync(lockPath);
-        if (fs.existsSync(lockFile)) fs.unlinkSync(lockFile);
 
         const chromePath = require('playwright').chromium.executablePath();
-
         engineContext = await chromium.launchPersistentContext(SESSION_DIR, {
-            headless: false,
+            headless: true,
             executablePath: chromePath,
             acceptDownloads: true,
             downloadsPath: DOWNLOAD_DIR,
-            ignoreDefaultArgs: ['--enable-automation'],
-            args: [
-                '--headless=new',
-                '--disable-blink-features=AutomationControlled',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--no-sandbox'
-            ]
+            args: ['--disable-blink-features=AutomationControlled', '--no-sandbox']
         });
 
         enginePage = await engineContext.newPage();
-
-        await engineContext.route('**/*', (route) => {
-            const type = route.request().resourceType();
-            if (['image', 'media', 'font'].includes(type)) return route.abort();
-            return route.continue();
-        });
-
-        enginePage.on('response', async response => {
-            if (response.url().includes('batchexecute') && response.url().includes('RPtkab')) {
-                try {
-                    if (response.status() === 200) {
-                        const body = await response.text();
-                        processEngineA(parseTransactions(body));
-                    }
-                } catch (err) {}
-            }
-        });
-
-        try {
-            await enginePage.goto(merchantUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        
+        log(`[SYSTEM] Navigating to Merchant Portal...`);
+        await enginePage.goto(merchantUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        
+        // 🛡️ SELF-HEALING: Detect if logged out
+        const currentUrl = enginePage.url();
+        if (currentUrl.includes('accounts.google.com') || await enginePage.$('text="Sign in"')) {
+            log(`[WARNING] Session expired. Triggering Self-Healing Auto-Login...`);
+            await engineContext.close();
             
-            try {
-                await enginePage.waitForURL(/BCR[A-Z0-9]{10,}/, { timeout: 15000 });
-            } catch(e) { } 
-
-            const currentUrl = enginePage.url();
-            const match = currentUrl.match(/(BCR[A-Z0-9]{10,})/);
+            const { spawnSync } = require('child_process');
+            const loginScript = path.join(__dirname, 'auto-login.js');
+            // Fetch credentials from config or env
+            const res = await axios.get(`http://localhost:3000/api/bots/config?name=${encodeURIComponent(ACCOUNT_NAME)}`);
+            const creds = res.data.data;
             
-            if (match && match[1]) {
-                if (accountConfig.report_id !== match[1]) {
-                    await updateReportId(match[1]);
-                }
-                
-                if (!currentUrl.includes('/transactions')) {
-                    log('[SYSTEM] Routing to transactions view...');
-                    await enginePage.goto(\`https://pay.google.com/g4b/transactions/\${accountConfig.report_id}\`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-                } else {
-                    log(\`[SYSTEM] Anchored to transactions page\`);
-                }
+            if (creds && creds.email && creds.password) {
+                spawnSync('node', [loginScript, ACCOUNT_NAME, creds.email, creds.password]);
+                log(`[SUCCESS] Self-healing complete. Retrying boot...`);
+                return await bootEngine(); // Retry boot after login
             } else {
-                log(\`[WARNING] Could not auto-discover Merchant ID. URL: \${currentUrl}\`);
-                if (!accountConfig.report_id) {
-                    log('[ERROR] Missing Merchant ID and auto-discovery failed. Please login.');
-                    engineRunning = false;
-                    return false;
-                }
+                log(`[CRITICAL] Cannot self-heal: Missing credentials.`);
+                return false;
             }
-        } catch (e) { log(\`[WARNING] Page goto: \${e.message}\`); }
+        }
 
-        log('[SYSTEM] ⚡ Engine A — ARMED');
-        log('[SYSTEM] 📄 Engine B — ARMED');
-        setTimeout(runDualPollingLoop, (accountConfig.download_interval_sec || 40) * 1000);
+        const match = enginePage.url().match(/(BCR[A-Z0-9]{10,})/);
+        if (match && match[1]) {
+            if (accountConfig.report_id !== match[1]) await updateReportId(match[1]);
+            log(`[SYSTEM] Session Authenticated: ${match[1]}`);
+        }
+
+        log('[SYSTEM] ⚡ Engines ARMED and MONITORING.');
+        setTimeout(runDualPollingLoop, 5000);
         return true;
     } catch (e) {
-        log(\`[CRITICAL] Boot failed: \${e.message}\`);
+        log(`[CRITICAL] Engine Boot failed: ${e.message}`);
         engineRunning = false; return false;
     }
 }
 
-app.post('/internal/wakeup', async (req, res) => {
-    log('[WAKEUP] Multi-stage sweep initiated!');
-    res.json({ ok: true });
-    if (!engineRunning || !enginePage) return;
-
-    setTimeout(async () => {
-        if (!engineRunning) return;
-        try {
-            log('[WAKEUP] Sweep #1');
-            await enginePage.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
-            
-            setTimeout(async () => {
-                await runEngineB();
-            }, 3000);
-
-            setTimeout(async () => {
-                if (!engineRunning) return;
-                try {
-                    log('[WAKEUP] Sweep #2');
-                    await enginePage.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
-                } catch(e) { log(\`[WAKEUP] Sweep #2 error: \${e.message}\`); }
-            }, 7000);
-        } catch(e) { log(\`[WAKEUP] Sweep #1 error: \${e.message}\`); }
-    }, 2000);
-});
-
 app.get('/internal/stats', (req, res) => {
-    res.json({ engineA: statsEngineA, engineB: statsEngineB, known: knownTransactions.size });
+    res.json({ 
+        engineA: statsEngineA, 
+        engineB: statsEngineB, 
+        known: knownTransactions.size,
+        recentLogs: recentLogs,
+        uptime: Math.floor((new Date() - startTime) / 1000),
+        totalSweeps,
+        webhookStats,
+        memory: process.memoryUsage().heapUsed
+    });
 });
 
 app.listen(BOT_PORT, async () => {
-    log(\`Dual-Engine Wakeup Receiver on port \${BOT_PORT}\`);
+    log(`GPay 9 Controller Active on port ${BOT_PORT}`);
     engineRunning = true;
     await bootEngine();
 });
 
 async function handleShutdown() {
-    log(\`Terminating dual-engine...\`);
+    log(`Terminating engine...`);
     if (engineContext) await engineContext.close().catch(() => {});
     process.exit(0);
 }

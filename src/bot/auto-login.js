@@ -25,127 +25,133 @@ async function run() {
     // However, Google login is less likely to block if it's a standard headful browser
     const chromePath = chromium.executablePath();
     const context = await chromium.launchPersistentContext(SESSION_DIR, {
-        headless: true, // We will run headless to keep it completely background
+        headless: true,
         executablePath: chromePath,
         args: [
             '--disable-blink-features=AutomationControlled',
             '--no-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-gpu',
             '--window-size=1280,800'
         ],
+        ignoreDefaultArgs: ['--enable-automation'],
         viewport: { width: 1280, height: 800 }
     });
 
     const page = await context.newPage();
     
-    log(`Navigating to Google Pay...`);
-    await page.goto('https://pay.google.com/g4b/signup', { waitUntil: 'networkidle' });
+    log(`Checking for existing session...`);
+    try {
+        await page.goto('https://pay.google.com/g4b/signup', { waitUntil: 'domcontentloaded', timeout: 30000 });
+        
+        // Fast check: Are we already on a dashboard or BCR URL?
+        const checkUrl = page.url();
+        if (checkUrl.includes('BCR') || checkUrl.includes('/home') || checkUrl.includes('/transactions')) {
+            log(`[SUCCESS] Session is already active. Reusing...`);
+            await context.close();
+            process.exit(0);
+        }
+    } catch (e) {
+        log(`[WARNING] Initial check timed out, attempting login...`);
+    }
 
     let loopCount = 0;
-    const maxLoops = 20; // Prevent infinite loop
+    const maxLoops = 20; 
     let isLoggedIn = false;
 
     while (loopCount < maxLoops) {
         loopCount++;
-        await page.waitForTimeout(2000); // Give page time to settle
+        await page.waitForTimeout(1500); // GPay 9 optimized delay
 
         const currentUrl = page.url();
-        log(`Current state: \${currentUrl.substring(0, 50)}...`);
+        log(`Scan: State \${loopCount}/\${maxLoops}`);
 
-        // Success Condition 1: We are on the transactions or signup page, and NOT the Google Accounts login page
-        if (currentUrl.includes('pay.google.com/g4b/signup') || currentUrl.includes('pay.google.com/g4b/transactions')) {
-            // Check if we are actually logged in (e.g. login button is missing)
-            const loginBtn = await page.$('a[href*="accounts.google.com"]');
-            if (loginBtn) {
-                log(`Clicking initial sign in button...`);
+        if (currentUrl.includes('pay.google.com/g4b/signup') || currentUrl.includes('pay.google.com/g4b/transactions') || currentUrl.includes('pay.google.com/g4b/home')) {
+            const loginBtn = await page.$('a[href*="accounts.google.com"], button:has-text("Sign in")');
+            if (loginBtn && !currentUrl.includes('home')) {
                 await loginBtn.click();
                 continue;
             }
             
-            // Check for Report ID auto-discovery
-            try {
-                await page.waitForURL(/BCR[A-Z0-9]{10,}/, { timeout: 5000 });
-                const newUrl = page.url();
-                const match = newUrl.match(/(BCR[A-Z0-9]{10,})/);
-                if (match) {
-                    log(`[SUCCESS] Auto-discovered Merchant ID: \${match[1]}`);
-                    
-                    // We can save this to the DB right here using an API call to Wave Collect
-                    const axios = require('axios');
-                    await axios.post('http://localhost:3000/api/bots/config', {
-                        name: ACCOUNT_NAME,
-                        report_id: match[1]
-                    }).catch(e => log(`Failed to save report ID: \${e.message}`));
-                }
-            } catch(e) {} // Not a dealbreaker if we don't find it immediately
-
-            log(`Successfully reached dashboard!`);
-            isLoggedIn = true;
-            break;
+            const match = page.url().match(/(BCR[A-Z0-9]{10,})/);
+            if (match || currentUrl.includes('home') || currentUrl.includes('transactions')) {
+                log(`[SUCCESS] Login verified.`);
+                isLoggedIn = true;
+                break;
+            }
         }
 
-        // Email Input
+        // Email
         const emailInput = await page.$('input[type="email"]');
         if (emailInput && await emailInput.isVisible()) {
-            log(`Found email input. Typing email...`);
+            log(`Auth: Email...`);
             await emailInput.fill(EMAIL);
+            await page.keyboard.press('Enter');
+            await page.waitForTimeout(2000);
+            continue;
+        }
+
+        // Password
+        const passInput = await page.$('input[type="password"]');
+        if (passInput && await passInput.isVisible()) {
+            log(`Auth: Password...`);
+            await passInput.fill(PASSWORD);
             await page.keyboard.press('Enter');
             await page.waitForTimeout(3000);
             continue;
         }
 
-        // Password Input
-        const passInput = await page.$('input[type="password"]');
-        if (passInput && await passInput.isVisible()) {
-            log(`Found password input. Typing password...`);
-            await passInput.fill(PASSWORD);
-            await page.keyboard.press('Enter');
-            await page.waitForTimeout(4000);
-            continue;
-        }
-
-        // Handle various Google "Skip" / "Not Now" screens
-        const buttonTexts = ['Not now', 'Skip', 'I understand', 'No thanks', 'Continue', 'Done'];
-        let clickedSkip = false;
-        
+        // Bypasses
+        const buttonTexts = ['Not now', 'Skip', 'I understand', 'No thanks', 'Continue', 'Done', 'Confirm'];
+        let clicked = false;
         for (const text of buttonTexts) {
-            try {
-                const btn = await page.getByRole('button', { name: text, exact: true });
-                if (await btn.count() > 0 && await btn.first().isVisible()) {
-                    log(`Clicking "\${text}" button to skip security/promo screen...`);
-                    await btn.first().click();
-                    clickedSkip = true;
-                    await page.waitForTimeout(3000);
-                    break;
-                }
-            } catch(e) {}
+            const btn = page.getByRole('button', { name: text, exact: true });
+            if (await btn.count() > 0 && await btn.first().isVisible()) {
+                log(`Skip: \${text}...`);
+                await btn.first().click();
+                clicked = true;
+                await page.waitForTimeout(2000);
+                break;
+            }
         }
-        
-        if (clickedSkip) continue;
+        if (clicked) continue;
 
-        // If we are stuck on a screen requiring 2FA or phone verification
-        if (await page.getByText('2-Step Verification').count() > 0 || await page.getByText('Verify it’s you').count() > 0) {
-            log(`[WARNING] Google is requesting 2FA or manual verification. The automated login is blocked.`);
-            log(`[WARNING] Please use the Manual Login fallback in the dashboard.`);
+        if (await page.getByText('2-Step Verification').count() > 0 || 
+            await page.getByText('Verify it’s you').count() > 0) {
+            log(`[WARNING] Manual verification required.`);
             break;
         }
-        
-        // If we get here, we might just be waiting for a redirect
     }
 
     if (isLoggedIn) {
-        log(`[SUCCESS] Automated login complete! Session saved to VPS.`);
+        log(`[SUCCESS] Bot linking complete.`);
+        
+        // GPay 9 Auto-Start Sequence
+        try {
+            log(`[SYSTEM] Initiating GPay 9 boot sequence for ${ACCOUNT_NAME}...`);
+            const { exec } = require('child_process');
+            const ecosystemPath = path.join(__dirname, '../../ecosystem.config.js');
+            const cmd = `pm2 start "${ecosystemPath}" --only "gpay-${ACCOUNT_NAME}"`;
+            
+            exec(cmd, (err) => {
+                if (err) log(`[ERROR] GPay 9 boot failed: ${err.message}`);
+                else log("[SUCCESS] GPay 9 Engine is now LIVE and monitoring.");
+            });
+        } catch (e) {
+            log("[ERROR] Failed to initiate bot boot.");
+        }
+
         await context.close();
         process.exit(0);
     } else {
-        log(`[ERROR] Automated login failed. Please use Manual Login.`);
+        const errorPath = path.join(SESSION_DIR, 'error-snapshot.png');
+        await page.screenshot({ path: errorPath });
+        log(`[ERROR] Automatic linking failed.`);
         await context.close();
         process.exit(1);
     }
 }
 
 run().catch(async (e) => {
-    log(`[CRITICAL] Script crashed: \${e.message}`);
+    log(`[CRITICAL] Engine Crash: ${e.message}`);
     process.exit(1);
 });
