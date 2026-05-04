@@ -136,7 +136,7 @@ export default function AnalyticsPage() {
                             return (
                               <div className="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-2xl">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">{payload[0].payload.fullDate}</p>
-                                <p className="text-base font-black">₹{payload[0].value.toLocaleString()}</p>
+                                <p className="text-base font-black">₹{Number(payload[0].value || 0).toLocaleString()}</p>
                               </div>
                             );
                           }

@@ -36,6 +36,8 @@ model Merchant {
   webhookSecret    String?          // HMAC signing secret
   redirectUrl      String?          
   trialEndsAt      DateTime?        
+  telegramBotToken String?          
+  telegramChatId   String?          
   
   disableWallet    Boolean          @default(false) // If true, merchant can process payments without balance
   

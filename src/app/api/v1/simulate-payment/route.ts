@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toISOString(),
     };
 
-    await logApi("INFO", "Simulating payment detection", { orderId: order_id, fakeTxn });
+    await logApi("INFO", "Simulating payment detection", intent.merchantId, { orderId: order_id, fakeTxn });
     await MatchingEngine.onTransactionDetected(fakeTxn);
 
     // Re-fetch to confirm
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error: any) {
-    await logApi("ERROR", "Simulate payment failed", { error: error.message });
+    await logApi("ERROR", "Simulate payment failed", undefined, { error: error.message });
     return NextResponse.json({ status: "failure", message: error.message }, { status: 500 });
   }
 }

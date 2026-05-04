@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
       // 1. Webhook
       if (merchant.webhookUrl) {
         const { WebhookService } = await import("@/services/notifications/WebhookService");
-        WebhookService.dispatch(merchant.webhookUrl, {
+        WebhookService.dispatch(merchantId, merchant.webhookUrl, {
           event: "payment.success",
           status: "SUCCESS",
           amount: intent.amount,

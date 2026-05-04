@@ -65,7 +65,7 @@ export class MatchingEngine {
               ? `Amount mismatch: expected ₹${potentialIntent.amount}, got ₹${txn.amount}`
               : `Order already in status: ${potentialIntent.status}`;
             
-            await logApi("WARNING", `Floating payment detected (${reason})`, { 
+            await logApi("WARNING", `Floating payment detected (${reason})`, potentialIntent.merchantId, { 
               txnId: txn.externalId, 
               note: txn.note 
             });
@@ -118,14 +118,14 @@ export class MatchingEngine {
       });
 
       if (!matchResult) {
-        await logApi("WARN", "No matching intent for note", { txnId: txn.externalId, note: txn.note });
+        await logApi("WARNING", "No matching intent for note", undefined, { txnId: txn.externalId, note: txn.note });
         return true;
       }
 
       const intent = matchResult;
       console.log(`[MatchingEngine] MATCH! Intent ${intent.id} ← Txn ${txn.externalId}`);
 
-      await logApi("INFO", "Payment matched and verified", {
+      await logApi("INFO", "Payment matched and verified", intent.merchantId, {
         intentId: intent.id,
         txnId: newTxn.externalId,
         amount: txn.amount,
@@ -155,11 +155,11 @@ export class MatchingEngine {
             timestamp: new Date().toISOString(),
           });
         }).catch((err) =>
-          logApi("ERROR", "Webhook dispatch failed", { intentId: intent.id, error: err.message })
+          logApi("ERROR", "Webhook dispatch failed", intent.merchantId, { intentId: intent.id, error: err.message })
         );
       }
     } catch (e: any) {
-      logApi("ERROR", "Matching engine error", { txnId: txn.externalId, error: e.message });
+      logApi("ERROR", "Matching engine error", undefined, { txnId: txn.externalId, error: e.message });
       return true; // We saved the txn, but matching failed
     }
     

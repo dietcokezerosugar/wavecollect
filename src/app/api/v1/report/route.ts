@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "failure", message: "Invalid payload" }, { status: 400 });
     }
 
-    await logApi("INFO", "Received bot report", { account, count: transactions.length });
+    await logApi("INFO", "Received bot report", undefined, { account, count: transactions.length });
 
     let newCount = 0;
     for (const trx of transactions) {
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ status: "success", newCount });
   } catch (error: any) {
-    await logApi("ERROR", "Bot report processing failed", { error: error.message });
+    await logApi("ERROR", "Bot report processing failed", undefined, { error: error.message });
     return NextResponse.json({ status: "failure", message: error.message }, { status: 500 });
   }
 }

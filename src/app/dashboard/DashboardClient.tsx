@@ -253,7 +253,7 @@ function DashboardCard({ label, value, sub, icon, color }: any) {
     <div className={`bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-slate-300 transition-all group relative overflow-hidden`}>
       <div className="flex flex-col gap-4 relative z-10">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shadow-sm ${colors[color]}`}>
-          {React.cloneElement(icon as React.ReactElement, { size: 20 })}
+          {React.cloneElement(icon as React.ReactElement<any>, { size: 20 })}
         </div>
         <div>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">{label}</p>

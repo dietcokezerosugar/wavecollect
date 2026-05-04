@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
           reference_id: updatedIntent.referenceId,
           utr: utr,
           timestamp: new Date().toISOString()
-        }).catch(err => console.error("[ManualWebhook] Failed:", err.message));
+        }).catch((err: any) => console.error("[ManualWebhook] Failed:", err.message));
       }
     }
 

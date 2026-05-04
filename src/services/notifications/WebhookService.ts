@@ -38,7 +38,7 @@ export class WebhookService {
       status = response.status;
       isSuccess = true;
       
-      await logApi("INFO", "Webhook delivered successfully", {
+      await logApi("INFO", "Webhook delivered successfully", merchantId, {
         url,
         referenceId: payload.reference_id,
         status,
@@ -49,7 +49,7 @@ export class WebhookService {
       status = error.response?.status || 500;
       responseBody = JSON.stringify(error.response?.data || error.message).substring(0, 500);
       
-      await logApi("ERROR", "Webhook delivery failed", {
+      await logApi("ERROR", "Webhook delivery failed", merchantId, {
         url,
         referenceId: payload.reference_id,
         error: responseBody,

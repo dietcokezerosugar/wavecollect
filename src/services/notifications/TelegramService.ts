@@ -17,7 +17,7 @@ export class TelegramService {
       });
       console.log(`[TelegramService] Message sent to ${chatId}`);
     } catch (error: any) {
-      await logApi("ERROR", "Telegram notification failed", {
+      await logApi("ERROR", "Telegram notification failed", undefined, {
         chatId,
         error: error.response?.data || error.message,
       });

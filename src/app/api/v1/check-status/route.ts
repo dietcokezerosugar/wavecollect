@@ -68,7 +68,7 @@ async function getStatus(req: NextRequest) {
       }, { status: 404 });
     }
 
-    await logApi("INFO", "External API: Check Status", { orderId: order_id, status: intent.status });
+    await logApi("INFO", "External API: Check Status", keyData.merchantId, { orderId: order_id, status: intent.status });
 
     return NextResponse.json({
       status: "success",
@@ -92,7 +92,7 @@ async function getStatus(req: NextRequest) {
       },
     });
   } catch (error: any) {
-    await logApi("ERROR", "External API: Check Status Failure", { error: error.message });
+    await logApi("ERROR", "External API: Check Status Failure", undefined, { error: error.message });
     return NextResponse.json({ 
       status: "failure", 
       error: "INTERNAL_ERROR",
