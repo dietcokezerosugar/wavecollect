@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest, { params }: { params: { token: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   
   const intent = await prisma.paymentIntent.findUnique({

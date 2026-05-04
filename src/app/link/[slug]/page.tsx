@@ -4,7 +4,7 @@ import { PaymentEngine } from "@/services/payment-engine/PaymentEngine";
 import { Zap } from "lucide-react";
 import Image from "next/image";
 
-export default async function PaymentLinkPage({ params }: { params: { slug: string } }) {
+export default async function PaymentLinkPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
   const link = await prisma.paymentLink.findUnique({

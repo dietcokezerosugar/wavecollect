@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-export default async function PaymentPage({ params }: { params: { token: string } }) {
+export default async function PaymentPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
 
   // Verify the token exists before redirecting
