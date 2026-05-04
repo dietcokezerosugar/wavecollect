@@ -13,6 +13,7 @@ async function main() {
       id: merchantId,
       name: "Wave Collect Dev",
       businessName: "Wave Collect Payments",
+      email: "admin@wavecollect.com",
       redirectUrl: "http://localhost:3000/callback",
       webhookUrl: "http://localhost:3000/api/webhook-test",
     },
