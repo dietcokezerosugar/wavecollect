@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 /**
  * GET: Fetch merchant's own transactions
  */
 export async function GET(req: NextRequest) {
   try {
-    const merchant = await prisma.merchant.findFirst();
-    if (!merchant) return NextResponse.json({ status: "success", data: [] });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.merchantId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const merchantId = session.user.merchantId;
 
     const { searchParams } = new URL(req.url);
     const statusFilter = searchParams.get("status");
     const search = searchParams.get("search");
 
-    const where: any = { merchantId: merchant.id };
+    const where: any = { merchantId };
     if (statusFilter && statusFilter !== "ALL") {
       where.status = statusFilter;
     }
@@ -43,7 +49,13 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const merchant = await prisma.merchant.findFirst();
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.merchantId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const merchantId = session.user.merchantId;
+    const merchant = await prisma.merchant.findUnique({ where: { id: merchantId } });
     if (!merchant) return NextResponse.json({ error: "No merchant found" }, { status: 404 });
 
     const { id, status, utr, note } = await req.json();
@@ -54,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     // Verify the intent belongs to this merchant
     const intent = await prisma.paymentIntent.findFirst({
-      where: { id, merchantId: merchant.id },
+      where: { id, merchantId },
     });
 
     if (!intent) {

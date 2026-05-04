@@ -1,29 +1,29 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET() {
   try {
-    const merchant = await prisma.merchant.findFirst();
-    if (!merchant) return NextResponse.json({ status: "success", data: [] });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.merchantId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    // 1. Fetch Latest Intents (Matched or Pending)
+    const merchantId = session.user.merchantId;
+
+    // 1. Fetch Latest Intents (Matched or Pending) for this merchant
     const intents = await prisma.paymentIntent.findMany({
-      where: { merchantId: merchant.id },
+      where: { merchantId },
       orderBy: { createdAt: "desc" },
       take: 15,
       include: { transaction: true },
     });
 
     // 2. Fetch Recent Transactions that are NOT linked to an intent (Orphans)
-    // In our schema, Transaction.paymentIntent is the reverse relation.
-    // We'll find txns where no intent points to them.
-    const unlinkedTxns = await prisma.transaction.findMany({
-      where: {
-        paymentIntent: null
-      },
-      orderBy: { timestamp: "desc" },
-      take: 5
-    });
+    // NOTE: In multi-tenant mode, we can only show orphans if they belong to the merchant's bot.
+    // Since the current Transaction model lacks merchantId, we disable orphans for now to ensure 100% isolation.
+    const unlinkedTxns: any[] = [];
 
     // 3. Merge and Sort
     const activity = [

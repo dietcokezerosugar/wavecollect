@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { subDays, format, startOfDay, endOfDay } from "date-fns";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET() {
   try {
-    const merchant = await prisma.merchant.findFirst();
-    if (!merchant) return NextResponse.json({ status: "success", data: {} });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.merchantId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const merchantId = session.user.merchantId;
 
     // 1. Revenue by Day (Last 7 Days)
     const revenueByDay = [];
@@ -16,7 +22,7 @@ export async function GET() {
 
       const successIntents = await prisma.paymentIntent.findMany({
         where: {
-          merchantId: merchant.id,
+          merchantId: merchantId,
           status: "SUCCESS",
           createdAt: { gte: start, lte: end },
         },
@@ -33,7 +39,7 @@ export async function GET() {
 
     // 2. Recent Intents (for the Pulse)
     const recentIntents = await prisma.paymentIntent.findMany({
-      where: { merchantId: merchant.id },
+      where: { merchantId: merchantId },
       orderBy: { createdAt: "desc" },
       take: 5,
     });

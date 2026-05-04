@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 /**
  * GET: List merchant's own IP whitelist requests
  */
 export async function GET() {
   try {
-    const merchant = await prisma.merchant.findFirst();
-    if (!merchant) return NextResponse.json({ status: "success", data: [], currentIps: "" });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.merchantId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const merchantId = session.user.merchantId;
+    const merchant = await prisma.merchant.findUnique({ where: { id: merchantId } });
+    if (!merchant) return NextResponse.json({ error: "No merchant found" }, { status: 404 });
 
     const requests = await prisma.ipWhitelistRequest.findMany({
-      where: { merchantId: merchant.id },
+      where: { merchantId },
       orderBy: { createdAt: "desc" },
     });
 
@@ -29,8 +37,12 @@ export async function GET() {
  */
 export async function POST(req: NextRequest) {
   try {
-    const merchant = await prisma.merchant.findFirst();
-    if (!merchant) return NextResponse.json({ error: "No merchant found" }, { status: 404 });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.merchantId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const merchantId = session.user.merchantId;
 
     const body = await req.json();
     let { ipAddress, webhookUrl, acceptedTerms } = body;
@@ -51,7 +63,7 @@ export async function POST(req: NextRequest) {
 
     // Check if already requested
     const existing = await prisma.ipWhitelistRequest.findFirst({
-      where: { merchantId: merchant.id, ipAddress: ipAddress.trim(), status: "PENDING" },
+      where: { merchantId, ipAddress: ipAddress.trim(), status: "PENDING" },
     });
 
     if (existing) {
@@ -60,7 +72,7 @@ export async function POST(req: NextRequest) {
 
     const request = await prisma.ipWhitelistRequest.create({
       data: {
-        merchantId: merchant.id,
+        merchantId,
         ipAddress: ipAddress.trim(),
         webhookUrl: webhookUrl || null,
         acceptedTerms: true,

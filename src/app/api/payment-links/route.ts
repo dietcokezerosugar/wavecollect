@@ -1,20 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET() {
-  const merchant = await prisma.merchant.findFirst();
-  if (!merchant) return NextResponse.json({ status: "success", data: [] });
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user?.merchantId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const merchantId = session.user.merchantId;
 
   const links = await prisma.paymentLink.findMany({
-    where: { merchantId: merchant.id },
+    where: { merchantId, isActive: true },
     orderBy: { createdAt: "desc" },
   });
   return NextResponse.json({ status: "success", data: links });
 }
 
 export async function POST(req: NextRequest) {
-  const merchant = await prisma.merchant.findFirst();
-  if (!merchant) return NextResponse.json({ status: "failure", message: "No merchant found" }, { status: 404 });
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user?.merchantId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const merchantId = session.user.merchantId;
 
   const body = await req.json();
   const { title, amount, description } = body;
@@ -23,9 +31,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ status: "failure", message: "title and amount required" }, { status: 400 });
   }
 
-  // Get the first active API key for this merchant
   const apiKey = await prisma.apiKey.findFirst({
-    where: { merchantId: merchant.id, isBlocked: false },
+    where: { merchantId, isBlocked: false },
   });
 
   if (!apiKey) {
@@ -39,7 +46,7 @@ export async function POST(req: NextRequest) {
 
   const link = await prisma.paymentLink.create({
     data: {
-      merchantId: merchant.id,
+      merchantId,
       title,
       amount: parseFloat(amount),
       description: description || null,
@@ -52,11 +59,26 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user?.merchantId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const merchantId = session.user.merchantId;
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
 
   if (!id) {
     return NextResponse.json({ status: "failure", message: "Missing id" }, { status: 400 });
+  }
+
+  // Verify ownership before "deleting" (marking inactive)
+  const link = await prisma.paymentLink.findFirst({
+    where: { id, merchantId }
+  });
+
+  if (!link) {
+    return NextResponse.json({ error: "Link not found or unauthorized" }, { status: 404 });
   }
 
   await prisma.paymentLink.update({

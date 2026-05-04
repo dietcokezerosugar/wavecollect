@@ -54,10 +54,15 @@ function log(msg) {
     uiClients.forEach(client => client.write(`data: ${safeMsg}\n\n`));
 }
 
+const HUB_URL = process.env.HUB_URL || 'http://localhost:3000';
+const BOT_SECRET = process.env.BOT_SYSTEM_SECRET || 'wave_collect_bridge_secret_998877';
+
 // GPay 9 Standard: Fetch configuration from Wave Collect Hub
 async function fetchConfig() {
     try {
-        const res = await axios.get(`http://localhost:3000/api/bots/config?name=${encodeURIComponent(ACCOUNT_NAME)}`);
+        const res = await axios.get(`${HUB_URL}/api/bots/config?name=${encodeURIComponent(ACCOUNT_NAME)}`, {
+            headers: { "x-bot-secret": BOT_SECRET }
+        });
         if (res.data.data) {
             accountConfig = res.data.data;
         }
@@ -69,9 +74,11 @@ async function fetchConfig() {
 // GPay 9 Standard: Auto-update discovered Merchant ID
 async function updateReportId(reportId) {
     try {
-        await axios.post('http://localhost:3000/api/bots/config', {
+        await axios.post(`${HUB_URL}/api/bots/config`, {
             name: ACCOUNT_NAME,
             report_id: reportId
+        }, {
+            headers: { "x-bot-secret": BOT_SECRET }
         });
         log(`[SYSTEM] 🎯 Auto-discovered & saved Merchant ID: ${reportId}`);
         accountConfig.report_id = reportId;
@@ -104,14 +111,15 @@ function normalizeFromXHR(trx) {
 async function syncToHub(rows, engine) {
     if (!rows || rows.length === 0) return;
     try {
-        await axios.post('http://localhost:3000/api/v1/report', {
+        await axios.post(`${HUB_URL}/api/v1/report`, {
             account: ACCOUNT_NAME,
             timestamp: new Date().toISOString(),
             transactions: rows
         }, { 
             timeout: 15000,
             headers: {
-                'Authorization': `Bearer ${process.env.INTERNAL_BOT_SECRET}`
+                'Authorization': `Bearer ${BOT_SECRET}`,
+                'x-bot-secret': BOT_SECRET
             }
         });
         log(`[${engine}] Synced ${rows.length} rows → Hub`);
@@ -328,7 +336,9 @@ async function bootEngine() {
             const { spawnSync } = require('child_process');
             const loginScript = path.join(__dirname, 'auto-login.js');
             // Fetch credentials from config or env
-            const res = await axios.get(`http://localhost:3000/api/bots/config?name=${encodeURIComponent(ACCOUNT_NAME)}`);
+            const res = await axios.get(`${HUB_URL}/api/bots/config?name=${encodeURIComponent(ACCOUNT_NAME)}`, {
+                headers: { "x-bot-secret": BOT_SECRET }
+            });
             const creds = res.data.data;
             
             if (creds && creds.email && creds.password) {

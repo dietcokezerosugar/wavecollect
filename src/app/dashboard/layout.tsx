@@ -20,10 +20,12 @@ import {
   Search,
   Book,
   ShieldCheck,
-  Wallet
+  Wallet,
+  LogOut
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { signOut } from "next-auth/react";
 
 export default function DashboardLayout({
   children,
@@ -327,7 +329,14 @@ export default function DashboardLayout({
           </div>
         </nav>
 
-        <div className="p-4 border-t border-slate-50">
+        <div className="p-4 border-t border-slate-50 space-y-2">
+           <button 
+             onClick={() => signOut({ callbackUrl: "/login" })}
+             className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+           >
+             <LogOut className="w-4 h-4" />
+             Sign Out
+           </button>
            <div className="px-3 py-2.5 rounded-xl bg-slate-50 flex items-center justify-between border border-slate-100 shadow-inner">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security</span>
               <div className={`w-1.5 h-1.5 rounded-full ${

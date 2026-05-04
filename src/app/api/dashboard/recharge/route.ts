@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PaymentEngine } from "@/services/payment-engine/PaymentEngine";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,11 +12,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Minimum recharge amount is ₹1" }, { status: 400 });
     }
 
-    // SaaS: In production, get merchantId from auth session
-    const merchant = await prisma.merchant.findFirst(); 
-    if (!merchant) return NextResponse.json({ error: "Merchant not found" }, { status: 404 });
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.merchantId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    const intent = await PaymentEngine.createRechargeIntent(merchant.id, amount);
+    const merchantId = session.user.merchantId;
+
+    const intent = await PaymentEngine.createRechargeIntent(merchantId, amount);
 
     return NextResponse.json({ 
       success: true, 

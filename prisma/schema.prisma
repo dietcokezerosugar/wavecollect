@@ -33,7 +33,9 @@ model Merchant {
   ipWhitelist      String?          // Comma separated IPs
   webhookWhitelist String?          // Optional: restricted webhook origins
   webhookUrl       String?          
+  webhookSecret    String?          // HMAC signing secret
   redirectUrl      String?          
+  trialEndsAt      DateTime?        
   
   disableWallet    Boolean          @default(false) // If true, merchant can process payments without balance
   
@@ -166,6 +168,9 @@ model GooglePayAccount {
   upiId          String
   reportId       String?
   status         String    @default("ACTIVE")
+  desiredStatus  String    @default("STOP") // START, STOP, LOGIN_AUTO, LOGIN_MANUAL
+  botPassword    String?   // For remote auto-login
+  lastHeartbeat  DateTime?
   lastSync       DateTime?
   
   isAdmin        Boolean   @default(false) 
