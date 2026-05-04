@@ -166,7 +166,7 @@ export default function DocsPage() {
     intent: {
       NODE: `const axios = require('axios');
 
-const response = await axios.post('https://api.wavecollect.com/v1/create-intent', {
+const response = await axios.post('https://payxmint.com/v1/create-intent', {
   amount: 500.00,
   order_id: "ORD_12345",
   customer_mobile: "9988776655",
@@ -179,7 +179,7 @@ const response = await axios.post('https://api.wavecollect.com/v1/create-intent'
       PHP: `<?php
 $curl = curl_init();
 curl_setopt_array($curl, [
-  CURLOPT_URL => "https://api.wavecollect.com/v1/create-intent",
+  CURLOPT_URL => "https://payxmint.com/v1/create-intent",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_POST => true,
   CURLOPT_POSTFIELDS => json_encode([
@@ -193,7 +193,7 @@ curl_setopt_array($curl, [
 ]);`,
       PYTHON: `import requests
 
-url = "https://api.wavecollect.com/v1/create-intent"
+url = "https://payxmint.com/v1/create-intent"
 payload = {
     "amount": 500.00,
     "order_id": "ORD_12345"

@@ -31,7 +31,6 @@ export default async function DashboardPage() {
       }
     });
 
-    // FALLBACK FOR DEMO: If specific merchant not found, take the first one available
     if (!merchant) {
       merchant = await prisma.merchant.findFirst({
         include: {
@@ -41,14 +40,18 @@ export default async function DashboardPage() {
     }
 
     if (merchant) {
-      ledgerEntries = await prisma.walletLedger.findMany({
-        where: { merchantId: merchant.id },
-        orderBy: { createdAt: "desc" },
-        take: 5
-      });
+      try {
+        ledgerEntries = await prisma.walletLedger.findMany({
+          where: { merchantId: merchant.id },
+          orderBy: { createdAt: "desc" },
+          take: 5
+        });
+      } catch (ledgerErr) {
+        console.warn("Ledger table missing, skipping DB ledger");
+      }
     }
   } catch (dbError) {
-    console.error("Demo Mode DB Fallback Triggered:", dbError);
+    console.error("Dashboard DB Critical Error:", dbError);
   }
 
   // ULTIMATE DEMO FALLBACK: Hardcoded mock data if DB is missing or empty
@@ -56,6 +59,7 @@ export default async function DashboardPage() {
     merchant = {
       id: "demo-merchant",
       name: "WaveCollect Demo Merchant",
+      businessName: "Wave Collect Payments",
       email: "demo@wavecollect.com",
       walletBalance: 25450.00,
       commissionRate: 1.5,

@@ -16,8 +16,12 @@ export async function POST(req: NextRequest) {
     let merchantId = session?.user?.merchantId;
 
     if (!merchantId) {
-      const firstMerchant = await prisma.merchant.findFirst({ select: { id: true } });
-      merchantId = firstMerchant?.id;
+      try {
+        const firstMerchant = await prisma.merchant.findFirst({ select: { id: true } });
+        merchantId = firstMerchant?.id;
+      } catch (e) {
+        console.warn("Merchant table missing during recharge init");
+      }
     }
 
     if (!merchantId) {

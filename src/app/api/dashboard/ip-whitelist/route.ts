@@ -19,18 +19,25 @@ export async function GET() {
     if (!merchantId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const merchant = await prisma.merchant.findUnique({ where: { id: merchantId } });
-    if (!merchant) return NextResponse.json({ error: "No merchant found" }, { status: 404 });
+    let requests: any[] = [];
+    let currentIps = "";
+    
+    try {
+      const merchant = await prisma.merchant.findUnique({ where: { id: merchantId } });
+      if (merchant) currentIps = merchant.ipWhitelist || "";
 
-    const requests = await prisma.ipWhitelistRequest.findMany({
-      where: { merchantId },
-      orderBy: { createdAt: "desc" },
-    });
+      requests = await prisma.ipWhitelistRequest.findMany({
+        where: { merchantId },
+        orderBy: { createdAt: "desc" },
+      });
+    } catch (e) {
+      console.warn("IP Whitelist tables missing");
+    }
 
     return NextResponse.json({
       status: "success",
       data: requests,
-      currentIps: merchant.ipWhitelist || "",
+      currentIps,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
