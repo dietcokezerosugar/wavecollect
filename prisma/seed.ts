@@ -42,7 +42,34 @@ async function main() {
     },
   });
 
-  console.log({ merchant, apiKey, gpayAccount });
+  // Create Admin User
+  const bcrypt = require("bcrypt");
+  const hashedPassword = await bcrypt.hash("admin123", 10);
+
+  const adminUser = await prisma.user.upsert({
+    where: { email: "admin@wavecollect.com" },
+    update: {},
+    create: {
+      email: "admin@wavecollect.com",
+      password: hashedPassword,
+      name: "System Admin",
+      role: "ADMIN",
+    },
+  });
+
+  const merchantUser = await prisma.user.upsert({
+    where: { email: "merchant@wavecollect.com" },
+    update: {},
+    create: {
+      email: "merchant@wavecollect.com",
+      password: hashedPassword,
+      name: "Test Merchant",
+      role: "MERCHANT",
+      merchantId: merchant.id,
+    },
+  });
+
+  console.log({ merchant, apiKey, gpayAccount, adminUser, merchantUser });
 }
 
 main()
