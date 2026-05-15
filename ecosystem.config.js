@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "wavecollect-web",
+      name: "payxmint-web",
       script: "npm",
       args: "start",
       cwd: "./",
@@ -14,7 +14,7 @@ module.exports = {
       max_memory_restart: "1G", // Prevent Next.js from leaking
     },
     {
-      name: "wavecollect-bot-fleet",
+      name: "payxmint-bot-fleet",
       script: "./src/bot/bot.js",
       cwd: "./",
       env: {

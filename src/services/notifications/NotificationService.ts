@@ -41,7 +41,7 @@ export class NotificationService {
 <b>UTR:</b> <code>${utr || "N/A"}</code>
 <b>Status:</b> SUCCESS ✅
 ────────────────────
-<i>Wave Collect SaaS Engine</i>`;
+<i>PayxMint SaaS Engine</i>`;
 
     // Send to merchant's own Telegram if configured
     if (merchant.telegramChatId) {

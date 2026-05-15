@@ -31,7 +31,7 @@ export class WebhookService {
         timeout: 10000,
         headers: {
           "Content-Type": "application/json",
-          "User-Agent": "WaveCollect-Webhook-Dispatcher/1.0",
+          "User-Agent": "PayxMint-Webhook-Dispatcher/1.0",
         },
       });
 

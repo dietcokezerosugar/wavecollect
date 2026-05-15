@@ -74,7 +74,7 @@ export default function TransactionsPage() {
       UTR: t.transaction?.utr,
       Date: new Date(t.createdAt).toLocaleString()
     }));
-    exportToCSV(`WaveCollect_Activity_${new Date().toISOString().slice(0,10)}.csv`, dataToExport);
+    exportToCSV(`PayxMint_Activity_${new Date().toISOString().slice(0,10)}.csv`, dataToExport);
   };
 
   function statusIcon(status: string) {

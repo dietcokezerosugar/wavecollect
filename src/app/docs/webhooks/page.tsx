@@ -7,7 +7,7 @@ export default function WebhooksDocs() {
       <section className="space-y-6">
         <h1 className="text-4xl font-black text-slate-900 tracking-tight">Webhooks</h1>
         <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-2xl">
-          Webhooks are the primary way WaveCollect notifies your server about payment events. We send an HTTP POST request to your URL whenever a transaction status changes.
+          Webhooks are the primary way PayxMint notifies your server about payment events. We send an HTTP POST request to your URL whenever a transaction status changes.
         </p>
       </section>
 
@@ -61,7 +61,7 @@ export default function WebhooksDocs() {
           <h2 className="text-xl font-black">Security & Verification</h2>
         </div>
         <p className="text-sm text-slate-600 font-medium leading-relaxed">
-          To ensure webhooks are coming from WaveCollect, always verify the <code className="bg-white px-1.5 py-0.5 rounded border border-slate-300 text-blue-600">X-Wave-Signature</code> header. This is an HMAC-SHA256 hash of the payload using your Webhook Secret.
+          To ensure webhooks are coming from PayxMint, always verify the <code className="bg-white px-1.5 py-0.5 rounded border border-slate-300 text-blue-600">X-Wave-Signature</code> header. This is an HMAC-SHA256 hash of the payload using your Webhook Secret.
         </p>
         
         <div className="space-y-4">

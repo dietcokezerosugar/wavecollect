@@ -170,7 +170,7 @@ export class PaymentEngine {
     const orderId = `RCG_${Math.floor(Date.now() / 1000)}_${Math.floor(Math.random() * 1000)}`;
     const upiParams = new URLSearchParams({
       pa: account.upiId,
-      pn: "WaveCollect SaaS",
+      pn: "PayxMint SaaS",
       am: amount.toFixed(2),
       tid: orderId,
       tr: orderId,

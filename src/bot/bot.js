@@ -63,7 +63,7 @@ function log(msg) {
 const HUB_URL = process.env.HUB_URL || 'http://localhost:3000';
 const BOT_SECRET = process.env.INTERNAL_BOT_SECRET || 'wave_collect_bridge_secret_998877';
 
-// GPay 9 Standard: Fetch configuration from Wave Collect Hub
+// GPay 9 Standard: Fetch configuration from PayxMint Hub
 async function fetchConfig() {
     try {
         const res = await axios.get(`${HUB_URL}/api/bots/config?name=${encodeURIComponent(ACCOUNT_NAME)}`, {

@@ -96,12 +96,12 @@ export async function POST(req: NextRequest) {
   }
 
   // Pool accounts need a placeholder merchant — use the first admin merchant or create one
-  let platformMerchant = await prisma.merchant.findFirst({ where: { email: "platform@wavecollect.com" } });
+  let platformMerchant = await prisma.merchant.findFirst({ where: { email: "platform@payxmint.com" } });
   if (!platformMerchant) {
     platformMerchant = await prisma.merchant.create({
       data: {
         name: "Platform Pool",
-        email: "platform@wavecollect.com",
+        email: "platform@payxmint.com",
         status: "ACTIVE",
       }
     });

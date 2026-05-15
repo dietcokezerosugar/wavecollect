@@ -7,7 +7,7 @@ export default function AuthenticationDocs() {
       <section className="space-y-6">
         <h1 className="text-4xl font-black text-slate-900 tracking-tight">Authentication</h1>
         <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-2xl">
-          WaveCollect uses API Keys to authenticate requests. All API requests must be made over HTTPS.
+          PayxMint uses API Keys to authenticate requests. All API requests must be made over HTTPS.
         </p>
       </section>
 

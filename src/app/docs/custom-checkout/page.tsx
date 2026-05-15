@@ -16,7 +16,7 @@ export default function CustomCheckoutDocs() {
           <Zap size={14} className="fill-indigo-600" /> Version 1.0.0
         </div>
         <div className="bg-slate-900 p-4 rounded-xl font-mono text-sm text-white">
-          &lt;script src="https://wavecollect.app/wave-sdk.js"&gt;&lt;/script&gt;
+          &lt;script src="https://payxmint.com/wave-sdk.js"&gt;&lt;/script&gt;
         </div>
       </section>
 
@@ -29,26 +29,26 @@ export default function CustomCheckoutDocs() {
              </div>
              <pre className="text-blue-400 font-mono text-[12px] leading-relaxed overflow-x-auto">
                 <code>{`// 1. Initialize with the payment token from Create Intent API
-WaveCollect.init("tok_abc123");
-WaveCollect.setBaseUrl("https://wavecollect.app"); // Point to production API
+PayxMint.init("tok_abc123");
+PayxMint.setBaseUrl("https://payxmint.com"); // Point to production API
 
 // 2. Fetch details to build your UI
-const details = await WaveCollect.getDetails();
+const details = await PayxMint.getDetails();
 console.log("Paying to:", details.merchant_name);
 console.log("Amount:", details.amount);
 
 // 3. Set up event handlers
-WaveCollect.onSuccess((data) => {
+PayxMint.onSuccess((data) => {
   alert("Payment Verified! UTR: " + data.utr);
   window.location.href = data.redirect_url;
 });
 
-WaveCollect.onExpire(() => {
+PayxMint.onExpire(() => {
   alert("Session Expired");
 });
 
 // 4. Start automatic polling
-WaveCollect.mount();`}</code>
+PayxMint.mount();`}</code>
              </pre>
           </div>
         </div>

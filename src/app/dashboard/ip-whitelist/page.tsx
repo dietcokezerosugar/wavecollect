@@ -145,11 +145,11 @@ export default function MerchantIpWhitelistPage() {
                       <span className="text-[10px] font-black uppercase tracking-widest">Legal Disclosure</span>
                     </div>
                     <div className="h-32 overflow-y-auto text-[11px] text-slate-500 font-medium leading-relaxed pr-2 custom-scrollbar">
-                      <p className="mb-2">1. You authorize WaveCollect to access and automate your Google Pay Business account via headless browser technology on your behalf.</p>
+                      <p className="mb-2">1. You authorize PayxMint to access and automate your Google Pay Business account via headless browser technology on your behalf.</p>
                       <p className="mb-2">2. You confirm that all account credentials and data shared are your own, and you have the legal right to use this automation service.</p>
-                      <p className="mb-2">3. You agree that WaveCollect is not responsible for any Google account suspensions, blocks, or restrictions that may occur as a result of using this automation.</p>
+                      <p className="mb-2">3. You agree that PayxMint is not responsible for any Google account suspensions, blocks, or restrictions that may occur as a result of using this automation.</p>
                       <p className="mb-2">4. You acknowledge that transaction data is processed in real-time and you are responsible for maintaining secure webhook endpoints.</p>
-                      <p>5. WaveCollect acts only as a technology facilitator and does not hold your funds.</p>
+                      <p>5. PayxMint acts only as a technology facilitator and does not hold your funds.</p>
                     </div>
                     <label className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all">
                        <input 

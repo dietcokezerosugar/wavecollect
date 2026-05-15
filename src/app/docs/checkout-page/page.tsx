@@ -88,7 +88,7 @@ export default function CheckoutPageDocs() {
            </div>
            <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
               <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Brand Logo</p>
-              <p className="text-[11px] font-bold text-slate-600">Replace the WaveCollect logo with your own business logo.</p>
+              <p className="text-[11px] font-bold text-slate-600">Replace the PayxMint logo with your own business logo.</p>
            </div>
            <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
               <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Business Name</p>

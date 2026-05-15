@@ -98,7 +98,7 @@ async function handleAccount(acc) {
     }).catch(() => {});
 }
 
-console.log("=== WAVECOLLECT REMOTE MANAGER ===");
+console.log("=== payxmint REMOTE MANAGER ===");
 console.log(`Target: ${VPS_URL}`);
 sync();
 setInterval(sync, SYNC_INTERVAL_MS);

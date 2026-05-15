@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Wave Collect — Payment Verification Platform",
+  title: "PayxMint — Payment Verification Platform",
   description: "Automate UPI payment collection and verification with deep links and browser-level capture.",
 };
 

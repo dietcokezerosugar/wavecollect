@@ -39,7 +39,7 @@ export async function GET() {
     status: 200,
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename="wavecollect-transactions-${new Date().toISOString().slice(0, 10)}.csv"`,
+      "Content-Disposition": `attachment; filename="payxmint-transactions-${new Date().toISOString().slice(0, 10)}.csv"`,
     },
   });
 }

@@ -259,7 +259,7 @@ export default function DashboardLayout({
         <div className="h-14 px-6 flex items-center justify-between border-b border-slate-50">
           <div className="flex items-center gap-2.5">
             <Zap className="text-blue-600 w-4 h-4 fill-current" />
-            <span className="text-sm font-black tracking-tight text-slate-900">Wave Collect</span>
+            <span className="text-sm font-black tracking-tight text-slate-900">PayxMint</span>
           </div>
           <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-1 text-slate-400 hover:text-slate-900">
             <X className="w-4 h-4" />
@@ -388,7 +388,7 @@ export default function DashboardLayout({
             </button>
             <div className="flex items-center gap-2">
               <Zap className="text-blue-600 w-4 h-4 fill-current" />
-              <span className="text-sm font-black tracking-tight text-slate-900">Wave Collect</span>
+              <span className="text-sm font-black tracking-tight text-slate-900">PayxMint</span>
             </div>
           </div>
           <div className="flex items-center gap-2">

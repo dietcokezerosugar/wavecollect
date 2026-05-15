@@ -50,7 +50,7 @@ export default async function PaymentLinkPage({ params }: { params: Promise<{ sl
         </p>
         <div className="mt-12 pt-8 border-t border-slate-100 w-full max-w-xs flex items-center justify-between">
            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Error Code: 503_NO_ROUTE</span>
-           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Wave Collect</span>
+           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">PayxMint</span>
         </div>
       </div>
     );

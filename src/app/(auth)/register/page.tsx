@@ -86,7 +86,7 @@ export default function RegisterPage() {
           >
             <Zap className="text-white w-7 h-7 fill-current" />
           </motion.div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Join WaveCollect</h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Join PayxMint</h1>
           <p className="text-slate-500 font-medium">Start automating your payment verification today</p>
         </div>
 

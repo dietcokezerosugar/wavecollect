@@ -279,7 +279,7 @@ export default function QuickSetup() {
                      <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black">STABLE</span>
                   </div>
                   <div className="p-5 bg-slate-50 rounded-2xl font-mono text-xs text-slate-600 border border-slate-200 break-all select-all cursor-pointer hover:bg-slate-100 transition-colors">
-                     https://api.wavecollect.com/v1/create-intent
+                     https://api.payxmint.com/v1/create-intent
                   </div>
                   <p className="mt-4 text-[10px] font-bold text-slate-400 text-center leading-relaxed">
                      Once setup is complete, you can start dispatching payment intents to this endpoint.
@@ -310,7 +310,7 @@ export default function QuickSetup() {
                    <div className="space-y-4">
                       <h2 className="text-3xl font-black text-slate-900 tracking-tight">API Integration Overview</h2>
                       <p className="text-slate-500 font-medium leading-relaxed">
-                         WaveCollect provides a high-fidelity, dual-engine UPI automation gateway. Integration requires 3 main steps:
+                         PayxMint provides a high-fidelity, dual-engine UPI automation gateway. Integration requires 3 main steps:
                       </p>
                    </div>
 

@@ -19,7 +19,7 @@ export default function LandingPage() {
             <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200">
               <Zap className="text-white w-5 h-5 fill-current" />
             </div>
-            <span className="text-xl font-black tracking-tight text-slate-900">WaveCollect</span>
+            <span className="text-xl font-black tracking-tight text-slate-900">PayxMint</span>
           </div>
           
           <nav className="hidden md:flex items-center gap-8">
@@ -66,7 +66,7 @@ export default function LandingPage() {
                   <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                     <Zap className="text-white w-5 h-5 fill-current" />
                   </div>
-                  <span className="text-xl font-bold tracking-tight">Wave Collect</span>
+                  <span className="text-xl font-bold tracking-tight">PayxMint</span>
                 </div>
                 <button onClick={() => setIsMenuOpen(false)} className="p-2 bg-gray-100 rounded-full">
                   <X className="w-6 h-6 text-gray-500" />
@@ -187,10 +187,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 flex flex-col md:row items-center justify-between gap-8">
           <div className="flex items-center gap-2">
             <Zap className="text-primary w-5 h-5 fill-current" />
-            <span className="font-bold tracking-tight">Wave Collect</span>
+            <span className="font-bold tracking-tight">PayxMint</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2026 Wave Collect. All rights reserved. Built for high-performance fintech.
+            © 2026 PayxMint. All rights reserved. Built for high-performance fintech.
           </p>
         </div>
       </footer>

@@ -32,7 +32,7 @@ export default function QuickStart() {
         <Step 
           number="2"
           title="Whitelist your IP"
-          description="For security, WaveCollect only accepts requests from whitelisted IP addresses. Add your server's public IP in the dashboard."
+          description="For security, PayxMint only accepts requests from whitelisted IP addresses. Add your server's public IP in the dashboard."
         >
           <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-sm font-medium italic">
             <CheckCircle2 size={18} />
@@ -48,7 +48,7 @@ export default function QuickStart() {
           <div className="bg-slate-900 rounded-2xl p-6 font-mono text-xs text-blue-400 shadow-xl overflow-x-auto">
             <pre>
 {`# Using cURL
-curl -X POST https://api.wavecollect.com/v1/create-intent \\
+curl -X POST https://api.payxmint.com/v1/create-intent \\
   -H "Authorization: Bearer YOUR_KEY" \\
   -d '{"amount": 10.00, "order_id": "TEST_001"}'`}
             </pre>

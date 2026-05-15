@@ -49,7 +49,7 @@ export default function CreateIntentDocs() {
     "id": "intent_id",
     "amount": 500,
     "order_id": "your_reference",
-    "checkout_url": "https://wavecollect.app/pay/tok_abc123",
+    "checkout_url": "https://payxmint.com/pay/tok_abc123",
     "upi_link": "upi://pay?pa=merchant@upi&am=500...",
     "payment_token": "tok_abc123"
   }

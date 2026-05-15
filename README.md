@@ -1,6 +1,6 @@
-# ⚡ WaveCollect — Enterprise UPI Gateway Ecosystem
+# ⚡ PayxMint — Enterprise UPI Gateway Ecosystem
 
-WaveCollect is a high-performance, institutional-grade UPI payment aggregation platform. It enables merchants to accept UPI payments via automated VPA (Virtual Payment Address) management, featuring a real-time risk engine, automated settlement custody, and headless bot-driven verification.
+PayxMint is a high-performance, institutional-grade UPI payment aggregation platform. It enables merchants to accept UPI payments via automated VPA (Virtual Payment Address) management, featuring a real-time risk engine, automated settlement custody, and headless bot-driven verification.
 
 ---
 
@@ -13,8 +13,8 @@ WaveCollect is a high-performance, institutional-grade UPI payment aggregation p
 
 ### 2. Installation
 ```bash
-git clone https://github.com/your-repo/wavecollect.git
-cd wavecollect
+git clone https://github.com/your-repo/payxmint.git
+cd payxmint
 npm install
 ```
 
@@ -61,7 +61,7 @@ Located in `src/services/matching/MatchingEngine.ts`. It uses a combination of:
 - **Cooldowns**: Automatically disables VPAs showing high failure rates.
 
 ### 4. Settlement Custody (T+1)
-Unlike traditional pre-paid models, WaveCollect uses a custody model:
+Unlike traditional pre-paid models, PayxMint uses a custody model:
 - **Unsettled Balance**: Funds are held until the T+1 batch processor runs.
 - **Hold Logic**: High-risk transactions are flagged and held for manual review.
 - **Automated Payouts**: Calculates net payouts minus 2% merchant fees and agent commissions.

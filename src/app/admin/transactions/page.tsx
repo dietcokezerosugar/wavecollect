@@ -88,7 +88,7 @@ export default function MasterTransactionLedger() {
       Payer: t.payerName || t.transaction?.payerName,
       Date: new Date(t.createdAt).toLocaleString()
     }));
-    exportToCSV(`WaveCollect_Transactions_${new Date().toISOString().slice(0,10)}.csv`, dataToExport);
+    exportToCSV(`PayxMint_Transactions_${new Date().toISOString().slice(0,10)}.csv`, dataToExport);
   };
 
   return (

@@ -15,7 +15,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black">W</div>
-            <span className="font-black text-slate-900 tracking-tight">WaveCollect <span className="text-blue-600">Docs</span></span>
+            <span className="font-black text-slate-900 tracking-tight">PayxMint <span className="text-blue-600">Docs</span></span>
           </Link>
           
           <div className="hidden md:flex items-center gap-6">

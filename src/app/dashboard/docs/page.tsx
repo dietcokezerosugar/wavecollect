@@ -263,7 +263,7 @@ response = requests.post(url, json=payload, headers={
 
               <SectionHeading id="architecture">Gateway Architecture</SectionHeading>
               <p className="text-slate-600 leading-7">
-                WaveCollect operates as a layer-2 settlement protocol over GPay. Unlike traditional gateways that rely on slow bank reconciliations, our bot nodes match UTRs (Unique Transaction References) in real-time, providing immediate settlement feedback via signed webhooks.
+                PayxMint operates as a layer-2 settlement protocol over GPay. Unlike traditional gateways that rely on slow bank reconciliations, our bot nodes match UTRs (Unique Transaction References) in real-time, providing immediate settlement feedback via signed webhooks.
               </p>
 
               <div className="grid md:grid-cols-2 gap-6 my-10">

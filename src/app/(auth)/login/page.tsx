@@ -70,7 +70,7 @@ export default function LoginPage() {
             <Zap className="text-white w-7 h-7 fill-current" />
           </motion.div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Welcome Back</h1>
-          <p className="text-slate-500 font-medium">Enter your credentials to access WaveCollect</p>
+          <p className="text-slate-500 font-medium">Enter your credentials to access PayxMint</p>
         </div>
 
         <div className="bg-white rounded-[32px] border border-slate-100 p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)]">
@@ -138,7 +138,7 @@ export default function LoginPage() {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  Sign in to WaveCollect
+                  Sign in to PayxMint
                   <ArrowRight size={18} />
                 </>
               )}

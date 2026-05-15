@@ -55,14 +55,14 @@ export default function PaymentPageClient({
         .then(setQrData)
         .catch(err => console.error("QR Generation Error:", err));
     }
-    console.log("[WaveCollect] Payment page mounted. Status:", initialStatus, "Token:", token);
+    console.log("[PayxMint] Payment page mounted. Status:", initialStatus, "Token:", token);
   }, []);
 
   // Timer countdown — simple setInterval, no deps that reset it
   useEffect(() => {
     if (!mounted) return;
     if (status !== "PENDING") return;
-    console.log("[WaveCollect] Timer started. TimeLeft:", timeLeft);
+    console.log("[PayxMint] Timer started. TimeLeft:", timeLeft);
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -76,7 +76,7 @@ export default function PaymentPageClient({
     }, 1000);
 
     return () => {
-      console.log("[WaveCollect] Timer cleanup");
+      console.log("[PayxMint] Timer cleanup");
       clearInterval(timer);
     };
   }, [mounted, status]);
@@ -85,13 +85,13 @@ export default function PaymentPageClient({
   useEffect(() => {
     if (!mounted) return;
     if (status !== "PENDING") return;
-    console.log("[WaveCollect] Polling started for token:", token);
+    console.log("[PayxMint] Polling started for token:", token);
 
     const poll = async () => {
       try {
         const res = await fetch(`/api/pay/status?token=${token}`);
         const data = await res.json();
-        console.log("[WaveCollect] Poll response:", data.data?.payment_status);
+        console.log("[PayxMint] Poll response:", data.data?.payment_status);
         
         if (data.data?.payment_status === "SUCCESS") {
           setStatus("SUCCESS");
@@ -104,7 +104,7 @@ export default function PaymentPageClient({
           setStatus("EXPIRED");
         }
       } catch (err) {
-        console.error("[WaveCollect] Poll error:", err);
+        console.error("[PayxMint] Poll error:", err);
       }
     };
 
@@ -115,7 +115,7 @@ export default function PaymentPageClient({
     const interval = setInterval(poll, 1000);
 
     return () => {
-      console.log("[WaveCollect] Polling cleanup");
+      console.log("[PayxMint] Polling cleanup");
       clearInterval(interval);
     };
   }, [mounted, token, status]);

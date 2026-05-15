@@ -354,7 +354,7 @@ export default function SettingsPage() {
                 ) : (
                   <div className="space-y-4">
                      <p className="text-[11px] text-slate-500 font-medium leading-relaxed max-w-md">
-                        Were you referred to WaveCollect? Enter your partner's referral code below to link your account to their network.
+                        Were you referred to PayxMint? Enter your partner's referral code below to link your account to their network.
                      </p>
                      <div className="flex flex-col md:flex-row gap-3">
                         <input 

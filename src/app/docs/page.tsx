@@ -17,7 +17,7 @@ export default function DocsPage() {
         </h1>
         
         <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-2xl">
-          Integrate WaveCollect to accept real-time UPI payments with automated verification, risk-based routing, and institutional-grade settlement custody. Built for developers who demand speed, reliability, and security.
+          Integrate PayxMint to accept real-time UPI payments with automated verification, risk-based routing, and institutional-grade settlement custody. Built for developers who demand speed, reliability, and security.
         </p>
 
         <div className="flex flex-wrap gap-4 pt-4">
@@ -70,7 +70,7 @@ export default function DocsPage() {
           >
             <CodeBlock 
               language="bash"
-              code={`curl -X POST https://api.wavecollect.com/v1/create-intent \\
+              code={`curl -X POST https://api.payxmint.com/v1/create-intent \\
   -H "Authorization: Bearer YOUR_KEY" \\
   -d '{ "amount": 500, "order_id": "ORDER_123" }'`}
             />
@@ -132,7 +132,7 @@ export default function DocsPage() {
       </section>
 
       <footer className="pt-16 pb-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400">
-        <p className="text-[11px] font-bold uppercase tracking-widest">© 2026 WaveCollect Ecosystem. All rights reserved.</p>
+        <p className="text-[11px] font-bold uppercase tracking-widest">© 2026 PayxMint Ecosystem. All rights reserved.</p>
         <div className="flex gap-6">
           <a href="#" className="text-[11px] font-black hover:text-blue-600 transition-all">Support</a>
           <a href="#" className="text-[11px] font-black hover:text-blue-600 transition-all">Status</a>
