@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
   }
 
   const stream = new ReadableStream({
+    start(controller) {
       let lastSize = 0;
       if (fs.existsSync(logPath)) {
         lastSize = fs.statSync(logPath).size;
@@ -71,6 +72,7 @@ export async function GET(req: NextRequest) {
       req.signal.addEventListener("abort", () => {
         clearInterval(pollInterval);
       });
+    },
   });
 
   return new Response(stream, {
