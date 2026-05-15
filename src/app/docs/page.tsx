@@ -175,6 +175,13 @@ export default function DocsPage() {
         { id: "checkout", label: "Custom Checkout", icon: Terminal },
         { id: "webhooks", label: "Webhooks", icon: FileText },
       ]
+    },
+    { 
+      group: "Resources", 
+      items: [
+        { id: "testing", label: "Testing & Sandbox", icon: Activity },
+        { id: "errors", label: "Error Codes", icon: AlertCircle },
+      ]
     }
   ];
 
@@ -218,6 +225,36 @@ payload = {
 response = requests.post(url, json=payload, headers={
     "Authorization": "Bearer YOUR_API_KEY"
 })`
+    },
+    webhookVerify: {
+      NODE: `const crypto = require('crypto');
+
+function verifyWebhook(payload, signature, secret) {
+  const hash = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+    
+  return hash === signature;
+}`,
+      PHP: `<?php
+function verifyWebhook($payload, $signature, $secret) {
+  $hash = hash_hmac('sha256', json_encode($payload), $secret);
+  return hash_equals($hash, $signature);
+}`,
+      PYTHON: `import hmac
+import hashlib
+import json
+
+def verify_webhook(payload, signature, secret):
+    payload_str = json.dumps(payload, separators=(',', ':'))
+    expected_hash = hmac.new(
+        secret.encode('utf-8'),
+        payload_str.encode('utf-8'),
+        hashlib.sha256
+    ).hexdigest()
+    
+    return hmac.compare_digest(expected_hash, signature)`
     }
   };
 
@@ -416,6 +453,24 @@ response = requests.post(url, json=payload, headers={
                 <Callout type="warning" title="Keep it secret">
                   Your API keys carry many privileges, so be sure to keep them secure! Do not share your secret API keys in publicly accessible areas such as GitHub, client-side code, and so forth.
                 </Callout>
+
+                <SectionHeading id="postman">Postman Collection</SectionHeading>
+                <p className="text-slate-600 leading-7 text-sm md:text-base mb-6">
+                  To test our API instantly, you can import our Postman Collection.
+                </p>
+                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center font-black text-xl shadow-inner border border-orange-200">P</div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-lg">PayxMint API v2.4</h4>
+                      <p className="text-sm text-slate-500 font-medium mt-1">Includes Create Intent, Check Status, and Environment Variables.</p>
+                    </div>
+                  </div>
+                  <div className="mt-6 flex flex-wrap gap-4">
+                    <button className="px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/20">Download Collection</button>
+                    <button className="px-6 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm">Environment File</button>
+                  </div>
+                </div>
               </motion.div>
             )}
 
@@ -574,6 +629,78 @@ const handlePay = async (upiLink) => {
                      <span className="font-bold text-sm">99.9% Delivery Guarantee</span>
                   </div>
                 </div>
+
+                <SectionHeading id="signature">Verifying Signatures</SectionHeading>
+                <p className="text-slate-600 leading-7 text-sm md:text-base mb-6">
+                  We use HMAC-SHA256 to sign all webhook payloads. The signature is sent in the <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-800">X-PayxMint-Signature</code> header.
+                  You should compute the HMAC hash of the raw request body using your <strong>Webhook Secret</strong> and compare it to the signature.
+                </p>
+
+                <CodeBlock snippets={snippets.webhookVerify} />
+              </motion.div>
+            )}
+            {activeSection === "testing" && (
+              <motion.div 
+                key="testing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              >
+                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Testing & Sandbox</h1>
+                <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
+                  Learn how to safely test your integration without moving real money.
+                </p>
+
+                <SectionHeading id="test-mode">Sandbox Mode</SectionHeading>
+                <p className="text-slate-600 leading-7 text-sm md:text-base mb-6">
+                  Every PayxMint account includes a Sandbox mode. While in Sandbox mode, you can use our test UPI numbers to simulate successful payments, failed payments, and webhooks.
+                </p>
+
+                <Table 
+                  headers={["Scenario", "Test UTR Number", "Expected Outcome"]}
+                  rows={[
+                    [<code className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">SUCCESS_123</code>, "Simulate successful payment", "Fires SUCCESS webhook"],
+                    [<code className="text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded">FAIL_456</code>, "Simulate failed payment", "Fires FAILED webhook"],
+                    [<code className="text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded">DELAY_789</code>, "Simulate delayed bank network", "Fires SUCCESS after 60 seconds"]
+                  ]}
+                />
+
+                <Callout type="warning" title="Test Environment Restrictions">
+                  Sandbox intents cannot be accessed from the live network. Only API keys generated in the Sandbox environment can trigger these test UTRs.
+                </Callout>
+              </motion.div>
+            )}
+
+            {activeSection === "errors" && (
+              <motion.div 
+                key="errors" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              >
+                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Error Codes</h1>
+                <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
+                  A comprehensive list of HTTP status codes and PayxMint custom error codes.
+                </p>
+
+                <SectionHeading id="http-status">HTTP Status Codes</SectionHeading>
+                <Table 
+                  headers={["Status Code", "Description"]}
+                  rows={[
+                    [<span className="font-bold text-emerald-600">200 - OK</span>, "Everything worked as expected."],
+                    [<span className="font-bold text-amber-600">400 - Bad Request</span>, "The request was unacceptable, often due to missing a required parameter."],
+                    [<span className="font-bold text-rose-600">401 - Unauthorized</span>, "No valid API key provided."],
+                    [<span className="font-bold text-rose-600">403 - Forbidden</span>, "The API key doesn't have permissions to perform the request (e.g., IP not whitelisted)."],
+                    [<span className="font-bold text-amber-600">429 - Too Many Requests</span>, "Too many requests hit the API too quickly. We recommend an exponential backoff of your requests."],
+                    [<span className="font-bold text-rose-600">500, 502, 503, 504 - Server Errors</span>, "Something went wrong on PayxMint's end."]
+                  ]}
+                />
+
+                <SectionHeading id="custom-errors">Custom Error Codes</SectionHeading>
+                <Table 
+                  headers={["Error Code", "Meaning"]}
+                  rows={[
+                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">invalid_api_key</code>, "The API key provided is invalid or disabled."],
+                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">ip_not_whitelisted</code>, "Your server's IP address is not whitelisted in the dashboard."],
+                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">insufficient_wallet_balance</code>, "Your wallet balance is too low to cover the settlement fee for this transaction."],
+                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">duplicate_order_id</code>, "An intent with this order_id has already been created."],
+                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">node_unavailable</code>, "No verified GPay nodes are currently active for your account."]
+                  ]}
+                />
               </motion.div>
             )}
           </AnimatePresence>
@@ -605,6 +732,7 @@ const handlePay = async (upiLink) => {
              {activeSection === "auth" && (
                <>
                  <li><a href="#api-keys" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">API Keys</a></li>
+                 <li><a href="#postman" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Postman Collection</a></li>
                </>
              )}
              {activeSection === "intent" && (
@@ -623,6 +751,18 @@ const handlePay = async (upiLink) => {
                <>
                  <li><a href="#payload" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Payload Structure</a></li>
                  <li><a href="#retries" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Retry Strategy</a></li>
+                 <li><a href="#signature" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Verifying Signatures</a></li>
+               </>
+             )}
+             {activeSection === "testing" && (
+               <>
+                 <li><a href="#test-mode" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Sandbox Mode</a></li>
+               </>
+             )}
+             {activeSection === "errors" && (
+               <>
+                 <li><a href="#http-status" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">HTTP Status Codes</a></li>
+                 <li><a href="#custom-errors" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Custom Errors</a></li>
                </>
              )}
           </ul>
