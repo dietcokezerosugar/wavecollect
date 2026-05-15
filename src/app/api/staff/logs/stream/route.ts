@@ -12,10 +12,27 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const botName = searchParams.get("botName");
+  if (!botName) return new NextResponse("Bot name required", { status: 400 });
 
-  if (!botName) return new Response("Bot name required", { status: 400 });
+  const sessionsDir = path.join(process.cwd(), ".sessions");
+  
+  // Try exact match first, then lowercase slug match
+  let logPath = path.join(sessionsDir, `session-${botName}`, "bot.log");
+  if (!fs.existsSync(logPath)) {
+    const slugName = botName.toLowerCase().replace(/@/g, '-').replace(/\./g, '-');
+    logPath = path.join(sessionsDir, `session-${slugName}`, "bot.log");
+  }
 
-  const logPath = path.join(process.cwd(), ".sessions", `session-${botName}`, "bot.log");
+  if (!fs.existsSync(logPath)) {
+    // If still not found, try common slug variations
+    const simpleSlug = botName.split('@')[0].toLowerCase();
+    const altPath = path.join(sessionsDir, `session-${simpleSlug}`, "bot.log");
+    if (fs.existsSync(altPath)) logPath = altPath;
+  }
+
+  if (!fs.existsSync(logPath)) {
+    return new NextResponse("Log file not found", { status: 404 });
+  }
 
   const stream = new ReadableStream({
     start(controller) {
