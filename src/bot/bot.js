@@ -1,7 +1,5 @@
 const express = require('express');
-const { chromium } = require('playwright-extra');
-const stealth = require('puppeteer-extra-plugin-stealth')();
-chromium.use(stealth);
+const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
@@ -12,6 +10,8 @@ process.env.PLAYWRIGHT_CHROMIUM_USE_HEADLESS_NEW = '1';
 const ACCOUNT_NAME = process.argv[2];
 if (!ACCOUNT_NAME) { console.error('Required bot name via args'); process.exit(1); }
 
+console.log(`[BOOT] 🚀 Engine process started for ${ACCOUNT_NAME}`);
+
 // Deterministic port for the bot's internal control UI
 const BOT_PORT = 5000 + (parseInt(Buffer.from(ACCOUNT_NAME).toString('hex').slice(0, 4), 16) % 1000);
 
@@ -20,6 +20,8 @@ const DOWNLOAD_DIR = path.join(__dirname, `../../.downloads/${ACCOUNT_NAME}`);
 
 if (!fs.existsSync(SESSION_DIR)) fs.mkdirSync(SESSION_DIR, { recursive: true });
 if (!fs.existsSync(DOWNLOAD_DIR)) fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
+
+const LOG_FILE = path.join(SESSION_DIR, 'bot.log');
 
 let accountConfig = { report_id: null, download_interval_sec: 10, email: '' };
 let engineContext = null;
@@ -49,8 +51,10 @@ function log(msg) {
     const formatted = `[${new Date().toISOString()}] [${ACCOUNT_NAME}] ${msg}`;
     console.log(formatted); 
     
-    recentLogs.push(formatted);
-    if (recentLogs.length > 100) recentLogs.shift();
+    // 💾 Save to disk for Staff Dashboard
+    try {
+        fs.appendFileSync(LOG_FILE, formatted + '\n');
+    } catch (e) {}
 
     let safeMsg = `[${ACCOUNT_NAME}] ${msg}`.replace(/\n/g, '<br>');
     uiClients.forEach(client => client.write(`data: ${safeMsg}\n\n`));
@@ -369,17 +373,26 @@ async function bootEngine() {
     try {
         log(`🚀 GPay 9 Engine Booting for ${ACCOUNT_NAME}...`);
         
-        // GPay 9 Resilience: Clean up locks
+        // 🔒 GPAY9 SECRET: Clear SingletonLock and lockfile to reset session state
         const lockPath = path.join(SESSION_DIR, 'SingletonLock');
-        if (fs.existsSync(lockPath)) fs.unlinkSync(lockPath);
+        const lockFile = path.join(SESSION_DIR, 'lockfile');
+        if (fs.existsSync(lockPath)) { try { fs.unlinkSync(lockPath); } catch(e){} }
+        if (fs.existsSync(lockFile)) { try { fs.unlinkSync(lockFile); } catch(e){} }
 
         const chromePath = chromium.executablePath();
         const launchOptions = {
-            headless: true,
+            headless: false, // GPAY9 HYBRID TRICK
             executablePath: chromePath,
             acceptDownloads: true,
             downloadsPath: DOWNLOAD_DIR,
-            args: ['--disable-blink-features=AutomationControlled', '--no-sandbox']
+            ignoreDefaultArgs: ['--enable-automation'],
+            args: [
+                '--headless=new',
+                '--disable-blink-features=AutomationControlled',
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+            ]
         };
 
         if (accountConfig.proxyConfig && accountConfig.proxyConfig.length > 5) {
