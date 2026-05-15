@@ -4,7 +4,9 @@ import { GooglePayAccount } from "@prisma/client";
 export class GatewayRouter {
   /**
    * Selects an active GPay account that fits the transaction amount and limits.
-   * Now verifies: reviewStatus, sessionStatus, and bot heartbeat health.
+   * Uses a two-phase approach: prefers accounts with live bot sessions,
+   * but falls back to any ACTIVE+APPROVED account to prevent 503_NO_ROUTE
+   * when bots are temporarily offline.
    */
   static async selectAccount(merchantId: string, amount: number, forRecharge: boolean = false, customerRiskTier: string = "HIGH") {
     
@@ -15,12 +17,11 @@ export class GatewayRouter {
     const isPoolMode = merchant.processingMode === "PLATFORM_POOL";
     const heartbeatThreshold = new Date(Date.now() - 2 * 60 * 1000); // 2 minutes stale = dead
 
-    // 2. Build the query based on processing mode
+    // 2. Build the BASE query (ACTIVE + APPROVED + ticket range + cooldown)
+    //    Heartbeat/session are NOT hard requirements — we prefer them but don't block on them.
     const baseWhere: any = {
       status: "ACTIVE",
       reviewStatus: "APPROVED",        // Staff must have approved
-      sessionStatus: "ONLINE",          // Session must be alive
-      lastHeartbeat: { gte: heartbeatThreshold }, // Bot must have recent heartbeat
       minTicket: { lte: amount },
       maxTicket: { gte: amount },
       OR: [
@@ -60,14 +61,25 @@ export class GatewayRouter {
 
     if (validAccounts.length === 0) return null;
 
+    // 3b. Two-Phase Selection: Prefer live-bot accounts, fallback to any valid account
+    //     Phase 1: Accounts with sessionStatus=ONLINE + fresh heartbeat
+    const liveAccounts = validAccounts.filter(acc =>
+      acc.sessionStatus === "ONLINE" &&
+      acc.lastHeartbeat &&
+      acc.lastHeartbeat >= heartbeatThreshold
+    );
+    
+    //     Use live accounts if available, otherwise use all valid accounts
+    const routingPool = liveAccounts.length > 0 ? liveAccounts : validAccounts;
+
     // 4. Risk-Based Routing
-    const getAccountsByTier = (tier: string) => validAccounts.filter(a => a.riskTier === tier);
+    const getAccountsByTier = (tier: string) => routingPool.filter(a => a.riskTier === tier);
     
     let fallbackUsed = false;
     let poolToUse: GooglePayAccount[] = [];
 
     if (forRecharge) {
-      poolToUse = validAccounts;
+      poolToUse = routingPool;
     } else if (customerRiskTier === "HIGH") {
       poolToUse = getAccountsByTier("HIGH");
     } else if (customerRiskTier === "MID") {
@@ -86,6 +98,12 @@ export class GatewayRouter {
         poolToUse = getAccountsByTier("HIGH");
         fallbackUsed = true;
       }
+    }
+
+    // 4b. Risk tier fallback: if no accounts match the risk tier, use all available
+    if (poolToUse.length === 0) {
+      poolToUse = routingPool;
+      fallbackUsed = true;
     }
 
     if (poolToUse.length === 0) return null;
