@@ -82,10 +82,16 @@ export async function POST(req: NextRequest) {
         },
       });
     } else if (action === "REJECT") {
-      await prisma.ipWhitelistRequest.update({
-        where: { id },
-        data: { status: "REJECTED", note, reviewedAt: new Date() },
-      });
+      await prisma.$transaction([
+        prisma.ipWhitelistRequest.update({
+          where: { id },
+          data: { status: "REJECTED", note, reviewedAt: new Date() },
+        }),
+        prisma.merchant.update({
+          where: { id: request.merchantId },
+          data: { apiAccessStatus: "NOT_REQUESTED" }
+        })
+      ]);
 
       await prisma.auditLog.create({
         data: {

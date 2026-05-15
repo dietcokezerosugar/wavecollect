@@ -12,10 +12,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!merchantId) {
-       // Mock data for demo if DB is empty/missing
-       return NextResponse.json({ status: "success", data: [] });
-    }
+
 
     // 1. Fetch Latest Intents (Matched or Pending) for this merchant
     let intents: any[] = [];

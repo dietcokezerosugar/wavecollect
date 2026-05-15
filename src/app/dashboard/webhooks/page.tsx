@@ -136,7 +136,7 @@ export default function WebhooksPage() {
                   <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="p-4 px-6">
                        <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight">{log.event}</p>
-                       <p className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">{JSON.parse(log.payload).reference_id}</p>
+                       <p className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">{(() => { try { return JSON.parse(log.payload)?.reference_id || log.id.slice(0, 8); } catch { return log.id.slice(0, 8); } })()}</p>
                     </td>
                     <td className="p-4 px-6">
                        <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase border ${

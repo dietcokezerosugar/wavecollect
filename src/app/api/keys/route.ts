@@ -23,6 +23,10 @@ export async function POST(req: NextRequest) {
   const merchant = await prisma.merchant.findUnique({ where: { id: session.user.merchantId } });
   if (!merchant) return NextResponse.json({ status: "failure", message: "No merchant found" }, { status: 404 });
 
+  if (merchant.apiAccessStatus !== "APPROVED") {
+    return NextResponse.json({ status: "failure", message: "Security compliance not met. API Access requires approved IP Whitelist." }, { status: 403 });
+  }
+
   const body = await req.json();
   const { monthly_limit } = body;
 

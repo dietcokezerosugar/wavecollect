@@ -91,18 +91,8 @@ export default function QuickSetup() {
     }
   };
 
-  const applyWhitelist = async () => {
-    setSaving(true);
-    try {
-      const res = await fetch("/api/dashboard/ip-whitelist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ webhookUrl, acceptedTerms: true }),
-      });
-      if (res.ok) setIpStatus("PENDING");
-    } finally {
-      setSaving(false);
-    }
+  const applyWhitelist = () => {
+    window.location.href = "/dashboard/ip-whitelist";
   };
 
   if (loading) return (
@@ -252,7 +242,7 @@ export default function QuickSetup() {
                        className="w-full py-6 bg-blue-600 text-white rounded-[24px] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-blue-600/30 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-4"
                      >
                         {saving ? <Loader2 className="animate-spin" /> : <Save size={20} />}
-                        Commmit Configuration Everywhere
+                        Commit Configuration Everywhere
                      </button>
                   </div>
                </div>
