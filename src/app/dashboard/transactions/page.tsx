@@ -101,7 +101,7 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-6 md:space-y-8 pb-24 animate-in fade-in duration-500">
       <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900">Activity Ledger</h1>

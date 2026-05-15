@@ -76,7 +76,7 @@ export default function MerchantIpWhitelistPage() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8 pb-20 font-sans max-w-5xl mx-auto px-4 md:px-6">
+    <div className="space-y-6 md:space-y-8 pb-24 font-sans max-w-5xl mx-auto px-4 md:px-6">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-8">
         <div className="space-y-1">
           <h1 className="text-3xl font-black tracking-tight text-slate-900">Security & Whitelist</h1>

@@ -46,7 +46,7 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 py-8 md:p-6 relative overflow-hidden">
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -65,7 +65,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 py-8 md:p-6 relative overflow-hidden">
       {/* Background Gradients */}
       <div className="absolute top-0 left-0 w-full h-full -z-10">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-50 rounded-full blur-[120px] opacity-60" />
@@ -90,7 +90,7 @@ export default function RegisterPage() {
           <p className="text-slate-500 font-medium">Start automating your payment verification today</p>
         </div>
 
-        <div className="bg-white rounded-[32px] border border-slate-100 p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)]">
+        <div className="bg-white rounded-[24px] md:rounded-[32px] border border-slate-100 p-6 md:p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)]">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <motion.div 
@@ -178,7 +178,7 @@ export default function RegisterPage() {
           </form>
         </div>
 
-        <div className="mt-10 flex items-center justify-center gap-8 opacity-40">
+        <div className="mt-8 md:mt-10 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 opacity-40">
           <div className="flex items-center gap-2">
             <ShieldCheck size={14} />
             <span className="text-[10px] font-black uppercase tracking-widest">7-Day Free Trial</span>

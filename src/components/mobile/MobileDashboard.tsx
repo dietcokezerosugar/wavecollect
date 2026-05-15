@@ -26,7 +26,7 @@ interface MobileDashboardProps {
 
 export function MobileDashboard({ merchant, recentIntents, totalVolume, successfulTxns }: MobileDashboardProps) {
   return (
-    <div className="md:hidden space-y-6 pb-20">
+    <div className="md:hidden space-y-6 pb-24">
       {/* Wallet / Main Balance Card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[28px] p-6 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10" />

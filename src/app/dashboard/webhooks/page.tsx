@@ -62,7 +62,7 @@ export default function WebhooksPage() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8 pb-12 font-sans px-2 md:px-0 max-w-4xl mx-auto animate-in fade-in duration-500">
+    <div className="space-y-6 md:space-y-8 pb-24 font-sans px-2 md:px-0 max-w-4xl mx-auto animate-in fade-in duration-500">
       <div>
         <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900">Event Dispatch</h1>
         <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Configure real-time POST delivery infrastructure</p>
