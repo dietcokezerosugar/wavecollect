@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "payxmint-web",
       script: "./node_modules/.bin/next",
-      args: "start -p 3000",
+      args: "start -H 127.0.0.1 -p 3000",
       cwd: "./",
       env: {
         NODE_ENV: "production",
