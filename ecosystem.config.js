@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: "payxmint-web",
-      script: "npm",
-      args: "start",
+      script: "./node_modules/.bin/next",
+      args: "start -p 3000",
       cwd: "./",
       env: {
         NODE_ENV: "production",
