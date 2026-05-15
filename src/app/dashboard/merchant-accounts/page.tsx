@@ -29,6 +29,8 @@ export default function MerchantAccountsPage() {
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [newUpiId, setNewUpiId] = useState("");
   const [newMinTicket, setNewMinTicket] = useState("");
   const [newMaxTicket, setNewMaxTicket] = useState("");
@@ -92,80 +94,11 @@ export default function MerchantAccountsPage() {
     return `${s}s`;
   }
 
-  // Poll progress logs when in Step 3
-  useEffect(() => {
-    let logInterval: NodeJS.Timeout;
-    if (wizardStep === 3 && newName) {
-      logInterval = setInterval(async () => {
-        try {
-          const res = await fetch(`/api/bots/login/progress?name=${newName}`);
-          const data = await res.json();
-          if (data.logs) {
-            setAutoLoginLogs(data.logs);
-            if (data.logs.some((l: string) => l.includes("[SUCCESS]"))) {
-              setIsLoginComplete(true);
-              setIsLoginSuccess(true);
-              setWizardStep(4);
-              fetchAccounts(); // Fetch immediately to show the new account
-            } else if (data.logs.some((l: string) => l.includes("[ERROR]") || l.includes("[CRITICAL]"))) {
-              setIsLoginComplete(true);
-              setIsLoginSuccess(false);
-              setWizardStep(4);
-            }
-          }
-        } catch(e) {}
-      }, 1500);
-    }
-    return () => clearInterval(logInterval);
-  }, [wizardStep, newName]);
-
   async function fetchAccounts() {
     try {
-      // 1. Fetch Primary Account Data
       const res = await fetch("/api/gpay-accounts");
       const data = await res.json();
-      const rawAccounts = data.data || [];
-      
-      if (rawAccounts.length === 0) {
-        setAccounts([]);
-        return;
-      }
-
-      // 2. Fetch Secondary Data (Non-blocking)
-      let statusData: any = { bots: {} };
-      try {
-        const statusRes = await fetch("/api/bots/control", { 
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "status" })
-        });
-        statusData = await statusRes.json();
-      } catch (e) { console.warn("PM2 Status Sync Failed", e); }
-
-      let allLogs: any[] = [];
-      try {
-        const logRes = await fetch("/api/logs");
-        const logData = await logRes.json();
-        allLogs = logData.data || [];
-      } catch (e) { console.warn("Log Stream Sync Failed", e); }
-      
-      const merged = rawAccounts.map((acc: GPayAccount) => {
-        const accountLogs = allLogs.filter((l: any) => 
-          l.message.toLowerCase().includes(acc.name.toLowerCase()) && 
-          (l.message.includes("sweep completed") || l.message.includes("process completed"))
-        );
-        
-        const latestLog = accountLogs[0]; 
-
-        return {
-          ...acc,
-          pm2Status: statusData.bots?.[acc.name] || "stopped",
-          lastAction: latestLog ? latestLog.message.split(' - ').pop() : "Waiting for first cycle...",
-          lastActionTime: latestLog ? new Date(latestLog.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null
-        };
-      });
-      
-      setAccounts(merged);
+      setAccounts(data.data || []);
     } catch (e) {
       console.error("Critical Fetch Error:", e);
     }
@@ -180,70 +113,54 @@ export default function MerchantAccountsPage() {
     fetchAccounts();
   }
 
-  async function deleteAccount(id: string, name: string) {
-    if (!confirm(`Are you sure you want to delete ${name}? This cannot be undone and the PM2 bot will be removed.`)) return;
-    
-    // Attempt to delete PM2 bot
-    try {
-      await fetch("/api/bots/control", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, action: "delete" }),
-      });
-    } catch(e) {}
+  async function toggleAccountStatus(id: string, newStatus: string) {
+    await updateAccount(id, { status: newStatus });
+  }
 
-    // Delete from DB
+  async function deleteAccount(id: string) {
+    if (!confirm(`Are you sure you want to delete this account?`)) return;
     await fetch(`/api/gpay-accounts?id=${id}`, { method: "DELETE" });
     fetchAccounts();
   }
 
-  async function botAction(name: string, action: string) {
-    if (action === 'start' || action === 'restart') {
-      setActiveLogBot(name);
+  const submitForReview = async () => {
+    if (newPassword !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
     }
-    await fetch("/api/bots/control", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, action }),
-    });
-    fetchAccounts();
-  }
-
-  async function startAutoLogin() {
-    // 1. Create DB Record first so it exists
-    await fetch("/api/gpay-accounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newName, email: newEmail, upiId: newUpiId, minTicket: newMinTicket, maxTicket: newMaxTicket, proxyConfig: newProxy }),
-    });
-
-    // 2. Trigger auto login
-    await fetch("/api/bots/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newName, action: "auto", email: newEmail, password: newPassword }),
-    });
-    
-    setWizardStep(3);
-  }
-
-  async function manualLogin(name: string) {
-    await fetch("/api/bots/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, action: "manual" }),
-    });
-    setWizardStep(3); // Go to sync step to see logs
-    alert("Manual handshake initiated. Please switch to your VNC viewer (TigerVNC) to see the browser and complete the login.");
-  }
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/gpay-accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newName,
+          email: newEmail,
+          upiId: newUpiId,
+          password: newPassword,
+          proxyConfig: newProxy,
+          minTicket: newMinTicket,
+          maxTicket: newMaxTicket,
+        }),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        setWizardStep(3);
+        fetchAccounts();
+      } else {
+        alert(data.message || "Failed to submit account");
+      }
+    } catch (e) {
+      alert("Error submitting account");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   function resetWizard() {
     setShowWizard(false);
     setWizardStep(1);
-    setNewName(""); setNewEmail(""); setNewPassword(""); setNewUpiId(""); setNewMinTicket(""); setNewMaxTicket(""); setNewProxy("");
-    setAutoLoginLogs([]);
-    setIsLoginComplete(false);
-    setIsLoginSuccess(false);
+    setNewName(""); setNewEmail(""); setNewPassword(""); setConfirmPassword(""); setNewUpiId(""); setNewMinTicket(""); setNewMaxTicket(""); setNewProxy("");
   }
 
   async function submitOtp(name: string) {
@@ -261,8 +178,6 @@ export default function MerchantAccountsPage() {
 
   return (
     <div className="space-y-8 pb-12 font-sans max-w-5xl mx-auto">
-      {/* Existing Wizard & Account List code... */}
-      {/* ... keeping the existing structure but adding the new modal and button ... */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2 md:px-0">
         <div>
           <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Merchant Fleet</h1>
@@ -321,8 +236,20 @@ export default function MerchantAccountsPage() {
                     <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="merchant@gmail.com" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Access Token (Password)</label>
-                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Access Token (Google Password)</label>
+                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter password" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Confirm Password</label>
+                    <input 
+                      type="password" 
+                      value={confirmPassword} 
+                      onChange={(e) => setConfirmPassword(e.target.value)} 
+                      onPaste={(e) => e.preventDefault()}
+                      placeholder="Type again (pasting disabled)" 
+                      className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" 
+                    />
+                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tight px-1">Must match exactly to ensure operational accuracy</p>
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Business UPI Endpoint</label>
@@ -345,79 +272,48 @@ export default function MerchantAccountsPage() {
                 </div>
                 <div className="pt-4 flex flex-col md:flex-row items-center justify-between gap-3">
                   <button onClick={() => setWizardStep(1)} className="w-full md:w-auto px-6 py-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors order-2 md:order-1">Previous</button>
-                  <button onClick={startAutoLogin} disabled={!newName || !newEmail || !newPassword || !newUpiId} className="w-full md:w-auto px-8 py-3.5 bg-blue-600 text-white rounded-xl font-black uppercase text-[11px] tracking-widest hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center justify-center gap-3 order-1 md:order-2 shadow-lg shadow-blue-600/20 active:scale-95">
-                    <Key className="w-4 h-4" /> Start Synchronization
+                  <button 
+                    onClick={submitForReview} 
+                    disabled={!newName || !newEmail || !newPassword || !newUpiId || newPassword !== confirmPassword || isSubmitting} 
+                    className="w-full md:w-auto px-8 py-3.5 bg-blue-600 text-white rounded-xl font-black uppercase text-[11px] tracking-widest hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center justify-center gap-3 order-1 md:order-2 shadow-lg shadow-blue-600/20 active:scale-95"
+                  >
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />} 
+                    Submit for Operational Activation
                   </button>
                 </div>
               </div>
             )}
             {wizardStep === 3 && (
-              <div className="max-w-4xl mx-auto space-y-6 text-center">
-                <div className="flex flex-col md:flex-row gap-6">
-                  {/* Left: Terminal Logs */}
-                  <div className="flex-grow space-y-4">
-                    <h3 className="text-xl font-black text-slate-900 text-left">Establishing Session</h3>
-                    <div className="bg-slate-900 rounded-xl p-5 text-left h-[400px] overflow-y-auto font-mono text-[11px] text-slate-400 space-y-2 border border-slate-800 shadow-2xl">
-                      {autoLoginLogs.length === 0 && <p className="text-slate-500 italic">Initializing automation engine...</p>}
-                      {autoLoginLogs.map((log, i) => (
-                        <div key={i} className={`flex gap-3 ${log.includes('SUCCESS') ? 'text-emerald-400' : log.includes('ERROR') || log.includes('WARNING') || log.includes('🔧') ? 'text-amber-400' : ''}`}>
-                          <span className="opacity-20 select-none">[{i+1}]</span> 
-                          <span>{log}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Right: Cloud Browser (Interactive) */}
-                  <div className="w-full md:w-[450px] space-y-4">
-                    <div className="flex items-center justify-between px-1">
-                       <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Cloud View</h3>
-                       <div className="flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                          <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Live Stream</span>
-                       </div>
-                    </div>
-                    <CloudBrowser name={newName} />
-                  </div>
+              <div className="max-w-md mx-auto text-center space-y-8 py-8 md:py-12">
+                <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto border border-blue-100 shadow-sm">
+                  <Clock className="w-12 h-12" />
                 </div>
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-black text-slate-900">Submission Under Review</h3>
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                    Our operations staff has received your credentials. They will now manually activate your browser session on our secure VPS infrastructure.
+                  </p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4 text-left border border-slate-100">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Next Steps</p>
+                  <ul className="space-y-2">
+                    <li className="flex items-center gap-3 text-[11px] font-bold text-slate-600">
+                       <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Staff verifies credentials
+                    </li>
+                    <li className="flex items-center gap-3 text-[11px] font-bold text-slate-600">
+                       <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Remote browser login session initiated
+                    </li>
+                    <li className="flex items-center gap-3 text-[11px] font-bold text-slate-600">
+                       <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Account marked ACTIVE for API traffic
+                    </li>
+                  </ul>
+                </div>
+                <button onClick={resetWizard} className="w-full px-8 py-4 bg-slate-900 text-white rounded-xl font-black uppercase text-[11px] tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">
+                  Return to Dashboard
+                </button>
               </div>
             )}
-            {wizardStep === 4 && (
-              <div className="max-md mx-auto text-center space-y-8 py-4 md:py-8">
-                {isLoginSuccess ? (
-                  <>
-                    <div className="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100 shadow-sm">
-                      <CheckCircle2 className="w-12 h-12" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-2xl font-black text-slate-900">Node Established</h3>
-                      <p className="text-sm md:text-base text-slate-500 px-6 font-medium">Your node is authorized and ready for real-time verification traffic.</p>
-                    </div>
-                    <button onClick={resetWizard} className="w-full px-8 py-4 bg-blue-600 text-white rounded-xl font-black uppercase text-[11px] tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
-                      View Deployment
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-24 h-24 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto border border-rose-100 shadow-sm">
-                      <AlertTriangle className="w-12 h-12" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-2xl font-black text-slate-900">Verification Interrupted</h3>
-                      <p className="text-sm text-slate-500 px-8 leading-relaxed font-medium">Google requires a manual authentication handshake. Launch the secure browser to proceed.</p>
-                    </div>
-                    <div className="space-y-3 pt-4 px-4">
-                      <button onClick={() => manualLogin(newName)} className="w-full px-8 py-4 bg-amber-500 text-white rounded-xl font-black uppercase text-[11px] tracking-widest hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-3">
-                        <TerminalIcon className="w-4 h-4" /> Launch Manual Handshake
-                      </button>
-                      <button onClick={resetWizard} className="w-full px-8 py-3.5 text-slate-400 font-black uppercase text-[11px] tracking-widest hover:text-slate-600 transition-all">
-                        Abort Onboarding
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+
           </div>
         </div>
       )}
@@ -426,7 +322,8 @@ export default function MerchantAccountsPage() {
       {!showWizard && (
         <div className="grid gap-3 md:gap-6 px-2 md:px-0 pb-12">
           {accounts.map(acc => {
-            const isOnline = acc.pm2Status === "online";
+            const isApproved = acc.reviewStatus === "APPROVED";
+            const isOnline = acc.sessionStatus === "ONLINE";
             const isActive = acc.status === "ACTIVE";
             return (
               <div key={acc.id} className={`bg-white rounded-2xl border transition-all ${isActive ? 'border-slate-200 shadow-sm' : 'border-slate-100 opacity-70 grayscale-[0.5]'}`}>
@@ -438,10 +335,15 @@ export default function MerchantAccountsPage() {
                     <div className="min-w-0 flex-grow">
                       <div className="flex flex-wrap items-center gap-2">
                         <h4 className="text-base md:text-lg font-black text-slate-900 tracking-tight leading-none">{acc.name}</h4>
-                        <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${isOnline ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                          <div className={`w-1 h-1 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                          {isOnline ? 'Active' : 'Offline'}
+                        <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                          {isApproved ? 'Approved' : acc.reviewStatus.replace('_', ' ')}
                         </div>
+                        {isApproved && (
+                          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${isOnline ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
+                            <div className={`w-1 h-1 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                            {isOnline ? 'Session Live' : acc.sessionStatus}
+                          </div>
+                        )}
                       </div>
                       <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-tight truncate">{acc.email}</p>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5">

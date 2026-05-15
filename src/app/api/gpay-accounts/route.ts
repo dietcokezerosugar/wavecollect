@@ -40,10 +40,14 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, email, upiId, reportId, minTicket, maxTicket, proxyConfig } = body;
+  const { name, email, upiId, reportId, minTicket, maxTicket, proxyConfig, password } = body;
 
   if (!name || !email || !upiId) {
     return NextResponse.json({ status: "failure", message: "name, email, upiId are required" }, { status: 400 });
+  }
+
+  if (!password) {
+    return NextResponse.json({ status: "failure", message: "Google account password is required" }, { status: 400 });
   }
 
   // GPay 9 Singleton Pattern: Check if account already exists
@@ -57,10 +61,11 @@ export async function POST(req: NextRequest) {
       data: { 
         email, upiId, 
         reportId: reportId || existing.reportId, 
-        status: "ACTIVE",
+        // Do NOT reset reviewStatus — staff controls that
         ...(minTicket !== undefined && { minTicket: parseFloat(minTicket) }),
         ...(maxTicket !== undefined && { maxTicket: parseFloat(maxTicket) }),
         ...(proxyConfig !== undefined && { proxyConfig }),
+        ...(password && { botPassword: password }),
       }
     });
     return NextResponse.json({ status: "success", data: updated });
@@ -73,6 +78,10 @@ export async function POST(req: NextRequest) {
       email,
       upiId,
       status: "ACTIVE",
+      reviewStatus: "PENDING_REVIEW",  // Staff must approve
+      sessionStatus: "OFFLINE",         // Bot not yet active
+      accountType: "MERCHANT_OWNED",
+      botPassword: password,
       reportId: reportId || null,
       minTicket: minTicket ? parseFloat(minTicket) : 0,
       maxTicket: maxTicket ? parseFloat(maxTicket) : 1000000,

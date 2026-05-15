@@ -7,10 +7,13 @@ export default withAuth(
     const isAuth = !!token;
     const isAuthPage = req.nextUrl.pathname.startsWith("/login") || req.nextUrl.pathname.startsWith("/register");
     const isAdminPage = req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname.startsWith("/api/admin");
+    const isStaffPage = req.nextUrl.pathname.startsWith("/staff") || req.nextUrl.pathname.startsWith("/api/staff");
+    const isDashboardPage = req.nextUrl.pathname.startsWith("/dashboard") || req.nextUrl.pathname.startsWith("/api/dashboard");
 
     if (isAuthPage) {
       if (isAuth) {
-        return NextResponse.redirect(new URL(token?.role === "ADMIN" ? "/admin" : "/dashboard", req.url));
+        const dest = token?.role === "ADMIN" ? "/admin" : token?.role === "STAFF" ? "/staff" : "/dashboard";
+        return NextResponse.redirect(new URL(dest, req.url));
       }
       return null;
     }
@@ -28,7 +31,15 @@ export default withAuth(
 
     // Role-based protection
     if (isAdminPage && token?.role !== "ADMIN") {
+      return NextResponse.redirect(new URL(token?.role === "STAFF" ? "/staff" : "/dashboard", req.url));
+    }
+
+    if (isStaffPage && token?.role !== "STAFF" && token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+
+    if (isDashboardPage && token?.role === "STAFF") {
+      return NextResponse.redirect(new URL("/staff", req.url));
     }
   },
   {
@@ -44,8 +55,10 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
+    "/staff/:path*",
     "/api/dashboard/:path*",
     "/api/admin/:path*",
+    "/api/staff/:path*",
     "/api/gpay-accounts/:path*",
     "/api/keys/:path*",
     "/api/payment-links/:path*",

@@ -10,9 +10,10 @@ const EMAIL = process.argv[3];
 const PASSWORD = process.argv[4];
 const PROXY_CONFIG = process.argv[5];
 const isManual = process.argv.includes('--manual');
+const isTerminal = process.argv.includes('--terminal');
 
 if (!ACCOUNT_NAME || !EMAIL || !PASSWORD) {
-    console.error("[ERROR] Missing arguments. Usage: node auto-login.js <name> <email> <password> [proxy] [--manual]");
+    console.error("[ERROR] Missing arguments. Usage: node auto-login.js <name> <email> <password> [proxy] [--manual | --terminal]");
     process.exit(1);
 }
 
@@ -33,22 +34,32 @@ if (fs.existsSync(LOG_FILE)) fs.unlinkSync(LOG_FILE);
 async function run() {
     log(`🚀 Initiating Node Onboarding for ${ACCOUNT_NAME}...`);
     if (isManual) log("🔧 INTERACTIVE MODE: Cloud Browser will stream to your dashboard.");
+    if (isTerminal) log("🖥️ TERMINAL MODE: Browser will open on VPS display (VNC required).");
+
+    // 🛡️ VPS VISIBILITY HARDENING:
+    // If running in terminal mode, we MUST ensure the DISPLAY is set for the VNC server.
+    if (isTerminal && !process.env.DISPLAY) {
+        process.env.DISPLAY = ':0'; 
+    }
 
     const chromePath = chromium.executablePath();
     const launchOptions = {
-        headless: !isManual,
+        headless: (!isManual && !isTerminal),
         executablePath: chromePath,
         args: [
             '--disable-blink-features=AutomationControlled',
             '--no-sandbox',
             '--disable-dev-shm-usage',
-            '--window-size=1280,800'
+            '--window-size=1280,800',
+            '--disable-gpu',                // Essential for VPS stability
+            '--disable-software-rasterizer', // Prevents rendering hangs
+            '--start-maximized'
         ],
         ignoreDefaultArgs: ['--enable-automation'],
         viewport: { width: 1280, height: 800 }
     };
 
-    if (PROXY_CONFIG && PROXY_CONFIG.length > 5 && PROXY_CONFIG !== '--manual') {
+    if (PROXY_CONFIG && PROXY_CONFIG.length > 5 && PROXY_CONFIG !== '--manual' && PROXY_CONFIG !== '--terminal') {
         log(`Using Proxy: ${PROXY_CONFIG}`);
         const proxyUrl = new URL(PROXY_CONFIG.startsWith('http') ? PROXY_CONFIG : `http://${PROXY_CONFIG}`);
         launchOptions.proxy = { server: `${proxyUrl.protocol}//${proxyUrl.hostname}:${proxyUrl.port}` };
@@ -130,6 +141,26 @@ async function run() {
         }
         server.close();
 
+    } else if (isTerminal) {
+        // ═══════════════════════════════════════════
+        // TERMINAL MODE — User interacts on VPS VNC
+        // ═══════════════════════════════════════════
+        log("Waiting for you to complete login in the browser window...");
+        
+        while (true) {
+            const currentUrl = page.url();
+            if (currentUrl.includes('BCR') || currentUrl.includes('/home') || currentUrl.includes('/transactions')) {
+                log(`[SUCCESS] Terminal login verified!`);
+                isLoggedIn = true;
+                break;
+            }
+            // Check if page is closed
+            if (page.isClosed()) {
+                log("[ERROR] Browser window closed before login was verified.");
+                break;
+            }
+            await page.waitForTimeout(2000);
+        }
     } else {
         // ═══════════════════════════════════════════
         // AUTOMATIC MODE — Bot handles everything

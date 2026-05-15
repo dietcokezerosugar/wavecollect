@@ -89,6 +89,19 @@ async function updateReportId(reportId) {
     }
 }
 
+async function reportStatus(status) {
+    try {
+        await axios.post(`${HUB_URL}/api/bots/bridge`, {
+            action: "heartbeat",
+            payload: { name: ACCOUNT_NAME, currentStatus: status }
+        }, {
+            headers: { "x-bot-secret": BOT_SECRET }
+        });
+    } catch (e) {
+        // Silently fail, we don't want status reporting to crash the bot
+    }
+}
+
 app.get('/api/control/logs', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -326,8 +339,11 @@ async function runDualPollingLoop() {
         if (isLoggedOut) {
             log('[CRITICAL] 🚨 Bot session expired! Redirected to Login page. Stopping polling.');
             engineRunning = false;
+            await reportStatus("expired");
             return;
         }
+
+        await reportStatus("online");
 
         log('[ENGINE-A] ⚡ XHR sweep complete');
         if (statsEngineB.captured === 0 || Math.random() < 0.2) await runEngineB();
@@ -335,6 +351,7 @@ async function runDualPollingLoop() {
     } catch(e) {
         log(`[CRASH] Playwright stalled: ${e.message}. Recovering...`);
         engineRunning = false;
+        await reportStatus("error");
         try { if (engineContext) await engineContext.close(); } catch(x){}
         engineContext = null; enginePage = null;
         setTimeout(async () => { engineRunning = true; await bootEngine(); }, 5000);

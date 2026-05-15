@@ -55,6 +55,7 @@ model Merchant {
   agentId          String?
   
   apiAccessStatus  String           @default("NOT_REQUESTED") // NOT_REQUESTED, PENDING, APPROVED
+  processingMode   String           @default("OWN_ACCOUNT")    // OWN_ACCOUNT, PLATFORM_POOL
   
   // Custom Branding
   brandColor       String?          @default("#2563eb") // Primary brand color
@@ -188,6 +189,15 @@ model GooglePayAccount {
   otpCode        String?   // Temporary storage for OTP
   lastHeartbeat  DateTime?
   lastSync       DateTime?
+  
+  // === Staff Workflow & Account Lifecycle ===
+  accountType    String    @default("MERCHANT_OWNED") // MERCHANT_OWNED, PLATFORM_POOL
+  reviewStatus   String    @default("PENDING_REVIEW") // PENDING_REVIEW, APPROVED, REJECTED, SUSPENDED
+  sessionStatus  String    @default("OFFLINE")        // OFFLINE, STARTING, ONLINE, EXPIRED, ERROR
+  reviewedBy     String?   // Staff user ID who approved/rejected
+  reviewedAt     DateTime?
+  reviewNote     String?   // Staff can leave notes
+  assignedStaff  String?   // Staff member currently managing this session
   
   // VPA Lifecycle & Risk Engine
   vendorType     String    @default("GPAY") // GPAY, PAYTM, PINELABS

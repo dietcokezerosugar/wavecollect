@@ -33,6 +33,7 @@ export default function SettingsPage() {
   const [brandName, setBrandName] = useState("");
   const [showSupportEmail, setShowSupportEmail] = useState(true);
   const [apiAccessStatus, setApiAccessStatus] = useState("NOT_REQUESTED");
+  const [processingMode, setProcessingMode] = useState("OWN_ACCOUNT");
   const [referralCode, setReferralCode] = useState("");
   const [agentInfo, setAgentInfo] = useState<any>(null);
   const [saved, setSaved] = useState(false);
@@ -54,6 +55,7 @@ export default function SettingsPage() {
           setBrandName(d.data.brandName || "");
           setShowSupportEmail(d.data.showSupportEmail ?? true);
           setApiAccessStatus(d.data.apiAccessStatus || "NOT_REQUESTED");
+          setProcessingMode(d.data.processingMode || "OWN_ACCOUNT");
           setAgentInfo(d.data.agent || null);
         }
       });
@@ -90,7 +92,8 @@ export default function SettingsPage() {
         brandColor,
         brandLogo,
         brandName,
-        showSupportEmail
+        showSupportEmail,
+        processingMode
       }),
     });
     setSaved(true);
@@ -261,6 +264,65 @@ export default function SettingsPage() {
                       This whitelist is automatically updated upon approval of your <a href="/dashboard/ip-whitelist" className="text-blue-600 hover:underline font-black">Security Access Requests</a>. Manual editing is restricted for platform integrity.
                    </p>
                 </div>
+             </div>
+          </section>
+          
+          {/* Processing Mode Selection */}
+          <section className="bg-white rounded-[32px] border border-slate-200 p-8 space-y-8 shadow-sm">
+             <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100">
+                   <Zap className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Processing Infrastructure</h3>
+             </div>
+
+             <div className="grid md:grid-cols-2 gap-4">
+                <button 
+                  onClick={() => setProcessingMode("OWN_ACCOUNT")}
+                  className={`p-6 rounded-[28px] border text-left transition-all relative overflow-hidden group ${
+                    processingMode === "OWN_ACCOUNT" ? "bg-slate-900 border-slate-900 text-white shadow-xl shadow-slate-900/20" : "bg-slate-50 border-slate-100 text-slate-900 hover:border-slate-200"
+                  }`}
+                >
+                   <div className="relative z-10 space-y-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${processingMode === "OWN_ACCOUNT" ? "bg-white/10" : "bg-white shadow-sm text-slate-400"}`}>
+                         <Smartphone className="w-5 h-5" />
+                      </div>
+                      <div>
+                         <p className="text-[11px] font-black uppercase tracking-widest">Own Managed Account</p>
+                         <p className={`text-[10px] font-medium leading-relaxed mt-1 ${processingMode === "OWN_ACCOUNT" ? "text-slate-400" : "text-slate-500"}`}>
+                            Route orders through your staff-approved GPay accounts.
+                         </p>
+                      </div>
+                   </div>
+                   {processingMode === "OWN_ACCOUNT" && <CheckCircle2 className="absolute top-6 right-6 w-5 h-5 text-emerald-400" />}
+                </button>
+
+                <button 
+                   onClick={() => setProcessingMode("PLATFORM_POOL")}
+                   className={`p-6 rounded-[28px] border text-left transition-all relative overflow-hidden group ${
+                     processingMode === "PLATFORM_POOL" ? "bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-600/20" : "bg-slate-50 border-slate-100 text-slate-900 hover:border-slate-200"
+                   }`}
+                >
+                   <div className="relative z-10 space-y-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${processingMode === "PLATFORM_POOL" ? "bg-white/10" : "bg-white shadow-sm text-blue-600"}`}>
+                         <Globe className="w-5 h-5" />
+                      </div>
+                      <div>
+                         <p className="text-[11px] font-black uppercase tracking-widest">Platform Account Pool</p>
+                         <p className={`text-[10px] font-medium leading-relaxed mt-1 ${processingMode === "PLATFORM_POOL" ? "text-blue-100" : "text-slate-500"}`}>
+                            Leverage shared platform accounts for instant scalability.
+                         </p>
+                      </div>
+                   </div>
+                   {processingMode === "PLATFORM_POOL" && <CheckCircle2 className="absolute top-6 right-6 w-5 h-5 text-white" />}
+                </button>
+             </div>
+             
+             <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-start gap-3">
+                <ShieldAlert className="w-4 h-4 text-amber-600 mt-0.5" />
+                <p className="text-[10px] text-amber-800 font-bold leading-relaxed uppercase tracking-tight">
+                   Note: Switching modes affects routing immediately. Ensure your managed accounts are "ONLINE" before selecting "Own Managed Account".
+                </p>
              </div>
           </section>
 

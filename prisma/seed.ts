@@ -26,6 +26,46 @@ async function main() {
   });
 
   console.log(`✅ Production Admin Created: ${admin.email}`);
+
+  // 2. Create Default Merchant
+  const merchantEmail = "merchant@wavecollect.com";
+  const merchantPassword = await bcrypt.hash("merchant123", 10);
+
+  const merchant = await prisma.user.upsert({
+    where: { email: merchantEmail },
+    update: {
+      password: merchantPassword,
+      role: "MERCHANT"
+    },
+    create: {
+      email: merchantEmail,
+      password: merchantPassword,
+      name: "Demo Merchant",
+      role: "MERCHANT",
+    },
+  });
+
+  console.log(`✅ Production Merchant Created: ${merchant.email}`);
+
+  // 3. Create Default Staff
+  const staffEmail = "staff@wavecollect.com";
+  const staffPassword = await bcrypt.hash("staff123", 10);
+
+  const staff = await prisma.user.upsert({
+    where: { email: staffEmail },
+    update: {
+      password: staffPassword,
+      role: "STAFF"
+    },
+    create: {
+      email: staffEmail,
+      password: staffPassword,
+      name: "Operations Staff",
+      role: "STAFF",
+    },
+  });
+
+  console.log(`✅ Production Staff Created: ${staff.email}`);
   console.log("🚀 Database is now in a clean production state.");
 }
 

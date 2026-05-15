@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
         where: { name },
         data: { 
             lastHeartbeat: new Date(),
-            // We could also update actual status here if we wanted
+            sessionStatus: currentStatus === "online" ? "ONLINE" : "OFFLINE",
         }
       });
       return NextResponse.json({ success: true });

@@ -16,6 +16,14 @@ export async function GET() {
       telegramBotToken: true, 
       telegramChatId: true, 
       webhookWhitelist: true,
+    where: { id: session.user.merchantId },
+    select: { 
+      webhookUrl: true, 
+      webhookSecret: true,
+      redirectUrl: true, 
+      telegramBotToken: true, 
+      telegramChatId: true, 
+      webhookWhitelist: true,
       apiAccessStatus: true,
       ipWhitelist: true,
       agent: true,
@@ -24,6 +32,7 @@ export async function GET() {
       brandLogo: true,
       brandName: true,
       showSupportEmail: true,
+      processingMode: true,
     },
   });
   return NextResponse.json({ status: "success", data: merchant });
@@ -48,7 +57,8 @@ export async function POST(req: NextRequest) {
     brandColor,
     brandLogo,
     brandName,
-    showSupportEmail
+    showSupportEmail,
+    processingMode
   } = body;
 
   if (action === "ROTATE_SECRET") {
@@ -85,6 +95,7 @@ export async function POST(req: NextRequest) {
       ...(brandLogo !== undefined && { brandLogo }),
       ...(brandName !== undefined && { brandName }),
       ...(showSupportEmail !== undefined && { showSupportEmail }),
+      ...(processingMode !== undefined && { processingMode }),
       ...agentIdUpdate
     },
   });
