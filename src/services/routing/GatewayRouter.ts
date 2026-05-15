@@ -51,9 +51,9 @@ export class GatewayRouter {
     const validAccounts = allAccounts.filter((acc) => {
       if (acc.successfulTxn >= 100) return false;
       
-      const dailyOk = acc.dailyLimit === 0 || acc.currentDaily + amount <= acc.dailyLimit;
-      const weeklyOk = acc.weeklyLimit === 0 || acc.currentWeekly + amount <= acc.weeklyLimit;
-      const monthlyOk = acc.monthlyLimit === 0 || acc.currentMonthly + amount <= acc.monthlyLimit;
+      const dailyOk = Number(acc.dailyLimit) === 0 || Number(acc.currentDaily) + amount <= Number(acc.dailyLimit);
+      const weeklyOk = Number(acc.weeklyLimit) === 0 || Number(acc.currentWeekly) + amount <= Number(acc.weeklyLimit);
+      const monthlyOk = Number(acc.monthlyLimit) === 0 || Number(acc.currentMonthly) + amount <= Number(acc.monthlyLimit);
       
       return dailyOk && weeklyOk && monthlyOk;
     });
@@ -91,7 +91,7 @@ export class GatewayRouter {
     if (poolToUse.length === 0) return null;
 
     // 5. Load Balancing: Round Robin (select one with lowest current daily usage)
-    poolToUse.sort((a, b) => a.currentDaily - b.currentDaily);
+    poolToUse.sort((a, b) => Number(a.currentDaily) - Number(b.currentDaily));
 
     return { account: poolToUse[0], fallbackUsed };
   }

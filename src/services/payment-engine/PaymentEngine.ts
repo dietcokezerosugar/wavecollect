@@ -57,7 +57,7 @@ export class PaymentEngine {
     */
 
     // ── 2. Enforce Monthly Limit (BEFORE creating intent) ────────────
-    if (keyData.usedAmount >= keyData.monthlyLimit) {
+    if (Number(keyData.usedAmount) >= Number(keyData.monthlyLimit)) {
       throw new Error("API Key monthly limit reached. Please upgrade or wait for reset.");
     }
 
@@ -109,9 +109,8 @@ export class PaymentEngine {
     });
     const upiDeepLink = `upi://pay?${upiParams.toString()}`;
 
-    // ── 6. Generate payment token (md5 of order_id + timestamp + random)
-    const tokenString = orderId + Date.now().toString() + Math.floor(1000 + Math.random() * 9000).toString();
-    const paymentToken = crypto.createHash("md5").update(tokenString).digest("hex");
+    // ── 6. Generate cryptographically strong payment token ────────────
+    const paymentToken = crypto.randomBytes(32).toString("hex");
 
     // ── 7. Create Intent in DB (atomic) ──────────────────────────────
     const expireAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
@@ -180,8 +179,7 @@ export class PaymentEngine {
     });
     const upiDeepLink = `upi://pay?${upiParams.toString()}`;
 
-    const tokenString = orderId + Date.now().toString();
-    const paymentToken = crypto.createHash("md5").update(tokenString).digest("hex");
+    const paymentToken = crypto.randomBytes(32).toString("hex");
 
     return await prisma.paymentIntent.create({
       data: {

@@ -40,11 +40,22 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.merchantId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body = await req.json();
   const { id, isBlocked, monthlyLimit } = body;
 
   if (!id) {
     return NextResponse.json({ status: "failure", message: "Missing key id" }, { status: 400 });
+  }
+
+  // SECURITY: Verify the key belongs to the logged-in merchant
+  const existing = await prisma.apiKey.findFirst({
+    where: { id, merchantId: session.user.merchantId }
+  });
+  if (!existing) {
+    return NextResponse.json({ status: "failure", message: "Key not found" }, { status: 404 });
   }
 
   const updated = await prisma.apiKey.update({

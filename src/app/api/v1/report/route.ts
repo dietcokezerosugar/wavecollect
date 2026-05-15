@@ -4,11 +4,15 @@ import { logApi } from "@/lib/log";
 
 export async function POST(req: NextRequest) {
   try {
-    // Security check: Bot Secret
+    // Security check: Bot Secret (MANDATORY)
     const authHeader = req.headers.get("Authorization");
     const secret = process.env.INTERNAL_BOT_SECRET;
     
-    if (secret && authHeader !== `Bearer ${secret}`) {
+    if (!secret) {
+      return NextResponse.json({ status: "failure", message: "Server misconfiguration: bot secret not set" }, { status: 500 });
+    }
+    
+    if (authHeader !== `Bearer ${secret}`) {
       return NextResponse.json({ status: "failure", message: "Unauthorized" }, { status: 401 });
     }
 

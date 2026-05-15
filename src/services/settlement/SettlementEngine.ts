@@ -28,8 +28,8 @@ export class SettlementEngine {
 
     for (const record of unsettledRecords) {
       await prisma.$transaction(async (tx) => {
-        const feeAmount = (record.totalAmount * record.merchant.commissionRate) / 100;
-        const netAmount = record.totalAmount - feeAmount;
+        const feeAmount = Number(record.totalAmount) * Number(record.merchant.commissionRate) / 100;
+        const netAmount = Number(record.totalAmount) - feeAmount;
 
         // 1. Update Settlement Status
         await tx.settlement.update({
@@ -41,20 +41,20 @@ export class SettlementEngine {
           }
         });
 
-        // 2. Add Net Amount to Merchant's Withdrawable Balance (previously the pre-paid fee wallet)
-        await tx.merchant.update({
+        // 2. Add Net Amount to Merchant's Withdrawable Balance
+        const updatedMerchant = await tx.merchant.update({
           where: { id: record.merchantId },
           data: { walletBalance: { increment: netAmount } }
         });
 
-        // 3. Log the Ledger Entry
+        // 3. Log the Ledger Entry (use FRESH balance from the update result)
         await tx.walletLedger.create({
           data: {
             merchantId: record.merchantId,
             type: "CREDIT",
             amount: netAmount,
             description: `Settlement Release for Txn (Fee: ₹${feeAmount.toFixed(2)})`,
-            balanceAfter: record.merchant.walletBalance + netAmount,
+            balanceAfter: Number(updatedMerchant.walletBalance),
             referenceType: "SETTLED",
             referenceId: record.id
           }
@@ -62,7 +62,7 @@ export class SettlementEngine {
 
         // 4. Handle Agent Commissions (if applicable)
         if (record.merchant.agentId && record.merchant.agent) {
-          const agentPayout = (record.totalAmount * (record.merchant.agent.commissionRate || 0)) / 100;
+          const agentPayout = Number(record.totalAmount) * (Number(record.merchant.agent.commissionRate) || 0) / 100;
           if (agentPayout > 0) {
             await tx.agent.update({
               where: { id: record.merchant.agentId },
@@ -105,8 +105,8 @@ export class SettlementEngine {
 
       // Move from HELD directly to UNSETTLED so the next batch picks it up, 
       // or we can settle it immediately. We'll settle immediately.
-      const feeAmount = (record.totalAmount * record.merchant.commissionRate) / 100;
-      const netAmount = record.totalAmount - feeAmount;
+      const feeAmount = Number(record.totalAmount) * Number(record.merchant.commissionRate) / 100;
+      const netAmount = Number(record.totalAmount) - feeAmount;
 
       await tx.settlement.update({
         where: { id: record.id },
@@ -118,7 +118,7 @@ export class SettlementEngine {
         }
       });
 
-      await tx.merchant.update({
+      const updatedMerchant = await tx.merchant.update({
         where: { id: record.merchantId },
         data: { walletBalance: { increment: netAmount } }
       });
@@ -129,7 +129,7 @@ export class SettlementEngine {
           type: "CREDIT",
           amount: netAmount,
           description: `Manual Hold Release for Txn (Fee: ₹${feeAmount.toFixed(2)})`,
-          balanceAfter: record.merchant.walletBalance + netAmount,
+          balanceAfter: Number(updatedMerchant.walletBalance),
           referenceType: "SETTLED",
           referenceId: record.id
         }

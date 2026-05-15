@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -26,8 +26,8 @@ model Merchant {
   address          String?
   phone            String?
   status           String           @default("PENDING") // PENDING, ACTIVE, SUSPENDED
-  walletBalance    Float            @default(0)
-  commissionRate   Float            @default(0)
+  walletBalance    Decimal          @default(0) @db.Decimal(14,2)
+  commissionRate   Decimal          @default(0) @db.Decimal(5,2)
   
   // Whitelist & Integration
   ipWhitelist      String?          // Comma separated IPs
@@ -72,8 +72,8 @@ model Agent {
   name           String
   email          String     @unique
   referralCode   String     @unique
-  commissionRate Float      @default(0) // % of merchant fee (not transaction amount)
-  walletBalance  Float      @default(0)
+  commissionRate Decimal    @default(0) @db.Decimal(5,2)
+  walletBalance  Decimal    @default(0) @db.Decimal(14,2)
   merchants      Merchant[]
   commissionLogs AgentCommissionLog[]
   createdAt      DateTime   @default(now())
@@ -84,7 +84,7 @@ model AgentCommissionLog {
   agentId         String
   agent           Agent    @relation(fields: [agentId], references: [id])
   merchantId      String
-  amount          Float
+  amount          Decimal  @db.Decimal(14,2)
   description     String?
   paymentIntentId String?
   createdAt       DateTime @default(now())
@@ -95,9 +95,9 @@ model WalletLedger {
   merchantId    String
   merchant      Merchant @relation(fields: [merchantId], references: [id])
   type          String   // CREDIT, DEBIT
-  amount        Float
+  amount        Decimal  @db.Decimal(14,2)
   description   String?
-  balanceAfter  Float
+  balanceAfter  Decimal  @db.Decimal(14,2)
   referenceType String?  // TRANSACTION, RECHARGE, PAYOUT
   referenceId   String?
   createdAt     DateTime @default(now())
@@ -108,8 +108,8 @@ model ApiKey {
   key          String          @unique
   merchantId   String
   merchant     Merchant        @relation(fields: [merchantId], references: [id])
-  monthlyLimit Float           @default(100000)
-  usedAmount   Float           @default(0)
+  monthlyLimit Decimal         @default(100000) @db.Decimal(14,2)
+  usedAmount   Decimal         @default(0) @db.Decimal(14,2)
   isBlocked    Boolean         @default(false)
   createdAt    DateTime        @default(now())
   paymentIntents PaymentIntent[]
@@ -121,7 +121,7 @@ model PaymentIntent {
   merchant         Merchant    @relation(fields: [merchantId], references: [id])
   apiKeyId         String
   apiKey           ApiKey      @relation(fields: [apiKeyId], references: [id])
-  amount           Float
+  amount           Decimal     @db.Decimal(14,2)
   status           String      @default("PENDING") // PENDING, SUCCESS, FAILED, EXPIRED
   referenceId      String      @unique // order_id from merchant
   customerMobile   String?
@@ -155,7 +155,7 @@ model Transaction {
   id            String         @id @default(cuid())
   externalId    String         @unique // merchantTransactionId from GPay
   utr           String?
-  amount        Float
+  amount        Decimal        @db.Decimal(14,2)
   payerName     String?
   payerUpiId    String?
   note          String?
@@ -167,7 +167,7 @@ model PaymentLink {
   id           String   @id @default(cuid())
   merchantId   String
   title        String
-  amount       Float
+  amount       Decimal  @db.Decimal(14,2)
   description  String?
   slug         String   @unique
   apiKeyId     String
@@ -202,7 +202,7 @@ model GooglePayAccount {
   // VPA Lifecycle & Risk Engine
   vendorType     String    @default("GPAY") // GPAY, PAYTM, PINELABS
   riskTier       String    @default("HIGH") // HIGH, MID, LOW
-  healthScore    Float     @default(100)
+  healthScore    Decimal   @default(100) @db.Decimal(5,2)
   cooldownUntil  DateTime?
   successfulTxn  Int       @default(0)
   poolAssignments VPAPoolAssignment[]
@@ -211,15 +211,15 @@ model GooglePayAccount {
   proxyConfig    String?   // Format: http://user:pass@ip:port
   
   // Advanced SaaS Limits
-  minTicket      Float     @default(0)
-  maxTicket      Float     @default(1000000)
-  dailyLimit     Float     @default(0)
-  weeklyLimit    Float     @default(0)
-  monthlyLimit   Float     @default(0)
+  minTicket      Decimal   @default(0) @db.Decimal(14,2)
+  maxTicket      Decimal   @default(1000000) @db.Decimal(14,2)
+  dailyLimit     Decimal   @default(0) @db.Decimal(14,2)
+  weeklyLimit    Decimal   @default(0) @db.Decimal(14,2)
+  monthlyLimit   Decimal   @default(0) @db.Decimal(14,2)
   
-  currentDaily   Float     @default(0)
-  currentWeekly  Float     @default(0)
-  currentMonthly Float     @default(0)
+  currentDaily   Decimal   @default(0) @db.Decimal(14,2)
+  currentWeekly  Decimal   @default(0) @db.Decimal(14,2)
+  currentMonthly Decimal   @default(0) @db.Decimal(14,2)
   
   createdAt      DateTime  @default(now())
 }
@@ -295,7 +295,7 @@ model Customer {
   ipAddress         String?
   riskTier          String   @default("HIGH") // HIGH, MID, LOW
   successfulTxnCount Int     @default(0)
-  totalVolume       Float    @default(0)
+  totalVolume       Decimal  @default(0) @db.Decimal(14,2)
   firstSeenAt       DateTime @default(now())
   lastTxnAt         DateTime?
   isFTD             Boolean  @default(true) // First Time Depositor
@@ -340,9 +340,9 @@ model Settlement {
   id             String   @id @default(cuid())
   merchantId     String
   merchant       Merchant @relation(fields: [merchantId], references: [id])
-  totalAmount    Float
-  holdAmount     Float    @default(0)
-  releasedAmount Float    @default(0)
+  totalAmount    Decimal  @db.Decimal(14,2)
+  holdAmount     Decimal  @default(0) @db.Decimal(14,2)
+  releasedAmount Decimal  @default(0) @db.Decimal(14,2)
   status         String   @default("UNSETTLED") // UNSETTLED, HELD, PARTIAL, SETTLED, PAID_OUT
   settledAt      DateTime?
   paidOutAt      DateTime?

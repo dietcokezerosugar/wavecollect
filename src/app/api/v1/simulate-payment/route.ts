@@ -3,14 +3,29 @@ import { prisma } from "@/lib/prisma";
 import { logApi } from "@/lib/log";
 import { MatchingEngine } from "@/services/matching/MatchingEngine";
 import { v4 as uuidv4 } from "uuid";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 /**
  * Simulate a transaction detection for testing the entire flow.
- * In production this would come from the GPay9 verification engine.
+ * SECURITY: Gated behind ADMIN authentication. Disabled in production by default.
  * POST /api/v1/simulate-payment
  * Body: { order_id: string }
  */
 export async function POST(req: NextRequest) {
+  // SECURITY GATE: Only allow in development, or for authenticated ADMIN users
+  const isProduction = process.env.NODE_ENV === "production";
+  
+  if (isProduction) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ 
+        status: "failure", 
+        message: "Simulate payment is restricted to admin users in production." 
+      }, { status: 403 });
+    }
+  }
+
   try {
     const body = await req.json();
     const { order_id } = body;
@@ -35,17 +50,16 @@ export async function POST(req: NextRequest) {
     const fakeTxn = {
       externalId: `SIM-${uuidv4().slice(0, 12)}`,
       utr: `UTR${Date.now()}`,
-      amount: intent.amount,
+      amount: Number(intent.amount),
       payerName: "Test Payer",
       payerUpiId: "testpayer@upi",
-      note: intent.referenceId,    // This is how matching works: note == referenceId
+      note: intent.referenceId,
       timestamp: new Date().toISOString(),
     };
 
-    await logApi("INFO", "Simulating payment detection", intent.merchantId, { orderId: order_id, fakeTxn });
+    await logApi("INFO", "ADMIN: Simulating payment detection", intent.merchantId, { orderId: order_id, fakeTxn });
     await MatchingEngine.onTransactionDetected(fakeTxn);
 
-    // Re-fetch to confirm
     const updated = await prisma.paymentIntent.findUnique({ where: { referenceId: order_id } });
 
     return NextResponse.json({

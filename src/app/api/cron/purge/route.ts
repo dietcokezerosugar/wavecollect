@@ -1,51 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { subDays } from "date-fns";
 
+/**
+ * Cron job to expire stale payment intents and reset VPA daily counters.
+ * Should be called every 5 minutes via external cron or PM2 scheduler.
+ * POST /api/cron/purge
+ */
 export async function POST(req: NextRequest) {
-  // Simple check for internal cron or admin
-  // In production, use a secret header check: if (req.headers.get('x-cron-secret') !== process.env.CRON_SECRET)
-  
+  // SECURITY: Authenticate cron requests
+  const authSecret = req.headers.get("x-cron-secret") || req.headers.get("Authorization")?.replace("Bearer ", "");
+  const expectedSecret = process.env.INTERNAL_BOT_SECRET;
+  if (!expectedSecret || authSecret !== expectedSecret) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    const thirtyDaysAgo = subDays(new Date(), 30);
-
-    // 1. Purge Audit Logs
-    const auditPurge = await prisma.auditLog.deleteMany({
-      where: { timestamp: { lt: thirtyDaysAgo } }
+    // 1. Expire stale payment intents
+    const expiredResult = await prisma.paymentIntent.updateMany({
+      where: {
+        status: "PENDING",
+        expireAt: { lte: new Date() },
+      },
+      data: { status: "EXPIRED" },
     });
 
-    // 2. Purge API Logs
-    const apiLogPurge = await prisma.apiLog.deleteMany({
-      where: { timestamp: { lt: thirtyDaysAgo } }
-    });
+    // 2. Reset daily VPA counters (if past midnight)
+    const now = new Date();
+    if (now.getHours() === 0 && now.getMinutes() < 6) {
+      await prisma.googlePayAccount.updateMany({
+        where: { status: "ACTIVE" },
+        data: { currentDaily: 0 },
+      });
+    }
 
-    // 3. Purge Webhook Logs (Keep WebhookEvents for audit, but purge execution logs)
-    const webhookLogPurge = await prisma.webhookLog.deleteMany({
-      where: { createdAt: { lt: thirtyDaysAgo } }
-    });
+    // 3. Reset weekly counters on Monday
+    if (now.getDay() === 1 && now.getHours() === 0 && now.getMinutes() < 6) {
+      await prisma.googlePayAccount.updateMany({
+        where: { status: "ACTIVE" },
+        data: { currentWeekly: 0 },
+      });
+    }
 
-    // 4. Purge Old Routing Decisions
-    const routingPurge = await prisma.routingDecision.deleteMany({
-      where: { createdAt: { lt: thirtyDaysAgo } }
-    });
-
-    // 5. Purge successful Transactions older than 60 days (optional)
-    // const txnPurge = await prisma.transaction.deleteMany({
-    //   where: { timestamp: { lt: subDays(new Date(), 60) } }
-    // });
+    // 4. Reset monthly counters on the 1st
+    if (now.getDate() === 1 && now.getHours() === 0 && now.getMinutes() < 6) {
+      await prisma.googlePayAccount.updateMany({
+        where: { status: "ACTIVE" },
+        data: { currentMonthly: 0 },
+      });
+    }
 
     return NextResponse.json({
       status: "success",
-      purged: {
-        auditLogs: auditPurge.count,
-        apiLogs: apiLogPurge.count,
-        webhookLogs: webhookLogPurge.count,
-        routingDecisions: routingPurge.count
-      }
+      expired: expiredResult.count,
+      timestamp: now.toISOString(),
     });
-
   } catch (error: any) {
-    console.error("Purge Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

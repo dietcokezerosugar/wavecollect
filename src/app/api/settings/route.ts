@@ -53,6 +53,28 @@ export async function POST(req: NextRequest) {
     processingMode
   } = body;
 
+  // SECURITY: Validate webhook URL against SSRF
+  if (webhookUrl) {
+    try {
+      const parsed = new URL(webhookUrl);
+      const hostname = parsed.hostname.toLowerCase();
+      const blockedPatterns = [
+        /^localhost$/i,
+        /^127\./,
+        /^10\./,
+        /^172\.(1[6-9]|2[0-9]|3[01])\./,
+        /^192\.168\./,
+        /^169\.254\./,
+        /^0\./,
+      ];
+      if (blockedPatterns.some(p => p.test(hostname)) || parsed.protocol === "file:") {
+        return NextResponse.json({ status: "failure", message: "Webhook URL cannot point to private or internal addresses." }, { status: 400 });
+      }
+    } catch (e) {
+      return NextResponse.json({ status: "failure", message: "Invalid webhook URL format." }, { status: 400 });
+    }
+  }
+
   if (action === "ROTATE_SECRET") {
     const crypto = require("crypto");
     const newSecret = crypto.randomBytes(16).toString("hex");

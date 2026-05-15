@@ -51,7 +51,11 @@ export class MatchingEngine {
           where: { 
             status: "PENDING", 
             referenceId: txn.note,
-            amount: txn.amount // STRICTOR CHECK
+            amount: txn.amount, // STRICT CHECK
+            OR: [
+              { expireAt: null },
+              { expireAt: { gte: new Date() } }
+            ]
           },
           include: { merchant: true, apiKey: true },
         });
@@ -63,7 +67,7 @@ export class MatchingEngine {
           });
 
           if (potentialIntent) {
-            const reason = potentialIntent.amount !== txn.amount 
+            const reason = Number(potentialIntent.amount) !== txn.amount 
               ? `Amount mismatch: expected ₹${potentialIntent.amount}, got ₹${txn.amount}`
               : `Order already in status: ${potentialIntent.status}`;
             

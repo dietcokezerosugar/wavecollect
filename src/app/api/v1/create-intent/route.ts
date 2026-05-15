@@ -42,6 +42,15 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
+    const MAX_TRANSACTION_LIMIT = 1000000; // ₹10,00,000
+    if (parseFloat(amount) > MAX_TRANSACTION_LIMIT) {
+      return NextResponse.json({ 
+        status: "failure", 
+        error: "AMOUNT_EXCEEDS_LIMIT",
+        message: `Amount cannot exceed ₹${MAX_TRANSACTION_LIMIT.toLocaleString()}.` 
+      }, { status: 400 });
+    }
+
     if (!order_id || String(order_id).length < 3) {
       return NextResponse.json({ 
         status: "failure", 

@@ -3,6 +3,13 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY: Authenticate bot control requests
+    const authSecret = req.headers.get("x-bot-secret") || req.headers.get("Authorization")?.replace("Bearer ", "");
+    const expectedSecret = process.env.INTERNAL_BOT_SECRET;
+    if (!expectedSecret || authSecret !== expectedSecret) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const searchParams = req.nextUrl.searchParams;
     let action = searchParams.get("action");
     let name = "";
