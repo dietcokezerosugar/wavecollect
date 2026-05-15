@@ -1,10 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PaymentEngine } from "@/services/payment-engine/PaymentEngine";
 import { logApi } from "@/lib/log";
+import { prisma } from "@/lib/prisma";
+
+// Simple in-memory rate limiter
+const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
+const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 30; // 30 requests per minute per IP
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") || "unknown";
   
+  // --- RATE LIMITING ---
+  const currentTime = Date.now();
+  const rateLimitData = rateLimitMap.get(ip) || { count: 0, timestamp: currentTime };
+
+  if (currentTime - rateLimitData.timestamp > RATE_LIMIT_WINDOW_MS) {
+    rateLimitData.count = 1;
+    rateLimitData.timestamp = currentTime;
+  } else {
+    rateLimitData.count++;
+  }
+  rateLimitMap.set(ip, rateLimitData);
+
+  if (rateLimitData.count > MAX_REQUESTS_PER_WINDOW) {
+    await logApi("WARNING", "Rate Limit Exceeded", undefined, { ip });
+    return NextResponse.json({ 
+      status: "failure", 
+      error: "RATE_LIMIT_EXCEEDED",
+      message: "Too many requests. Please try again later." 
+    }, { status: 429 });
+  }
+  // -----------------------
+
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -57,6 +85,34 @@ export async function POST(req: NextRequest) {
         error: "INVALID_ORDER_ID",
         message: "order_id is required and must be at least 3 characters." 
       }, { status: 400 });
+    }
+
+    // --- IDEMPOTENCY CHECK ---
+    // Prevent duplicate intents for the same order_id from the same merchant
+    const existingIntent = await prisma.paymentIntent.findFirst({
+      where: {
+        referenceId: String(order_id),
+        merchant: { apiKeys: { some: { key: apiKey } } }
+      }
+    });
+
+    if (existingIntent) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      return NextResponse.json({
+        status: "success",
+        data: {
+          id: existingIntent.id,
+          amount: Number(existingIntent.amount),
+          order_id: existingIntent.referenceId,
+          status: existingIntent.status,
+          checkout_url: `${appUrl}/pay/${existingIntent.paymentToken}`,
+          payment_token: existingIntent.paymentToken,
+          upi_link: existingIntent.upiDeepLink,
+          qr_data: existingIntent.qrData,
+          expire_at: existingIntent.expireAt,
+        },
+        message: "Returned existing payment intent."
+      });
     }
 
     const intent = await PaymentEngine.createIntent({

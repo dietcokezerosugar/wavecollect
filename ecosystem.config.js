@@ -1,51 +1,30 @@
-const fs = require('fs');
-const path = require('path');
-
-// Dynamically generate app list based on sessions/accounts
-// This ensures that 'pm2 start ecosystem.config.js' always knows about all accounts
-const sessionDir = path.join(__dirname, '.sessions');
-if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
-
-const accounts = fs.readdirSync(sessionDir)
-    .filter(f => f.startsWith('session-'))
-    .map(f => f.replace('session-', ''));
-
-const baseApps = [
-    {
-        name: "wavecollect-daemon",
-        script: path.join(__dirname, 'src/bot/remote-manager.js'),
-        cwd: __dirname,
-        autorestart: true,
-        max_restarts: 100,
-        log_date_format: 'YYYY-MM-DD HH:mm:ss',
-        error_file: `./logs/daemon-error.log`,
-        out_file: `./logs/daemon-out.log`,
-        env: {
-            NODE_ENV: 'production'
-        }
-    }
-];
-
 module.exports = {
-    apps: [
-        ...baseApps,
-        ...accounts.map((name, index) => ({
-        name: `gpay-${name}`,
-        script: path.join(__dirname, 'src/bot/bot.js'),
-        args: name,
-        cwd: __dirname,
-        autorestart: true,
-        max_restarts: 50,
-        min_uptime: '10s',
-        restart_delay: 5000 + (index * 2000),
-        max_memory_restart: '800M',
-        log_date_format: 'YYYY-MM-DD HH:mm:ss',
-        error_file: `./logs/${name}-error.log`,
-        out_file: `./logs/${name}-out.log`,
-        merge_logs: true,
-        env: {
-            NODE_ENV: 'production',
-            PLAYWRIGHT_CHROMIUM_USE_HEADLESS_NEW: '1'
-        }
-    }))
+  apps: [
+    {
+      name: "wavecollect-web",
+      script: "npm",
+      args: "start",
+      cwd: "./",
+      env: {
+        NODE_ENV: "production",
+      },
+      instances: 1, // Single instance to avoid DB pool issues unless properly clustered
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "1G", // Prevent Next.js from leaking
+    },
+    {
+      name: "wavecollect-bot-fleet",
+      script: "./src/bot/bot.js",
+      cwd: "./",
+      env: {
+        NODE_ENV: "production",
+      },
+      instances: 1, // Start with 1 fleet manager
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "2G", // CRITICAL: Kill Puppeteer if it leaks memory
+      cron_restart: "0 */6 * * *", // Hard restart every 6 hours to clear zombie Chrome instances
+    }
+  ]
 };
