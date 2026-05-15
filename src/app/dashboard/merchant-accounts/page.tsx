@@ -179,7 +179,7 @@ export default function MerchantAccountsPage() {
   }
 
   return (
-    <div className="space-y-8 pb-12 font-sans max-w-5xl mx-auto">
+    <div className="space-y-8 pb-24 font-sans max-w-5xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2 md:px-0">
         <div>
           <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Merchant Fleet</h1>

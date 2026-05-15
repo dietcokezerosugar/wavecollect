@@ -80,20 +80,20 @@ export default function ApiKeysPage() {
     <div className="space-y-12 pb-32 max-w-6xl mx-auto px-4 md:px-6 animate-in fade-in duration-700">
       
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-slate-200 pb-12">
-        <div className="space-y-4">
-           <div className="flex items-center gap-2 text-blue-600 font-black text-[10px] uppercase tracking-[0.2em]">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8 border-b border-slate-200 pb-8 md:pb-12 mt-6 md:mt-0">
+        <div className="space-y-4 text-center md:text-left">
+           <div className="inline-flex items-center gap-2 text-blue-600 font-black text-[10px] uppercase tracking-[0.2em] bg-blue-50 px-3 py-1.5 rounded-full md:bg-transparent md:px-0 md:py-0 md:rounded-none">
               <Shield className="w-4 h-4" /> Credentials Infrastructure
            </div>
-           <h1 className="text-4xl font-black tracking-tight text-slate-900 leading-none">API Access Control</h1>
-           <p className="text-slate-500 text-sm font-medium max-w-xl leading-relaxed">
+           <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 leading-none">API Access Control</h1>
+           <p className="text-slate-500 text-sm font-medium max-w-xl leading-relaxed mx-auto md:mx-0">
              Provision high-entropy keys for secure machine-to-machine communication. Manage throttling limits and instant revocation from this control center.
            </p>
         </div>
         <button
           onClick={generateKey}
           disabled={loading}
-          className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95 disabled:opacity-50 flex items-center gap-3"
+          className="w-full md:w-auto px-8 py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
         >
           {loading ? <Activity className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
           Provision New Key
@@ -128,7 +128,8 @@ export default function ApiKeysPage() {
            <span className="text-[10px] font-bold text-slate-300">v1.2 Secure Protocol</span>
         </div>
 
-        <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden">
+        {/* Desktop Table View */}
+        <div className="hidden md:block bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden">
            <div className="overflow-x-auto">
               <table className="w-full text-left min-w-[800px]">
                  <thead>
@@ -209,6 +210,69 @@ export default function ApiKeysPage() {
                  </tbody>
               </table>
            </div>
+        </div>
+
+        {/* Mobile List View */}
+        <div className="md:hidden space-y-4">
+           {keys.length === 0 ? (
+              <div className="bg-white rounded-3xl border border-slate-200 p-10 text-center shadow-sm">
+                 <Key className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                 <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">No active keys</p>
+              </div>
+           ) : keys.map((key) => (
+              <div key={key.id} className="bg-white rounded-[24px] border border-slate-200 p-5 shadow-sm space-y-4">
+                 <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 ${key.isBlocked ? 'bg-slate-50 text-slate-300 border-slate-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                          <Key className="w-4 h-4" />
+                       </div>
+                       <div>
+                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest mb-1.5 ${
+                             key.isBlocked ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"
+                          }`}>
+                             <div className={`w-1 h-1 rounded-full ${key.isBlocked ? 'bg-rose-500' : 'bg-emerald-500 animate-pulse'}`} />
+                             {key.isBlocked ? "Revoked" : "Authorized"}
+                          </div>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase block">Issued {new Date(key.createdAt).toLocaleDateString()}</p>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 flex items-center justify-between">
+                    <code className="text-xs font-black text-slate-900 font-mono tracking-tighter truncate max-w-[200px]">{key.key}</code>
+                    <button 
+                      onClick={() => copyToClipboard(key.key, key.id)}
+                      className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm border border-slate-200 text-slate-400 active:scale-95 transition-transform"
+                    >
+                       {copiedId === key.id ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                    </button>
+                 </div>
+
+                 <div className="space-y-2 pt-2 border-t border-slate-100">
+                    <div className="flex justify-between text-[10px] font-black">
+                       <span className="text-slate-900 uppercase">₹{key.usedAmount.toLocaleString()}</span>
+                       <span className="text-slate-400">/ ₹{key.monthlyLimit.toLocaleString()} Capacity</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                       <div 
+                          className={`h-full transition-all duration-1000 ${key.isBlocked ? 'bg-slate-200' : 'bg-blue-600'}`}
+                          style={{ width: `${Math.min((key.usedAmount / key.monthlyLimit) * 100, 100)}%` }}
+                       />
+                    </div>
+                 </div>
+
+                 <button 
+                   onClick={() => toggleBlock(key.id, key.isBlocked)}
+                   className={`w-full py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all mt-2 ${
+                      key.isBlocked 
+                         ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 active:scale-95" 
+                         : "bg-white text-rose-500 border-2 border-rose-100 active:bg-rose-50"
+                   }`}
+                 >
+                    {key.isBlocked ? "Re-Authorize Key" : "Revoke Access"}
+                 </button>
+              </div>
+           ))}
         </div>
       </div>
 
