@@ -68,7 +68,8 @@ export async function POST(req: NextRequest) {
         where: { id: request.merchantId },
         data: { 
           ipWhitelist: currentIps.join(","),
-          webhookUrl: request.webhookUrl || request.merchant.webhookUrl // Only update if a new one is proposed
+          webhookUrl: request.webhookUrl || request.merchant.webhookUrl, // Only update if a new one is proposed
+          apiAccessStatus: "APPROVED"
         },
       });
 

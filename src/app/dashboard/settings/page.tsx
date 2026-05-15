@@ -101,16 +101,7 @@ export default function SettingsPage() {
   }
 
   async function applyForAccess() {
-    setApplying(true);
-    try {
-      const res = await fetch("/api/settings/apply-access", { method: "POST" });
-      const data = await res.json();
-      if (data.status === "success") {
-        setApiAccessStatus("PENDING");
-      }
-    } finally {
-      setApplying(false);
-    }
+    window.location.href = "/dashboard/ip-whitelist";
   }
 
   async function rotateWebhookSecret() {
@@ -165,10 +156,10 @@ export default function SettingsPage() {
                   </p>
                   <button 
                     onClick={applyForAccess}
-                    disabled={applying || apiAccessStatus === "PENDING"}
+                    disabled={apiAccessStatus === "PENDING"}
                     className="px-8 py-4 bg-white text-blue-600 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-50 transition-all shadow-xl disabled:opacity-50 active:scale-95"
                   >
-                    {applying ? "Processing..." : apiAccessStatus === "PENDING" ? "Application Under Review" : "Apply for API Whitelisting"}
+                    {apiAccessStatus === "PENDING" ? "Application Under Review" : "Apply for API Whitelisting"}
                   </button>
                </div>
             </section>

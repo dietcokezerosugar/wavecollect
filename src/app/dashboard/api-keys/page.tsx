@@ -36,10 +36,32 @@ export default function ApiKeysPage() {
   const [keys, setKeys] = useState<ApiKeyData[]>([]);
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [apiAccessStatus, setApiAccessStatus] = useState<"NOT_REQUESTED" | "PENDING" | "APPROVED">("NOT_REQUESTED");
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    fetchKeys();
+    fetchData();
   }, []);
+
+  async function fetchData() {
+    setLoading(true);
+    try {
+      const [keysRes, settingsRes] = await Promise.all([
+        fetch("/api/keys"),
+        fetch("/api/settings")
+      ]);
+      const keysData = await keysRes.json();
+      const settingsData = await settingsRes.json();
+      
+      setKeys(keysData.data || []);
+      if (settingsData.data) {
+        setApiAccessStatus(settingsData.data.apiAccessStatus || "NOT_REQUESTED");
+      }
+    } finally {
+      setLoading(false);
+      setDataLoaded(true);
+    }
+  }
 
   async function fetchKeys() {
     const res = await fetch("/api/keys");
@@ -76,11 +98,36 @@ export default function ApiKeysPage() {
   const totalUsed = keys.reduce((acc, k) => acc + k.usedAmount, 0);
   const totalLimit = keys.reduce((acc, k) => acc + k.monthlyLimit, 0);
 
+  if (!dataLoaded) {
+    return <div className="min-h-[50vh] flex items-center justify-center"><Activity className="w-8 h-8 animate-spin text-blue-600" /></div>;
+  }
+
   return (
     <div className="space-y-12 pb-32 max-w-6xl mx-auto px-4 md:px-6 animate-in fade-in duration-700">
       
+      {apiAccessStatus !== "APPROVED" && (
+        <div className="p-6 bg-amber-50 border border-amber-200 rounded-[24px] flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-amber-900 uppercase tracking-widest">API Access Restricted</h3>
+              <p className="text-xs font-bold text-amber-700 mt-1">
+                {apiAccessStatus === "PENDING" 
+                  ? "Your IP Whitelist request is pending admin approval." 
+                  : "You must complete the Security & Whitelist setup before generating API keys."}
+              </p>
+            </div>
+          </div>
+          <a href="/dashboard/ip-whitelist" className="px-6 py-3 bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-700 transition-colors">
+            Go to Security Setup
+          </a>
+        </div>
+      )}
+
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8 border-b border-slate-200 pb-8 md:pb-12 mt-6 md:mt-0">
+      <div className={`flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8 border-b border-slate-200 pb-8 md:pb-12 mt-6 md:mt-0 ${apiAccessStatus !== "APPROVED" ? "opacity-50 pointer-events-none" : ""}`}>
         <div className="space-y-4 text-center md:text-left">
            <div className="inline-flex items-center gap-2 text-blue-600 font-black text-[10px] uppercase tracking-[0.2em] bg-blue-50 px-3 py-1.5 rounded-full md:bg-transparent md:px-0 md:py-0 md:rounded-none">
               <Shield className="w-4 h-4" /> Credentials Infrastructure
@@ -92,7 +139,7 @@ export default function ApiKeysPage() {
         </div>
         <button
           onClick={generateKey}
-          disabled={loading}
+          disabled={loading || apiAccessStatus !== "APPROVED"}
           className="w-full md:w-auto px-8 py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
         >
           {loading ? <Activity className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}

@@ -81,14 +81,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "This IP is already pending approval" }, { status: 409 });
     }
 
-    const request = await prisma.ipWhitelistRequest.create({
-      data: {
-        merchantId,
-        ipAddress: ipAddress.trim(),
-        webhookUrl: webhookUrl || null,
-        acceptedTerms: true,
-      },
-    });
+    const [request] = await prisma.$transaction([
+      prisma.ipWhitelistRequest.create({
+        data: {
+          merchantId,
+          ipAddress: ipAddress.trim(),
+          webhookUrl: webhookUrl || null,
+          acceptedTerms: true,
+        },
+      }),
+      prisma.merchant.update({
+        where: { id: merchantId },
+        data: { 
+          apiAccessStatus: "PENDING",
+          ...(webhookUrl ? { webhookUrl } : {})
+        }
+      })
+    ]);
 
     return NextResponse.json({ status: "success", data: request });
   } catch (error: any) {
