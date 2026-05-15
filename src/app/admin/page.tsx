@@ -49,23 +49,23 @@ export default function AdminDashboard() {
   if (loading) return <div className="p-20 text-center font-bold text-slate-400 uppercase tracking-widest animate-pulse">Initializing Mission Control...</div>;
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-24">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
+        <div className="text-center md:text-left">
           <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Mission Control</h2>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center justify-center md:justify-start gap-2 mt-1">
              <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest">Global System Overview</p>
              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 shadow-sm w-fit">
+        <div className="flex items-center justify-center md:justify-end gap-3">
+          <div className="flex items-center gap-2 px-3 md:px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
             <Clock className="w-4 h-4 text-blue-600" />
-            <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">LIVE: {new Date().toLocaleTimeString()}</span>
+            <span className="text-[10px] md:text-[11px] font-black text-slate-600 uppercase tracking-widest">LIVE: {new Date().toLocaleTimeString()}</span>
           </div>
           <button 
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="p-2.5 bg-rose-50 text-rose-600 rounded-xl border border-rose-100 hover:bg-rose-100 transition-all shadow-sm group"
+            className="p-2.5 bg-rose-50 text-rose-600 rounded-xl border border-rose-100 hover:bg-rose-100 transition-all shadow-sm group active:scale-95"
             title="Sign Out"
           >
             <LogOut size={18} className="group-hover:scale-110 transition-transform" />
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Primary Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
         <StatCard 
           label="Total Global Volume" 
           value={`₹${(stats.totalVolume || 0).toLocaleString()}`} 
@@ -101,12 +101,12 @@ export default function AdminDashboard() {
       {/* Secondary Info Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         {/* Merchant Activity */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-base font-black text-slate-900 flex items-center gap-2.5">
-              <Users className="w-5 h-5 text-blue-600" /> Top Performing Merchants
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 md:p-8 shadow-sm">
+          <div className="flex items-center justify-between mb-5 md:mb-6">
+            <h3 className="text-sm md:text-base font-black text-slate-900 flex items-center gap-2.5">
+              <Users className="w-5 h-5 text-blue-600" /> Top Merchants
             </h3>
-            <button className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:underline">Full Directory</button>
+            <button className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:underline">Full List</button>
           </div>
           <div className="space-y-3">
              {stats.merchantStats?.map((m: any) => (
@@ -117,9 +117,9 @@ export default function AdminDashboard() {
         </div>
 
         {/* System Health & Alerts */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-base font-black text-slate-900 flex items-center gap-2.5">
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 md:p-8 shadow-sm">
+          <div className="flex items-center justify-between mb-5 md:mb-6">
+            <h3 className="text-sm md:text-base font-black text-slate-900 flex items-center gap-2.5">
               <AlertCircle className="w-5 h-5 text-rose-500" /> System Alerts
             </h3>
           </div>
@@ -143,16 +143,16 @@ function StatCard({ label, value, sub, icon, color }: any) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm flex flex-col justify-between">
-      <div className="flex items-center justify-between mb-4">
-        <div className={`p-2.5 rounded-xl border ${colorMap[color]}`}>
-          {React.cloneElement(icon, { className: "w-5 h-5" })}
+    <div className="bg-white rounded-2xl border border-slate-200 p-5 md:p-8 shadow-sm flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-3 md:mb-4">
+        <div className={`p-2 md:p-2.5 rounded-xl border ${colorMap[color]}`}>
+          {React.cloneElement(icon, { className: "w-4 h-4 md:w-5 md:h-5" })}
         </div>
       </div>
       <div>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-        <h4 className="text-3xl font-black text-slate-900 tracking-tight">{value}</h4>
-        <p className="text-[11px] font-medium text-slate-500 mt-2">{sub}</p>
+        <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+        <h4 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">{value}</h4>
+        <p className="text-[10px] md:text-[11px] font-medium text-slate-500 mt-1 md:mt-2">{sub}</p>
       </div>
     </div>
   );
@@ -160,17 +160,17 @@ function StatCard({ label, value, sub, icon, color }: any) {
 
 function MerchantRow({ name, volume, txns, status }: any) {
   return (
-    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 hover:border-slate-300 transition-colors cursor-pointer group shadow-sm">
-       <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-[10px] bg-slate-50 flex items-center justify-center font-black text-slate-600 border border-slate-200 group-hover:bg-white transition-colors">{name[0]}</div>
-          <div>
-            <p className="text-[13px] font-bold text-slate-900 leading-tight mb-0.5">{name}</p>
-            <p className="text-[10px] font-bold text-slate-400 uppercase">{txns} Transactions</p>
+    <div className="flex items-center justify-between p-3 md:p-4 bg-white rounded-xl border border-slate-100 hover:border-slate-300 transition-colors cursor-pointer group shadow-sm active:scale-[0.98]">
+       <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 md:w-10 md:h-10 rounded-[10px] bg-slate-50 flex items-center justify-center font-black text-slate-600 border border-slate-200 group-hover:bg-white transition-colors shrink-0 text-sm">{name[0]}</div>
+          <div className="min-w-0">
+            <p className="text-[12px] md:text-[13px] font-bold text-slate-900 leading-tight mb-0.5 truncate">{name}</p>
+            <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase">{txns} Txns</p>
           </div>
        </div>
-       <div className="text-right">
-          <p className="text-sm font-black text-slate-900">{volume}</p>
-          <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md inline-block mt-1">{status}</span>
+       <div className="text-right shrink-0 ml-2">
+          <p className="text-xs md:text-sm font-black text-slate-900">{volume}</p>
+          <span className="text-[8px] md:text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 md:px-2 py-0.5 rounded-md inline-block mt-1">{status}</span>
        </div>
     </div>
   );

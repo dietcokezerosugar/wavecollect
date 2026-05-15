@@ -329,10 +329,10 @@ export default function MerchantAccountsPage() {
             const isActive = acc.status === "ACTIVE";
             return (
               <div key={acc.id} className={`bg-white rounded-2xl border transition-all ${isActive ? 'border-slate-200 shadow-sm' : 'border-slate-100 opacity-70 grayscale-[0.5]'}`}>
-                <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-start justify-between gap-5">
-                  <div className="flex gap-4">
-                    <div className={`w-14 h-14 shrink-0 rounded-xl flex items-center justify-center border shadow-sm ${isActive ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
-                      <Smartphone className="w-6 h-6" />
+                <div className="p-4 md:p-6 flex flex-col gap-4">
+                  <div className="flex gap-3 md:gap-4">
+                    <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-xl flex items-center justify-center border shadow-sm ${isActive ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
+                      <Smartphone className="w-5 h-5 md:w-6 md:h-6" />
                     </div>
                     <div className="min-w-0 flex-grow">
                       <div className="flex flex-wrap items-center gap-2">
@@ -365,21 +365,23 @@ export default function MerchantAccountsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between md:justify-end gap-6 bg-slate-50/50 md:bg-transparent -mx-5 -mb-5 md:m-0 p-5 md:p-0 border-t md:border-0 border-slate-100 mt-2">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Node Status</label>
+
+                  {/* Controls Row */}
+                  <div className="flex items-center justify-between gap-4 bg-slate-50/50 rounded-xl p-3 md:p-4 border border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Status</label>
                       <button onClick={() => updateAccount(acc.id, { status: isActive ? "PAUSED" : "ACTIVE" })} className={`w-11 h-6 rounded-full relative transition-all duration-300 ${isActive ? 'bg-blue-600' : 'bg-slate-200'}`}><div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all duration-300 shadow-sm ${isActive ? 'left-6' : 'left-1'}`} /></button>
                     </div>
-                    <div className="flex flex-col gap-1.5 flex-grow max-w-[140px] md:w-32">
-                      <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Quota (₹)</label>
-                      <input type="number" defaultValue={acc.monthlyLimit || 0} onBlur={(e) => updateAccount(acc.id, { monthlyLimit: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-right font-black focus:ring-4 focus:ring-blue-600/5 outline-none transition-all" />
+                    <div className="flex items-center gap-2">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 hidden md:block">Quota</label>
+                      <input type="number" defaultValue={acc.monthlyLimit || 0} onBlur={(e) => updateAccount(acc.id, { monthlyLimit: parseFloat(e.target.value) || 0 })} className="w-28 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-right font-black focus:ring-4 focus:ring-blue-600/5 outline-none transition-all" />
                     </div>
                   </div>
                 </div>
                 
 
 
-                <div className="bg-slate-50/30 border-t border-slate-100 p-4 flex items-center justify-between">
+                <div className="bg-slate-50/30 border-t border-slate-100 px-4 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
                     <span>Processing: {acc.monthlyLimit > 0 ? `${Math.round((acc.usedAmount / acc.monthlyLimit) * 100)}% Capacity` : 'Unlimited'}</span>
                   </div>
@@ -404,17 +406,17 @@ export default function MerchantAccountsPage() {
 
       {/* Live Console Modal */}
       {activeLogBot && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-8 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setActiveLogBot(null)} />
-          <div className="relative w-full max-w-4xl bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col h-[85vh] animate-in zoom-in-95 duration-300">
-            <div className="bg-slate-50 px-6 py-4 flex items-center justify-between border-b border-slate-200">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-600 border border-slate-200 shadow-sm">
-                  <TerminalIcon className="w-5 h-5" />
+          <div className="relative w-full md:max-w-4xl bg-white md:rounded-2xl rounded-t-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col h-[90vh] md:h-[85vh] animate-in slide-in-from-bottom-4 md:zoom-in-95 duration-300">
+            <div className="bg-slate-50 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between border-b border-slate-200">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center text-blue-600 border border-slate-200 shadow-sm shrink-0">
+                  <TerminalIcon className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <div>
-                  <h3 className="text-[13px] font-black text-slate-900 uppercase tracking-tight">Stream Monitor: {activeLogBot}</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">High-Frequency Verification Node</p>
+                <div className="min-w-0">
+                  <h3 className="text-[11px] md:text-[13px] font-black text-slate-900 uppercase tracking-tight truncate">Stream: {activeLogBot}</h3>
+                  <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 hidden md:block">High-Frequency Verification Node</p>
                 </div>
               </div>
               <button onClick={() => setActiveLogBot(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors border border-transparent hover:border-slate-200">
@@ -424,25 +426,25 @@ export default function MerchantAccountsPage() {
             
             {/* Stats Dashboard (Top Half) */}
             {botStats && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-6 bg-slate-50/50 border-b border-slate-200">
-                <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Uptime</p>
-                  <p className="text-sm font-black text-slate-900">{formatUptime(botStats.uptime)}</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 p-4 md:p-6 bg-slate-50/50 border-b border-slate-200">
+                <div className="p-3 md:p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Uptime</p>
+                  <p className="text-xs md:text-sm font-black text-slate-900">{formatUptime(botStats.uptime)}</p>
                 </div>
-                <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Sweeps</p>
-                  <p className="text-sm font-black text-emerald-600">{botStats.totalSweeps || 0}</p>
+                <div className="p-3 md:p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Sweeps</p>
+                  <p className="text-xs md:text-sm font-black text-emerald-600">{botStats.totalSweeps || 0}</p>
                 </div>
-                <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Relay Status</p>
+                <div className="p-3 md:p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Relay</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] font-black text-emerald-600">{botStats.webhookStats?.success || 0} OK</span>
-                    <span className="text-[10px] font-black text-rose-500">{botStats.webhookStats?.failure || 0} ERR</span>
+                    <span className="text-[9px] md:text-[10px] font-black text-emerald-600">{botStats.webhookStats?.success || 0} OK</span>
+                    <span className="text-[9px] md:text-[10px] font-black text-rose-500">{botStats.webhookStats?.failure || 0} ERR</span>
                   </div>
                 </div>
-                <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Engine Load</p>
-                  <p className="text-sm font-black text-blue-600">{Math.round(botStats.memory / 1024 / 1024)} MB</p>
+                <div className="p-3 md:p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Load</p>
+                  <p className="text-xs md:text-sm font-black text-blue-600">{Math.round(botStats.memory / 1024 / 1024)} MB</p>
                 </div>
               </div>
             )}
@@ -465,14 +467,14 @@ export default function MerchantAccountsPage() {
               ))}
             </div>
 
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+            <div className="px-4 md:px-6 py-3 md:py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
                <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Node Healthy</span>
+                    <span className="text-[9px] md:text-[10px] font-black text-emerald-600 uppercase tracking-widest">Healthy</span>
                   </div>
                </div>
-               <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">ESC to Close Monitor</span>
+               <span className="text-[9px] md:text-[10px] font-black text-slate-300 uppercase tracking-widest hidden md:block">ESC to Close Monitor</span>
             </div>
           </div>
         </div>

@@ -116,17 +116,17 @@ export default function StaffAccountReview() {
   );
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tighter">Security Gate</h1>
+    <div className="space-y-6 md:space-y-8 pb-24">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="text-center md:text-left">
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">Security Gate</h1>
           <p className="text-slate-500 font-medium text-sm">Review credentials and activate remote browser sessions.</p>
         </div>
         <button 
           onClick={() => setShowPoolModal(true)}
-          className="px-6 py-3 bg-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
+          className="w-full md:w-auto px-6 py-3.5 bg-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95"
         >
-           <Plus className="w-4 h-4" /> Create Platform Pool Account
+           <Plus className="w-4 h-4" /> Create Pool Account
         </button>
       </div>
 
@@ -151,16 +151,16 @@ export default function StaffAccountReview() {
                            }`}>
                               <User className="w-6 h-6" />
                            </div>
-                           <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                 <h3 className="font-black text-slate-900">{account.name}</h3>
+                           <div className="space-y-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                 <h3 className="font-black text-slate-900 text-sm md:text-base">{account.name}</h3>
                                  <StatusBadge status={account.reviewStatus} type="review" />
                                  <StatusBadge status={account.sessionStatus} type="session" />
                               </div>
-                              <p className="text-xs text-slate-400 font-mono">{account.email}</p>
-                              <div className="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-500 uppercase">
-                                 <span className="flex items-center gap-1"><Building className="w-3 h-3" /> {account.merchant?.businessName || account.merchant?.name}</span>
-                                 <span>•</span>
+                              <p className="text-xs text-slate-400 font-mono truncate">{account.email}</p>
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[10px] font-bold text-slate-500 uppercase">
+                                 <span className="flex items-center gap-1 truncate"><Building className="w-3 h-3 shrink-0" /> {account.merchant?.businessName || account.merchant?.name}</span>
+                                 <span className="hidden md:inline">•</span>
                                  <span>Added {format(new Date(account.createdAt), 'MMM dd, HH:mm')}</span>
                               </div>
                            </div>
@@ -205,38 +205,40 @@ export default function StaffAccountReview() {
                      </div>
 
                      {/* Credential Reveal Section */}
-                     <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100 flex flex-wrap items-center gap-6">
-                        <div className="space-y-1">
-                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Target Account</p>
-                           <p className="text-xs font-bold text-slate-700">{account.email}</p>
-                        </div>
-                        <div className="space-y-1">
-                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Password</p>
-                           <div className="flex items-center gap-2">
-                              <span className="text-xs font-mono font-bold text-slate-900">
-                                 {showPassword === account.id ? account.botPassword : '••••••••••••'}
-                              </span>
-                              <button 
-                                onClick={() => setShowPassword(showPassword === account.id ? null : account.id)}
-                                className="text-slate-400 hover:text-slate-900 transition-colors"
-                              >
-                                 {showPassword === account.id ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                              </button>
+                     <div className="mt-4 md:mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                           <div className="space-y-1">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Target Account</p>
+                              <p className="text-xs font-bold text-slate-700 truncate">{account.email}</p>
                            </div>
-                        </div>
-                        <div className="space-y-1">
-                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">UPI ID</p>
-                           <p className="text-xs font-bold text-slate-700">{account.upiId}</p>
+                           <div className="space-y-1">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Password</p>
+                              <div className="flex items-center gap-2">
+                                 <span className="text-xs font-mono font-bold text-slate-900">
+                                    {showPassword === account.id ? account.botPassword : '••••••••••••'}
+                                 </span>
+                                 <button 
+                                   onClick={() => setShowPassword(showPassword === account.id ? null : account.id)}
+                                   className="text-slate-400 hover:text-slate-900 transition-colors"
+                                 >
+                                    {showPassword === account.id ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                 </button>
+                              </div>
+                           </div>
+                           <div className="space-y-1">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">UPI ID</p>
+                              <p className="text-xs font-bold text-slate-700">{account.upiId}</p>
+                           </div>
                         </div>
                         {account.proxyConfig && (
                           <div className="space-y-1">
                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Proxy Route</p>
-                             <p className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-                                <ShieldCheck className="w-3 h-3" /> {account.proxyConfig}
+                             <p className="text-xs font-bold text-emerald-600 flex items-center gap-1 truncate">
+                                <ShieldCheck className="w-3 h-3 shrink-0" /> {account.proxyConfig}
                              </p>
                           </div>
                         )}
-                        <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-200">
+                        <div className="w-full grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4 pt-4 border-t border-slate-200">
                            <div className="space-y-2">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
                                  <Terminal className="w-3 h-3 text-slate-400" /> 1. Manual Handshake
