@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { 
-  Smartphone, Plus, Play, Square, RefreshCw, Terminal as TerminalIcon, Power, CheckCircle2, ShieldCheck, AlertTriangle, Key, Loader2, ArrowRight, X
+  Smartphone, Plus, Play, Square, RefreshCw, Terminal as TerminalIcon, Power, CheckCircle2, ShieldCheck, AlertTriangle, Key, Loader2, ArrowRight, X, Clock
 } from "lucide-react";
 
 interface GPayAccount {
@@ -13,6 +13,8 @@ interface GPayAccount {
   reportId: string | null;
   status: string;
   desiredStatus: string;
+  reviewStatus: string;
+  sessionStatus: string;
   monthlyLimit: number;
   usedAmount: number;
   pm2Status?: "online" | "stopped" | "errored" | "unknown";
@@ -375,50 +377,14 @@ export default function MerchantAccountsPage() {
                   </div>
                 </div>
                 
-                {acc.desiredStatus === "WAITING_OTP" && (
-                  <div className="bg-amber-50 border-t border-amber-100 p-4 md:px-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center">
-                           <ShieldCheck className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <p className="text-[11px] font-black uppercase tracking-widest text-amber-900">Security Checkpoint</p>
-                          <p className="text-[11px] font-bold text-amber-700/70">Google is asking for an SMS/Email code.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input 
-                          type="text" 
-                          placeholder="Enter 6-digit code" 
-                          value={otpInputs[acc.name] || ""}
-                          onChange={(e) => setOtpInputs({...otpInputs, [acc.name]: e.target.value})}
-                          className="px-4 py-2 border border-amber-200 bg-white rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-amber-500/20"
-                        />
-                        <button 
-                          onClick={() => submitOtp(acc.name)}
-                          className="px-4 py-2 bg-amber-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-sm shadow-amber-500/20 active:scale-95"
-                        >
-                          Submit OTP
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
-                <div className="bg-slate-50/30 border-t border-slate-100 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex gap-2 w-full md:w-auto">
-                    {isOnline ? (
-                      <button onClick={() => botAction(acc.name, 'stop')} className="flex-1 md:flex-none px-4 py-2 bg-white border border-rose-100 text-rose-600 hover:bg-rose-50 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95"><Square className="w-3 h-3 fill-current" /> Stop</button>
-                    ) : (
-                      <button onClick={() => botAction(acc.name, 'start')} className="flex-1 md:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 active:scale-95"><Play className="w-3 h-3 fill-current" /> Start</button>
-                    )}
-                    <button onClick={() => botAction(acc.name, 'restart')} className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all active:rotate-180 duration-500" title="Restart"><RefreshCw className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setActiveLogBot(acc.name)} className="p-2 bg-slate-900 text-white rounded-lg transition-all hover:bg-black active:scale-95 shadow-md shadow-slate-900/10" title="View Stream"><TerminalIcon className="w-3.5 h-3.5" /></button>
+
+                <div className="bg-slate-50/30 border-t border-slate-100 p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                    <span>Processing: {acc.monthlyLimit > 0 ? `${Math.round((acc.usedAmount / acc.monthlyLimit) * 100)}% Capacity` : 'Unlimited'}</span>
                   </div>
-                  <div className="flex items-center justify-around md:justify-end gap-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                    <button onClick={() => manualLogin(acc.name)} className="hover:text-blue-600 transition-colors flex items-center gap-1.5"><TerminalIcon className="w-3 h-3" /> Manual Handshake</button>
-                    <button onClick={() => deleteAccount(acc.id, acc.name)} className="hover:text-rose-500 transition-colors flex items-center gap-1.5 text-rose-400"><X className="w-3 h-3" /> Purge</button>
+                  <div className="flex items-center gap-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                    <button onClick={() => deleteAccount(acc.id)} className="hover:text-rose-500 transition-colors flex items-center gap-1.5 text-rose-400"><X className="w-3 h-3" /> Purge</button>
                   </div>
                 </div>
                 {acc.monthlyLimit > 0 && (<div className="h-1 bg-slate-100 w-full overflow-hidden"><div className={`h-full transition-all duration-1000 ${acc.usedAmount >= acc.monthlyLimit ? 'bg-rose-500' : 'bg-blue-600'}`} style={{ width: `${Math.min((acc.usedAmount / acc.monthlyLimit) * 100, 100)}%` }} /></div>)}
