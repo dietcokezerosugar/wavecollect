@@ -35,13 +35,11 @@ export async function GET(req: NextRequest) {
   }
 
   const stream = new ReadableStream({
-    start(controller) {
-      if (!fs.existsSync(logPath)) {
-        controller.enqueue(`data: [SYSTEM] Log file for ${botName} not found yet...\n\n`);
-      }
-
-      // Initial tail: send last 50 lines
+      let lastSize = 0;
       if (fs.existsSync(logPath)) {
+        lastSize = fs.statSync(logPath).size;
+        
+        // Initial burst: last 50 lines
         const content = fs.readFileSync(logPath, 'utf8');
         const lines = content.split('\n').slice(-50);
         lines.forEach(line => {
@@ -49,21 +47,30 @@ export async function GET(req: NextRequest) {
         });
       }
 
-      // Watch for changes
-      const watcher = fs.watch(path.dirname(logPath), (eventType, filename) => {
-        if (filename === 'bot.log' && eventType === 'change') {
-          try {
-            const freshContent = fs.readFileSync(logPath, 'utf8');
-            const lastLine = freshContent.trim().split('\n').pop();
-            if (lastLine) controller.enqueue(`data: ${lastLine}\n\n`);
-          } catch (e) {}
+      const pollInterval = setInterval(() => {
+        try {
+          if (!fs.existsSync(logPath)) return;
+          const stats = fs.statSync(logPath);
+          if (stats.size > lastSize) {
+            const fd = fs.openSync(logPath, 'r');
+            const buffer = Buffer.alloc(stats.size - lastSize);
+            fs.readSync(fd, buffer, 0, stats.size - lastSize, lastSize);
+            fs.closeSync(fd);
+            
+            const newLogs = buffer.toString('utf8').trim().split('\n');
+            newLogs.forEach(line => {
+              if (line.trim()) controller.enqueue(`data: ${line}\n\n`);
+            });
+            lastSize = stats.size;
+          }
+        } catch (e) {
+          // controller.enqueue(`data: [SYSTEM] Stream error: ${e.message}\n\n`);
         }
-      });
+      }, 1000); // Poll every second for new bytes
 
       req.signal.addEventListener("abort", () => {
-        watcher.close();
+        clearInterval(pollInterval);
       });
-    },
   });
 
   return new Response(stream, {
