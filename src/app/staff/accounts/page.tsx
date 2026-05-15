@@ -28,6 +28,24 @@ export default function StaffAccountReview() {
   const [showPoolModal, setShowPoolModal] = useState(false);
   const [newPoolAccount, setNewPoolAccount] = useState({ name: '', email: '', password: '', upiId: '', proxy: '' });
   const [isCreating, setIsCreating] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, id: string) => {
+    try {
+      // Modern fallback for non-secure HTTP origins
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error('Fallback copy failed', err);
+    }
+  };
 
   useEffect(() => {
     fetchAccounts();
@@ -226,13 +244,14 @@ export default function StaffAccountReview() {
                               <button 
                                 onClick={() => {
                                   const cmd = `node src/bot/auto-login.js "${account.name}" "${account.email}" "${account.botPassword}" "${account.proxyConfig || ''}" --terminal`;
-                                  navigator.clipboard.writeText(cmd);
-                                  alert("Handshake command copied!");
+                                  copyToClipboard(cmd, `hs-${account.id}`);
                                 }}
-                                className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-slate-900 text-white rounded-lg text-[9px] font-mono hover:bg-slate-800 transition-all border border-slate-700"
+                                className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[9px] font-mono transition-all border ${
+                                  copiedId === `hs-${account.id}` ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'
+                                }`}
                               >
-                                 <span className="truncate">node auto-login.js...</span>
-                                 <span className="bg-slate-700 px-1 rounded uppercase">Copy</span>
+                                 <span className="truncate">{copiedId === `hs-${account.id}` ? 'READY TO PASTE' : 'node auto-login.js...'}</span>
+                                 <span className="bg-white/10 px-1 rounded uppercase">{copiedId === `hs-${account.id}` ? '✓' : 'Copy'}</span>
                               </button>
                            </div>
 
@@ -243,13 +262,14 @@ export default function StaffAccountReview() {
                               <button 
                                 onClick={() => {
                                   const cmd = `pm2 start src/bot/bot.js --name "bot-${account.name}" -- "${account.name}"`;
-                                  navigator.clipboard.writeText(cmd);
-                                  alert("PM2 Start command copied!");
+                                  copyToClipboard(cmd, `pm-${account.id}`);
                                 }}
-                                className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg text-[9px] font-mono hover:bg-indigo-700 transition-all shadow-sm"
+                                className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[9px] font-mono transition-all ${
+                                  copiedId === `pm-${account.id}` ? 'bg-emerald-600 text-white shadow-lg' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'
+                                }`}
                               >
-                                 <span className="truncate">pm2 start bot.js...</span>
-                                 <span className="bg-indigo-500 px-1 rounded uppercase">Copy</span>
+                                 <span className="truncate">{copiedId === `pm-${account.id}` ? 'READY TO PASTE' : 'pm2 start bot.js...'}</span>
+                                 <span className="bg-white/10 px-1 rounded uppercase">{copiedId === `pm-${account.id}` ? '✓' : 'Copy'}</span>
                               </button>
                            </div>
 
@@ -260,13 +280,14 @@ export default function StaffAccountReview() {
                               <button 
                                 onClick={() => {
                                   const cmd = `pm2 logs bot-${account.name}`;
-                                  navigator.clipboard.writeText(cmd);
-                                  alert("PM2 Logs command copied!");
+                                  copyToClipboard(cmd, `lg-${account.id}`);
                                 }}
-                                className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-[9px] font-mono hover:bg-slate-200 transition-all"
+                                className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[9px] font-mono transition-all border ${
+                                  copiedId === `lg-${account.id}` ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                                }`}
                               >
-                                 <span className="truncate">pm2 logs bot-...</span>
-                                 <span className="bg-slate-200 px-1 rounded uppercase">Copy</span>
+                                 <span className="truncate">{copiedId === `lg-${account.id}` ? 'READY TO PASTE' : 'pm2 logs bot-...'}</span>
+                                 <span className="bg-slate-300/50 px-1 rounded uppercase">{copiedId === `lg-${account.id}` ? '✓' : 'Copy'}</span>
                               </button>
                            </div>
                         </div>
