@@ -104,7 +104,7 @@ export class PaymentEngine {
       am: amount.toFixed(2),
       tid: orderId,
       tr: orderId,
-      tn: `Pay ${orderId}`,
+      tn: orderId,
       cu: "INR",
     });
     const upiDeepLink = `upi://pay?${upiParams.toString()}`;
