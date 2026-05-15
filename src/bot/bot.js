@@ -111,6 +111,10 @@ app.get('/api/control/logs', (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
+    
+    // Send immediate history
+    recentLogs.forEach(l => res.write(`data: ${l}\n\n`));
+
     uiClients.push(res);
     req.on('close', () => uiClients = uiClients.filter(c => c !== res));
 });
