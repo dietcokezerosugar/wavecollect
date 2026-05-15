@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
-// import nodemailer from "nodemailer"; // NOTE: Requires user to set SMTP vars
+import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
@@ -34,15 +34,10 @@ export async function POST(req: Request) {
 
     const resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://payxmint.com'}/reset-password?token=${token}`;
 
-    /* 
-    ========================================================
-    NOTE TO ADMIN: Implement your actual email sending here.
-    Example using Nodemailer:
-    ========================================================
-    
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: Number(process.env.SMTP_PORT) || 465,
+      secure: true, // true for 465, false for other ports
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
@@ -50,15 +45,23 @@ export async function POST(req: Request) {
     });
 
     await transporter.sendMail({
-      from: '"PayxMint Security" <security@payxmint.com>',
+      from: `"PayxMint Security" <${process.env.SMTP_USER}>`,
       to: email,
       subject: "Password Reset Request",
-      html: `<p>Click <a href="${resetLink}">here</a> to reset your password. This link expires in 1 hour.</p>`
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+          <h2 style="color: #0f172a;">Password Reset</h2>
+          <p style="color: #64748b;">We received a request to reset your PayxMint master key.</p>
+          <p style="color: #64748b;">Click the button below to securely reset your password. This link will expire in 1 hour.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Reset Password</a>
+          </div>
+          <p style="color: #94a3b8; font-size: 12px;">If you did not request this, you can safely ignore this email.</p>
+        </div>
+      `
     });
-    */
 
-    // For development, we log it to the console
-    console.log("Password Reset Link:", resetLink);
+    console.log("Password Reset Link Sent:", resetLink);
 
     return NextResponse.json({ 
       success: true, 
