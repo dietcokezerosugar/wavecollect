@@ -70,7 +70,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
                  </p>
               </div>
            </div>
-           <Link href="/dashboard/docs" className="text-[10px] font-black text-emerald-700 uppercase tracking-widest bg-white/50 px-4 py-2 rounded-lg hover:bg-white transition-all">
+           <Link href="/docs" className="text-[10px] font-black text-emerald-700 uppercase tracking-widest bg-white/50 px-4 py-2 rounded-lg hover:bg-white transition-all">
               Learn Integration
            </Link>
         </div>

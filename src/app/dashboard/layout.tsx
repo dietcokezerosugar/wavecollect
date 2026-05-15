@@ -53,7 +53,7 @@ export default function DashboardLayout({
     { label: "API Logs", icon: Terminal, href: "/dashboard/logs", shortcut: "L" },
     { label: "IP Whitelist", icon: ShieldCheck, href: "/dashboard/ip-whitelist", shortcut: "I" },
     { label: "Webhooks", icon: Webhook, href: "/dashboard/webhooks", shortcut: "W" },
-    { label: "Docs", icon: Book, href: "/dashboard/docs", shortcut: "D" },
+    { label: "Docs", icon: Book, href: "/docs", shortcut: "D" },
     { label: "Settings", icon: Settings, href: "/dashboard/settings", shortcut: "S" },
   ];
 
