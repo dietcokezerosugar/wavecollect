@@ -31,7 +31,6 @@ export default function StaffLayout({
   const navItems = [
     { label: "Overview", icon: LayoutDashboard, href: "/staff" },
     { label: "Merchant Reviews", icon: ShieldCheck, href: "/staff/accounts" },
-    { label: "Live Sessions", icon: Monitor, href: "/staff/sessions" },
   ];
 
   return (

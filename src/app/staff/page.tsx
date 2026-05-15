@@ -68,7 +68,7 @@ export default function StaffOverview() {
           color="text-emerald-600" 
           bg="bg-emerald-50" 
           border="border-emerald-100"
-          href="/staff/sessions"
+          href="/staff/accounts"
         />
         <StatCard 
           label="Critical Errors" 
@@ -77,7 +77,7 @@ export default function StaffOverview() {
           color="text-rose-600" 
           bg="bg-rose-50" 
           border="border-rose-100"
-          href="/staff/sessions"
+          href="/staff/accounts"
         />
         <StatCard 
           label="Total Managed" 
