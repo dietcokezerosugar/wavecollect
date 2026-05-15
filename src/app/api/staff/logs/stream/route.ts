@@ -41,12 +41,4 @@ export async function GET(req: NextRequest) {
   } catch (e: any) {
     return NextResponse.json({ error: `Failed to connect to Bot Engine: ${e.message}` }, { status: 503 });
   }
-
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-    },
-  });
 }
