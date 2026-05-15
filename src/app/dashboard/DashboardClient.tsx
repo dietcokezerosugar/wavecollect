@@ -54,7 +54,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
   const trialDaysRemaining = trialEndsAt ? Math.ceil((trialEndsAt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-6 md:space-y-8 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
       {/* Trial Status Banner */}
       {isTrialActive ? (
@@ -104,7 +104,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">Live Monitoring</span>
              <div className="h-4 w-[1px] bg-slate-200 mx-2" />
              <button 
-               onClick={() => signOut({ callbackUrl: "/" })}
+               onClick={() => signOut({ callbackUrl: "/login" })}
                className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-rose-600 transition-colors uppercase tracking-widest"
              >
                <LogOut size={12} />
