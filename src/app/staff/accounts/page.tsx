@@ -218,17 +218,57 @@ export default function StaffAccountReview() {
                              </p>
                           </div>
                         )}
-                        <div className="flex-grow flex justify-end">
-                           <button 
-                             onClick={() => {
-                               const cmd = `node src/bot/auto-login.js "${account.name}" "${account.email}" "${account.botPassword}" "${account.proxyConfig || ''}" --terminal`;
-                               navigator.clipboard.writeText(cmd);
-                               alert("VPS Command copied to clipboard!");
-                             }}
-                             className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-sm"
-                           >
-                              <Terminal className="w-3 h-3" /> Copy VPS Command
-                           </button>
+                        <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-200">
+                           <div className="space-y-2">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                 <Terminal className="w-3 h-3 text-slate-400" /> 1. Manual Handshake
+                              </p>
+                              <button 
+                                onClick={() => {
+                                  const cmd = `node src/bot/auto-login.js "${account.name}" "${account.email}" "${account.botPassword}" "${account.proxyConfig || ''}" --terminal`;
+                                  navigator.clipboard.writeText(cmd);
+                                  alert("Handshake command copied!");
+                                }}
+                                className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-slate-900 text-white rounded-lg text-[9px] font-mono hover:bg-slate-800 transition-all border border-slate-700"
+                              >
+                                 <span className="truncate">node auto-login.js...</span>
+                                 <span className="bg-slate-700 px-1 rounded uppercase">Copy</span>
+                              </button>
+                           </div>
+
+                           <div className="space-y-2">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                 <Monitor className="w-3 h-3 text-slate-400" /> 2. Start Engine
+                              </p>
+                              <button 
+                                onClick={() => {
+                                  const cmd = `pm2 start src/bot/bot.js --name "bot-${account.name}" -- "${account.name}"`;
+                                  navigator.clipboard.writeText(cmd);
+                                  alert("PM2 Start command copied!");
+                                }}
+                                className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg text-[9px] font-mono hover:bg-indigo-700 transition-all shadow-sm"
+                              >
+                                 <span className="truncate">pm2 start bot.js...</span>
+                                 <span className="bg-indigo-500 px-1 rounded uppercase">Copy</span>
+                              </button>
+                           </div>
+
+                           <div className="space-y-2">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                 <Terminal className="w-3 h-3 text-slate-400" /> 3. View Logs
+                              </p>
+                              <button 
+                                onClick={() => {
+                                  const cmd = `pm2 logs bot-${account.name}`;
+                                  navigator.clipboard.writeText(cmd);
+                                  alert("PM2 Logs command copied!");
+                                }}
+                                className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-[9px] font-mono hover:bg-slate-200 transition-all"
+                              >
+                                 <span className="truncate">pm2 logs bot-...</span>
+                                 <span className="bg-slate-200 px-1 rounded uppercase">Copy</span>
+                              </button>
+                           </div>
                         </div>
                      </div>
                   </div>
