@@ -1,6 +1,4 @@
-const { chromium } = require('playwright-extra');
-const stealth = require('puppeteer-extra-plugin-stealth')();
-chromium.use(stealth);
+const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
@@ -42,24 +40,26 @@ async function run() {
         process.env.DISPLAY = ':0'; 
     }
 
-    const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
+    // 🔒 GPAY9 SECRET: Clear SingletonLock and lockfile to reset session state
+    const lockPath = path.join(SESSION_DIR, 'SingletonLock');
+    const lockFile = path.join(SESSION_DIR, 'lockfile');
+    if (fs.existsSync(lockPath)) { try { fs.unlinkSync(lockPath); } catch(e){} }
+    if (fs.existsSync(lockFile)) { try { fs.unlinkSync(lockFile); } catch(e){} }
 
     const chromePath = chromium.executablePath();
     const launchOptions = {
-        headless: (!isManual && !isTerminal),
+        headless: false, // GPAY9 uses false here
         executablePath: chromePath,
-        userAgent: USER_AGENT,
+        acceptDownloads: true,
+        ignoreDefaultArgs: ['--enable-automation'],
         args: [
+            (isTerminal ? '' : '--headless=new'), // Use headless=new if not terminal
             '--disable-blink-features=AutomationControlled',
             '--no-sandbox',
             '--disable-dev-shm-usage',
-            '--window-size=1280,800',
             '--disable-gpu',
-            '--disable-software-rasterizer',
-            '--start-maximized',
-            '--disable-infobars'
-        ],
-        ignoreDefaultArgs: ['--enable-automation'],
+            '--window-size=1280,800'
+        ].filter(Boolean),
         viewport: { width: 1280, height: 800 }
     };
 
