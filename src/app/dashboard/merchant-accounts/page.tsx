@@ -614,64 +614,128 @@ export default function MerchantAccountsPage() {
 }
 
 function CloudBrowser({ name }: { name: string }) {
-  const [screenUrl, setScreenUrl] = useState<string>("");
+  const [screenBlob, setScreenBlob] = useState<string>("");
+  const [isConnected, setIsConnected] = useState(false);
+  const [typingText, setTypingText] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setScreenUrl(`/api/bots/screen?name=${name}&t=${Date.now()}`);
-    }, 800); 
-    return () => clearInterval(interval);
+    let active = true;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/bots/screen?name=${name}&t=${Date.now()}`);
+        if (res.ok && res.headers.get('content-type')?.includes('image')) {
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          if (active) {
+            setScreenBlob(prev => { if (prev) URL.revokeObjectURL(prev); return url; });
+            setIsConnected(true);
+          }
+        } else {
+          if (active) setIsConnected(false);
+        }
+      } catch {
+        if (active) setIsConnected(false);
+      }
+    };
+    poll();
+    const interval = setInterval(poll, 1000);
+    return () => { active = false; clearInterval(interval); };
   }, [name]);
 
-  const handleInteraction = async (type: string, e: any) => {
-    if (!containerRef.current) return;
-    
-    let x = 0, y = 0, key = "";
-    
-    if (type === 'click') {
-      const rect = containerRef.current.getBoundingClientRect();
-      const scaleX = 1280 / rect.width;
-      const scaleY = 800 / rect.height;
-      x = Math.round((e.clientX - rect.left) * scaleX);
-      y = Math.round((e.clientY - rect.top) * scaleY);
-    } else {
-      key = e.key;
-    }
-
+  const handleClick = async (e: React.MouseEvent) => {
+    if (!containerRef.current || !isConnected) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = Math.round((e.clientX - rect.left) * (1280 / rect.width));
+    const y = Math.round((e.clientY - rect.top) * (800 / rect.height));
     try {
       await fetch("/api/bots/interact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, type: type === 'click' ? 'click' : 'press', x, y, key }),
+        body: JSON.stringify({ name, type: 'click', x, y, key: '' }),
       });
-    } catch (err) {}
+    } catch {}
+  };
+
+  const handleKeyDown = async (e: React.KeyboardEvent) => {
+    if (!isConnected) return;
+    // Let the text input handle regular characters
+    if (e.target instanceof HTMLInputElement) return;
+    e.preventDefault();
+    try {
+      await fetch("/api/bots/interact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, type: 'press', x: 0, y: 0, key: e.key }),
+      });
+    } catch {}
+  };
+
+  const sendText = async () => {
+    if (!typingText || !isConnected) return;
+    try {
+      await fetch("/api/bots/interact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, type: 'type', x: 0, y: 0, key: typingText }),
+      });
+      setTypingText("");
+    } catch {}
   };
 
   return (
-    <div 
-      ref={containerRef}
-      className="relative bg-black rounded-xl overflow-hidden border border-slate-800 shadow-2xl cursor-crosshair aspect-[1280/800] w-full group outline-none"
-      onClick={(e) => handleInteraction('click', e)}
-      onKeyDown={(e) => handleInteraction('press', e)}
-      tabIndex={0}
-    >
-      {screenUrl ? (
-        <img 
-          src={screenUrl} 
-          alt="Cloud View" 
-          className="w-full h-full object-contain pointer-events-none select-none"
-          draggable={false}
+    <div className="space-y-3">
+      <div 
+        ref={containerRef}
+        className="relative bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl cursor-crosshair aspect-[1280/800] w-full group outline-none"
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+      >
+        {isConnected && screenBlob ? (
+          <img 
+            src={screenBlob} 
+            alt="Cloud View" 
+            className="w-full h-full object-contain pointer-events-none select-none"
+            draggable={false}
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-4 p-6">
+            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+            <div className="text-center space-y-1">
+              <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Connecting to Cloud Browser...</p>
+              <p className="text-[10px] text-slate-600">The remote browser is starting up. This takes 10-20 seconds.</p>
+            </div>
+          </div>
+        )}
+        
+        {isConnected && (
+          <div className="absolute top-3 right-3 px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded text-[8px] font-black text-emerald-500 uppercase tracking-widest">
+             Connected
+          </div>
+        )}
+      </div>
+
+      {/* Text Input Bar — for typing email/password into the remote browser */}
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={typingText}
+          onChange={(e) => setTypingText(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') sendText(); }}
+          placeholder={isConnected ? "Type here, then press Enter to send to browser..." : "Waiting for connection..."}
+          disabled={!isConnected}
+          className="flex-grow px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg text-xs font-bold text-white placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-blue-500/30 disabled:opacity-40 transition-all"
         />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center">
-           <Loader2 className="w-8 h-8 text-slate-700 animate-spin" />
-        </div>
-      )}
-      
-      <div className="absolute top-3 right-3 px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded text-[8px] font-black text-emerald-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-         Interactive
+        <button 
+          onClick={sendText}
+          disabled={!isConnected || !typingText}
+          className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 disabled:opacity-40 transition-all shrink-0"
+        >
+          Send
+        </button>
       </div>
     </div>
   );
 }
+

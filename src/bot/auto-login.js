@@ -9,9 +9,10 @@ const ACCOUNT_NAME = process.argv[2];
 const EMAIL = process.argv[3];
 const PASSWORD = process.argv[4];
 const PROXY_CONFIG = process.argv[5];
+const isManual = process.argv.includes('--manual');
 
 if (!ACCOUNT_NAME || !EMAIL || !PASSWORD) {
-    console.error("[ERROR] Missing arguments. Usage: node auto-login.js <name> <email> <password> [proxy]");
+    console.error("[ERROR] Missing arguments. Usage: node auto-login.js <name> <email> <password> [proxy] [--manual]");
     process.exit(1);
 }
 
@@ -31,12 +32,7 @@ if (fs.existsSync(LOG_FILE)) fs.unlinkSync(LOG_FILE);
 
 async function run() {
     log(`🚀 Initiating Node Onboarding for ${ACCOUNT_NAME}...`);
-    
-    // Launch Playwright headful but we don't strictly need to be visible. 
-    // However, Google login is less likely to block if it's a standard headful browser
-    const chromePath = chromium.executablePath();
-    const isManual = process.argv.includes('--manual');
-    if (isManual) log("🔧 INTERACTIVE MODE: Launching visible browser on VPS desktop...");
+    if (isManual) log("🔧 INTERACTIVE MODE: Cloud Browser will stream to your dashboard.");
 
     const chromePath = chromium.executablePath();
     const launchOptions = {
@@ -52,7 +48,7 @@ async function run() {
         viewport: { width: 1280, height: 800 }
     };
 
-    if (PROXY_CONFIG && PROXY_CONFIG.length > 5) {
+    if (PROXY_CONFIG && PROXY_CONFIG.length > 5 && PROXY_CONFIG !== '--manual') {
         log(`Using Proxy: ${PROXY_CONFIG}`);
         const proxyUrl = new URL(PROXY_CONFIG.startsWith('http') ? PROXY_CONFIG : `http://${PROXY_CONFIG}`);
         launchOptions.proxy = { server: `${proxyUrl.protocol}//${proxyUrl.hostname}:${proxyUrl.port}` };
@@ -63,14 +59,13 @@ async function run() {
     }
 
     const context = await chromium.launchPersistentContext(SESSION_DIR, launchOptions);
-
     const page = await context.newPage();
-    
+    let isLoggedIn = false;
+
     log(`Checking for existing session...`);
     try {
         await page.goto('https://pay.google.com/g4b/signup', { waitUntil: 'domcontentloaded', timeout: 30000 });
         
-        // Fast check: Are we already on a dashboard or BCR URL?
         const checkUrl = page.url();
         if (checkUrl.includes('BCR') || checkUrl.includes('/home') || checkUrl.includes('/transactions')) {
             log(`[SUCCESS] Session is already active. Reusing...`);
@@ -82,19 +77,23 @@ async function run() {
     }
 
     if (isManual) {
+        // ═══════════════════════════════════════════
+        // MANUAL / INTERACTIVE MODE — Cloud Browser
+        // ═══════════════════════════════════════════
         const express = require('express');
         const cors = require('cors');
         const app = express();
         app.use(cors());
         app.use(express.json());
         
-        // Use a deterministic port for interaction
+        // Deterministic port so the dashboard proxy can find us
         const INTERACT_PORT = 5000 + (parseInt(Buffer.from(ACCOUNT_NAME).toString('hex').slice(0, 4), 16) % 1000); 
 
         app.get('/api/control/screen', async (req, res) => {
             try {
                 const screenshot = await page.screenshot({ type: 'jpeg', quality: 60 });
                 res.setHeader('Content-Type', 'image/jpeg');
+                res.setHeader('Cache-Control', 'no-cache');
                 res.send(screenshot);
             } catch (e) { res.status(500).send(e.message); }
         });
@@ -102,32 +101,41 @@ async function run() {
         app.post('/api/control/interact', async (req, res) => {
             const { type, x, y, key } = req.body;
             try {
-                if (type === 'click') await page.mouse.click(x, y);
-                else if (type === 'type') await page.keyboard.type(key, { delay: 50 });
-                else if (type === 'press') await page.keyboard.press(key);
+                if (type === 'click') {
+                    log(`🖱️ Click at (${x}, ${y})`);
+                    await page.mouse.click(x, y);
+                } else if (type === 'type') {
+                    await page.keyboard.type(key, { delay: 50 });
+                } else if (type === 'press') {
+                    log(`⌨️ Key: ${key}`);
+                    await page.keyboard.press(key);
+                }
                 res.json({ status: "ok" });
             } catch (e) { res.status(500).json({ error: e.message }); }
         });
 
         const server = app.listen(INTERACT_PORT, () => {
-            log(`📡 Interaction Server live on port ${INTERACT_PORT}`);
+            log(`📡 Cloud Browser live on port ${INTERACT_PORT}. View it in your dashboard now!`);
         });
 
-        // Loop and wait for success URL
+        // Poll until the user completes login
         while (true) {
             const currentUrl = page.url();
             if (currentUrl.includes('BCR') || currentUrl.includes('/home') || currentUrl.includes('/transactions')) {
-                log(`[SUCCESS] Interactive login verified.`);
+                log(`[SUCCESS] Interactive login verified!`);
                 isLoggedIn = true;
                 break;
             }
             await page.waitForTimeout(2000);
         }
         server.close();
+
     } else {
+        // ═══════════════════════════════════════════
+        // AUTOMATIC MODE — Bot handles everything
+        // ═══════════════════════════════════════════
         let loopCount = 0;
         const maxLoops = 20; 
-        isLoggedIn = false;
 
         while (loopCount < maxLoops) {
             loopCount++;
@@ -211,7 +219,7 @@ async function run() {
                 await page.getByText('Enter code').count() > 0) {
                 
                 log(`[WARNING] Security challenge reached. Use Manual Mode if this stalls.`);
-                await page.waitForTimeout(10000); // Give it some time
+                await page.waitForTimeout(10000);
             }
         }
     }

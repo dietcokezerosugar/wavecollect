@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -10,18 +9,28 @@ export async function GET(req: NextRequest) {
     const port = 5000 + (parseInt(Buffer.from(name).toString('hex').slice(0, 4), 16) % 1000);
     
     try {
-        const res = await axios.get(`http://127.0.0.1:${port}/api/control/screen`, { 
-            responseType: 'arraybuffer',
-            timeout: 5000 
+        // Use native fetch to avoid axios issues with binary data
+        const res = await fetch(`http://127.0.0.1:${port}/api/control/screen`, { 
+            signal: AbortSignal.timeout(3000),
+            cache: 'no-store'
         });
         
-        return new NextResponse(res.data, {
+        if (!res.ok) throw new Error("Bot returned error");
+        
+        const buffer = await res.arrayBuffer();
+        
+        return new NextResponse(Buffer.from(buffer), {
             headers: {
                 "Content-Type": "image/jpeg",
-                "Cache-Control": "no-cache, no-store, must-revalidate"
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache"
             }
         });
     } catch (e: any) {
-        return NextResponse.json({ error: "Could not capture screen" }, { status: 500 });
+        // Return a 1x1 transparent pixel so the img tag doesn't break
+        return NextResponse.json(
+            { error: "Bot not ready. Waiting for Cloud Browser to start..." }, 
+            { status: 503 }
+        );
     }
 }
