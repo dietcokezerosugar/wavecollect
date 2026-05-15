@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Download, CheckCircle2, Clock, XCircle, AlertTriangle, Search, X } from "lucide-react";
 import { exportToCSV } from "@/lib/csv";
+import { MobileTransactionsList } from "@/components/mobile/MobileTransactionsList";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -101,27 +102,36 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900">Activity Ledger</h1>
           <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Real-time settlement & transaction audit</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100 shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100 shadow-sm">
              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
              <span className="text-[10px] font-black uppercase tracking-widest">Network Live</span>
           </div>
           <button
             onClick={handleExport}
-            className="flex-1 md:flex-none px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-all shadow-md shadow-slate-900/10 active:scale-95"
+            className="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-all shadow-md shadow-slate-900/10 active:scale-95"
           >
             <Download className="w-4 h-4" /> Export Ledger
           </button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <MobileTransactionsList 
+        transactions={filtered}
+        onApprove={(intent) => { setApprovalModal(intent); setApprovalStatus("SUCCESS"); }}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
+
+      {/* Desktop Filters */}
+      <div className="hidden md:grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="md:col-span-2 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
@@ -219,50 +229,7 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {/* Mobile View Cards */}
-      <div className="md:hidden space-y-3">
-         {filtered.map((intent) => (
-            <div key={intent.id} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-4">
-               <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border shadow-sm ${
-                       intent.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
-                       intent.status === "PENDING" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-200"
-                     }`}>
-                       {statusIcon(intent.status)}
-                     </div>
-                     <div>
-                        <p className="text-sm font-black text-slate-900 leading-none">₹{intent.amount.toLocaleString()}</p>
-                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight truncate max-w-[120px]">{intent.payerName || "Anonymous Payer"}</p>
-                     </div>
-                  </div>
-                  <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded border ${
-                     intent.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
-                     intent.status === "PENDING" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-100"
-                  }`}>
-                    {intent.status}
-                  </span>
-               </div>
-               
-               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                  <div>
-                    <p className="text-[10px] font-mono font-bold text-slate-900">{intent.referenceId}</p>
-                    <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tight">
-                      {new Date(intent.createdAt).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
-                    </p>
-                  </div>
-                  {intent.status === "PENDING" && (
-                    <button 
-                      onClick={() => { setApprovalModal(intent); setApprovalStatus("SUCCESS"); }}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-md shadow-blue-600/20 transition-all active:scale-95"
-                    >
-                       Handle
-                    </button>
-                  )}
-               </div>
-            </div>
-         ))}
-      </div>
+
 
       {/* Approval Modal */}
       {/* Approval Modal */}

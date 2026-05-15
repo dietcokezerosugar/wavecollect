@@ -26,6 +26,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
+import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 
 export default function DashboardLayout({
   children,
@@ -380,31 +381,36 @@ export default function DashboardLayout({
            </div>
         </header>
 
-        {/* Mobile Header */}
-        <header className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 backdrop-blur-md border-b border-slate-100 z-40 px-4 flex items-center justify-between">
+        {/* Premium Mobile Header */}
+        <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-slate-100 z-40 px-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsMobileMenuOpen(true)} className="p-1 -ml-1 text-slate-500 hover:text-slate-900 transition-colors">
-              <Menu className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-2">
-              <Zap className="text-blue-600 w-4 h-4 fill-current" />
-              <span className="text-sm font-black tracking-tight text-slate-900">PayxMint</span>
+            <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-md">
+              <Zap className="text-white w-4 h-4 fill-current" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[13px] font-black tracking-tight text-slate-900 leading-none">PayxMint</span>
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className={`w-1.5 h-1.5 rounded-full ${systemStatus === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                <span className="text-[9px] font-bold text-slate-500 uppercase">{systemStatus === 'online' ? 'Active' : 'Offline'}</span>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-             <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center text-primary font-bold text-xs border border-blue-100">WC</div>
+          <div className="flex items-center gap-3">
+             <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 bg-slate-50 text-slate-600 rounded-full border border-slate-200 active:scale-95 transition-transform">
+               <Menu className="w-4 h-4" />
+             </button>
           </div>
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-grow pt-14 md:pt-0 pb-6 md:pb-12">
-          <div className="p-4 md:p-8 max-w-7xl mx-auto">
+        <main className="flex-grow pt-16 pb-20 md:pt-0 md:pb-12 overflow-x-hidden">
+          <div className="max-w-[1200px] mx-auto w-full p-4 md:p-8">
             {children}
           </div>
         </main>
+
+        <MobileBottomNav />
       </div>
     </div>
   );
 }
-
-

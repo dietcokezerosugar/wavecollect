@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import { MobileDashboard } from "@/components/mobile/MobileDashboard";
 
 export default function DashboardClient({ initialMerchant, initialLedgerEntries }: any) {
   const { data: session } = useSession();
@@ -92,7 +93,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
              <LayoutDashboard className="text-blue-600" /> Command Center
@@ -126,7 +127,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
       </div>
 
       {/* Financial Health Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <DashboardCard 
           label="Wallet Balance" 
           value={`₹${merchant.walletBalance.toLocaleString()}`} 
@@ -157,7 +158,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Real-Time Activity Feed */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between px-2">
