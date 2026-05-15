@@ -42,18 +42,22 @@ async function run() {
         process.env.DISPLAY = ':0'; 
     }
 
+    const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
+
     const chromePath = chromium.executablePath();
     const launchOptions = {
         headless: (!isManual && !isTerminal),
         executablePath: chromePath,
+        userAgent: USER_AGENT,
         args: [
             '--disable-blink-features=AutomationControlled',
             '--no-sandbox',
             '--disable-dev-shm-usage',
             '--window-size=1280,800',
-            '--disable-gpu',                // Essential for VPS stability
-            '--disable-software-rasterizer', // Prevents rendering hangs
-            '--start-maximized'
+            '--disable-gpu',
+            '--disable-software-rasterizer',
+            '--start-maximized',
+            '--disable-infobars'
         ],
         ignoreDefaultArgs: ['--enable-automation'],
         viewport: { width: 1280, height: 800 }
@@ -70,8 +74,20 @@ async function run() {
     }
 
     const context = await chromium.launchPersistentContext(SESSION_DIR, launchOptions);
+    
+    // 🎭 DEEP STEALTH: Wipe the webdriver property
+    await context.addInitScript(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+        window.chrome = { runtime: {} };
+    });
+
     const page = await context.newPage();
     let isLoggedIn = false;
+
+    // 🍵 REFERRER WARM-UP: Visit Google first to establish trust
+    log("Warming up browser context...");
+    await page.goto('https://www.google.com', { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(2000 + Math.random() * 2000);
 
     log(`Checking for existing session...`);
     try {
