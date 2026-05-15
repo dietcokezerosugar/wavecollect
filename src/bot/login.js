@@ -16,8 +16,20 @@ if (!ACCOUNT_NAME) {
 const SESSION_DIR = path.join(__dirname, `../../.sessions/session-${ACCOUNT_NAME}`);
 if (!fs.existsSync(SESSION_DIR)) fs.mkdirSync(SESSION_DIR, { recursive: true });
 
+const LOG_FILE = path.join(SESSION_DIR, 'auto-login.log');
+
+function log(msg) {
+    const formatted = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    console.log(`[PROGRESS] ${formatted}`);
+    fs.appendFileSync(LOG_FILE, formatted + '\n');
+}
+
+// Clear log at start
+if (fs.existsSync(LOG_FILE)) fs.unlinkSync(LOG_FILE);
+
 async function run() {
-    console.log(`[MANUAL] Launching headful login browser for ${ACCOUNT_NAME}`);
+    log(`🔧 MANUAL MODE: Launching visible browser for ${ACCOUNT_NAME}...`);
+    log(`👉 PLEASE SWITCH TO YOUR VNC VIEWER TO COMPLETE THE LOGIN.`);
     const chromePath = chromium.executablePath();
     
     const launchOptions = {

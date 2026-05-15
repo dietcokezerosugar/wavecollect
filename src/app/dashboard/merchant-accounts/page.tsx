@@ -231,9 +231,10 @@ export default function MerchantAccountsPage() {
     await fetch("/api/bots/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, action: "manual" }),
     });
-    alert("Manual login browser launched on the server. Please complete the login there.");
+    setWizardStep(3); // Go to sync step to see logs
+    alert("Manual handshake initiated. Please switch to your VNC viewer (TigerVNC) to see the browser and complete the login.");
   }
 
   function resetWizard() {
@@ -365,12 +366,22 @@ export default function MerchantAccountsPage() {
                 <div className="mt-6 bg-slate-900 rounded-xl p-5 text-left h-56 md:h-64 overflow-y-auto font-mono text-[11px] text-slate-400 space-y-2 border border-slate-800 shadow-2xl">
                   {autoLoginLogs.length === 0 && <p className="text-slate-500 italic">Initializing automation engine...</p>}
                   {autoLoginLogs.map((log, i) => (
-                    <div key={i} className={`flex gap-3 ${log.includes('SUCCESS') ? 'text-emerald-400' : log.includes('ERROR') || log.includes('WARNING') ? 'text-rose-400' : ''}`}>
+                    <div key={i} className={`flex gap-3 ${log.includes('SUCCESS') ? 'text-emerald-400' : log.includes('ERROR') || log.includes('WARNING') || log.includes('🔧') ? 'text-amber-400' : ''}`}>
                       <span className="opacity-20 select-none">[{i+1}]</span> 
                       <span>{log}</span>
                     </div>
                   ))}
                 </div>
+                {autoLoginLogs.length > 0 && !isLoginComplete && (
+                  <div className="pt-4">
+                    <button 
+                      onClick={() => manualLogin(newName)}
+                      className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 transition-all border border-slate-700"
+                    >
+                      Switch to Manual VNC Handshake
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             {wizardStep === 4 && (

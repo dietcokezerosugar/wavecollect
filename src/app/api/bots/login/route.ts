@@ -6,11 +6,11 @@ export async function POST(req: NextRequest) {
     const { name, action, email, password } = await req.json();
     if (!name) return NextResponse.json({ error: "Name required" }, { status: 400 });
 
-    // Update the account in DB with the desired action and credentials
+    const isManual = action === "manual";
     await prisma.googlePayAccount.updateMany({
       where: { name },
       data: {
-        desiredStatus: action === "auto" ? "LOGIN_AUTO" : "LOGIN_MANUAL",
+        desiredStatus: isManual ? "LOGIN_MANUAL" : "LOGIN_AUTO",
         email: email || undefined,
         botPassword: password || null,
       }

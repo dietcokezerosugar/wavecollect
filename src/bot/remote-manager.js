@@ -54,33 +54,23 @@ async function handleAccount(acc) {
     } else if (acc.desiredStatus === "STOP" && localStatus === "online") {
         console.log(`[ACTION] Stopping ${acc.name}...`);
         await execAsync(`pm2 stop "${pm2Name}"`);
-    } else if (acc.desiredStatus === "LOGIN_AUTO") {
-        console.log(`[ACTION] 🔐 Attempting AUTO-LOGIN for ${acc.name}...`);
+    } else if (acc.desiredStatus === "LOGIN_AUTO" || acc.desiredStatus === "LOGIN_MANUAL") {
+        const isManual = acc.desiredStatus === "LOGIN_MANUAL";
+        console.log(`[ACTION] ${isManual ? '🖥️' : '🔐'} Attempting ${isManual ? 'MANUAL' : 'AUTO'}-LOGIN for ${acc.name}...`);
         try {
             const loginScript = path.join(__dirname, 'auto-login.js');
-            // Usage: node auto-login.js <name> <email> <password> <proxy>
-            await execAsync(`node "${loginScript}" "${acc.name}" "${acc.email}" "${acc.botPassword}" "${acc.proxyConfig || ''}"`, {
-                env: { ...process.env, VPS_URL, BOT_SECRET }
-            });
-            console.log(`[SUCCESS] Auto-login complete for ${acc.name}. Switching to START.`);
+            const manualFlag = isManual ? '--manual' : '';
             
-            // Immediately report success to VPS so it changes desiredStatus to START
-            await axios.post(`${VPS_URL}/api/bots/control`, {
-                action: "start",
-                name: acc.name
-            }, {
-                headers: { "x-bot-secret": BOT_SECRET },
-                timeout: 10000
+            // Usage: node auto-login.js <name> <email> <password> <proxy> [--manual]
+            await execAsync(`node "${loginScript}" "${acc.name}" "${acc.email}" "${acc.botPassword}" "${acc.proxyConfig || ''}" ${manualFlag}`, {
+                env: { 
+                    ...process.env, 
+                    VPS_URL, 
+                    BOT_SECRET,
+                    DISPLAY: process.env.DISPLAY || ':0' // Ensure it shows in VNC
+                }
             });
-        } catch (e) {
-            console.error(`[ERROR] Auto-login failed: ${e.message}`);
-        }
-    } else if (acc.desiredStatus === "LOGIN_MANUAL") {
-        console.log(`[ACTION] 🖥️ Attempting MANUAL-LOGIN for ${acc.name}...`);
-        try {
-            const loginScript = path.join(__dirname, 'login.js');
-            await execAsync(`node "${loginScript}" "${acc.name}" "${acc.proxyConfig || ''}"`);
-            console.log(`[SUCCESS] Manual login completed for ${acc.name}. Switching to START.`);
+            console.log(`[SUCCESS] Login complete for ${acc.name}. Switching to START.`);
             
             await axios.post(`${VPS_URL}/api/bots/control`, {
                 action: "start",
@@ -90,7 +80,7 @@ async function handleAccount(acc) {
                 timeout: 10000
             });
         } catch (e) {
-            console.error(`[ERROR] Manual login failed: ${e.message}`);
+            console.error(`[ERROR] Login failed: ${e.message}`);
         }
     } else if (acc.desiredStatus === "RESTART") {
         console.log(`[ACTION] Restarting ${acc.name}...`);

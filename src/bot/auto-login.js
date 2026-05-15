@@ -18,18 +18,29 @@ if (!ACCOUNT_NAME || !EMAIL || !PASSWORD) {
 const SESSION_DIR = path.join(__dirname, `../../.sessions/session-${ACCOUNT_NAME}`);
 if (!fs.existsSync(SESSION_DIR)) fs.mkdirSync(SESSION_DIR, { recursive: true });
 
+const LOG_FILE = path.join(SESSION_DIR, 'auto-login.log');
+
 function log(msg) {
-    console.log(`[PROGRESS] ${msg}`);
+    const formatted = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    console.log(`[PROGRESS] ${formatted}`);
+    fs.appendFileSync(LOG_FILE, formatted + '\n');
 }
 
+// Clear log at start
+if (fs.existsSync(LOG_FILE)) fs.unlinkSync(LOG_FILE);
+
 async function run() {
-    log(`Booting automated login for ${ACCOUNT_NAME}...`);
+    log(`🚀 Initiating Node Onboarding for ${ACCOUNT_NAME}...`);
     
     // Launch Playwright headful but we don't strictly need to be visible. 
     // However, Google login is less likely to block if it's a standard headful browser
     const chromePath = chromium.executablePath();
+    const isManual = process.argv.includes('--manual');
+    if (isManual) log("🔧 INTERACTIVE MODE: Launching visible browser on VPS desktop...");
+
+    const chromePath = chromium.executablePath();
     const launchOptions = {
-        headless: true,
+        headless: !isManual,
         executablePath: chromePath,
         args: [
             '--disable-blink-features=AutomationControlled',
