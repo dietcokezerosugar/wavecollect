@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { GooglePayAccount } from "@prisma/client";
 
 export class GatewayRouter {
   /**
@@ -44,7 +45,7 @@ export class GatewayRouter {
     const getAccountsByTier = (tier: string) => validAccounts.filter(a => a.riskTier === tier);
     
     let fallbackUsed = false;
-    let poolToUse = [];
+    let poolToUse: GooglePayAccount[] = [];
 
     if (forRecharge) {
       poolToUse = validAccounts;
