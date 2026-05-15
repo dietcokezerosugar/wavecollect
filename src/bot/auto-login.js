@@ -75,19 +75,35 @@ async function run() {
 
     const context = await chromium.launchPersistentContext(SESSION_DIR, launchOptions);
     
-    // 🎭 DEEP STEALTH: Wipe the webdriver property
+    // 🎭 NUCLEAR STEALTH: Wipe the webdriver and spoof high-reputation hardware
     await context.addInitScript(() => {
+        // 1. Wipe webdriver
         Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+        
+        // 2. Spoof Chrome identity
         window.chrome = { runtime: {} };
+
+        // 3. Spoof WebGL Renderer (Hides VPS signature)
+        const getParameter = WebGLRenderingContext.prototype.getParameter;
+        WebGLRenderingContext.prototype.getParameter = function(parameter) {
+            if (parameter === 37445) return 'Intel Inc.';
+            if (parameter === 37446) return 'Intel(R) Iris(TM) Plus Graphics 640';
+            return getParameter.apply(this, arguments);
+        };
+
+        // 4. Spoof Languages & Permissions
+        Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+        Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
     });
 
     const page = await context.newPage();
     let isLoggedIn = false;
 
-    // 🍵 REFERRER WARM-UP: Visit Google first to establish trust
-    log("Warming up browser context...");
-    await page.goto('https://www.google.com', { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(2000 + Math.random() * 2000);
+    // 🍵 DEEP WARM-UP: Visit Google and simulate human 'thinking' time
+    log("Warming up deep browser context...");
+    await page.goto('https://www.google.com', { waitUntil: 'networkidle' });
+    await page.mouse.move(Math.random() * 500, Math.random() * 500);
+    await page.waitForTimeout(3000 + Math.random() * 3000);
 
     log(`Checking for existing session...`);
     try {
