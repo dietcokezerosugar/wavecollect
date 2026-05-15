@@ -352,36 +352,34 @@ export default function MerchantAccountsPage() {
               </div>
             )}
             {wizardStep === 3 && (
-              <div className="max-w-2xl mx-auto space-y-6 text-center">
-                <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-100 shadow-inner">
-                   <div className="relative">
-                     <Loader2 className="w-10 h-10 animate-spin" />
-                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
-                     </div>
-                   </div>
-                </div>
-                <h3 className="text-xl font-black text-slate-900">Synchronizing Node</h3>
-                <p className="text-sm text-slate-500 px-4 font-medium">Establishing a high-integrity session with Google Business API.</p>
-                <div className="mt-6 bg-slate-900 rounded-xl p-5 text-left h-56 md:h-64 overflow-y-auto font-mono text-[11px] text-slate-400 space-y-2 border border-slate-800 shadow-2xl">
-                  {autoLoginLogs.length === 0 && <p className="text-slate-500 italic">Initializing automation engine...</p>}
-                  {autoLoginLogs.map((log, i) => (
-                    <div key={i} className={`flex gap-3 ${log.includes('SUCCESS') ? 'text-emerald-400' : log.includes('ERROR') || log.includes('WARNING') || log.includes('🔧') ? 'text-amber-400' : ''}`}>
-                      <span className="opacity-20 select-none">[{i+1}]</span> 
-                      <span>{log}</span>
+              <div className="max-w-4xl mx-auto space-y-6 text-center">
+                <div className="flex flex-col md:flex-row gap-6">
+                  {/* Left: Terminal Logs */}
+                  <div className="flex-grow space-y-4">
+                    <h3 className="text-xl font-black text-slate-900 text-left">Establishing Session</h3>
+                    <div className="bg-slate-900 rounded-xl p-5 text-left h-[400px] overflow-y-auto font-mono text-[11px] text-slate-400 space-y-2 border border-slate-800 shadow-2xl">
+                      {autoLoginLogs.length === 0 && <p className="text-slate-500 italic">Initializing automation engine...</p>}
+                      {autoLoginLogs.map((log, i) => (
+                        <div key={i} className={`flex gap-3 ${log.includes('SUCCESS') ? 'text-emerald-400' : log.includes('ERROR') || log.includes('WARNING') || log.includes('🔧') ? 'text-amber-400' : ''}`}>
+                          <span className="opacity-20 select-none">[{i+1}]</span> 
+                          <span>{log}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                {autoLoginLogs.length > 0 && !isLoginComplete && (
-                  <div className="pt-4">
-                    <button 
-                      onClick={() => manualLogin(newName)}
-                      className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 transition-all border border-slate-700"
-                    >
-                      Switch to Manual VNC Handshake
-                    </button>
                   </div>
-                )}
+
+                  {/* Right: Cloud Browser (Interactive) */}
+                  <div className="w-full md:w-[450px] space-y-4">
+                    <div className="flex items-center justify-between px-1">
+                       <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Cloud View</h3>
+                       <div className="flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                          <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Live Stream</span>
+                       </div>
+                    </div>
+                    <CloudBrowser name={newName} />
+                  </div>
+                </div>
               </div>
             )}
             {wizardStep === 4 && (
@@ -611,6 +609,69 @@ export default function MerchantAccountsPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function CloudBrowser({ name }: { name: string }) {
+  const [screenUrl, setScreenUrl] = useState<string>("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScreenUrl(`/api/bots/screen?name=${name}&t=${Date.now()}`);
+    }, 800); 
+    return () => clearInterval(interval);
+  }, [name]);
+
+  const handleInteraction = async (type: string, e: any) => {
+    if (!containerRef.current) return;
+    
+    let x = 0, y = 0, key = "";
+    
+    if (type === 'click') {
+      const rect = containerRef.current.getBoundingClientRect();
+      const scaleX = 1280 / rect.width;
+      const scaleY = 800 / rect.height;
+      x = Math.round((e.clientX - rect.left) * scaleX);
+      y = Math.round((e.clientY - rect.top) * scaleY);
+    } else {
+      key = e.key;
+    }
+
+    try {
+      await fetch("/api/bots/interact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, type: type === 'click' ? 'click' : 'press', x, y, key }),
+      });
+    } catch (err) {}
+  };
+
+  return (
+    <div 
+      ref={containerRef}
+      className="relative bg-black rounded-xl overflow-hidden border border-slate-800 shadow-2xl cursor-crosshair aspect-[1280/800] w-full group outline-none"
+      onClick={(e) => handleInteraction('click', e)}
+      onKeyDown={(e) => handleInteraction('press', e)}
+      tabIndex={0}
+    >
+      {screenUrl ? (
+        <img 
+          src={screenUrl} 
+          alt="Cloud View" 
+          className="w-full h-full object-contain pointer-events-none select-none"
+          draggable={false}
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+           <Loader2 className="w-8 h-8 text-slate-700 animate-spin" />
+        </div>
+      )}
+      
+      <div className="absolute top-3 right-3 px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded text-[8px] font-black text-emerald-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+         Interactive
+      </div>
     </div>
   );
 }

@@ -98,6 +98,37 @@ app.get('/api/control/logs', (req, res) => {
     req.on('close', () => uiClients = uiClients.filter(c => c !== res));
 });
 
+// 🖼️ LIVE SCREEN STREAMING (Cloud Browser)
+app.get('/api/control/screen', async (req, res) => {
+    if (!enginePage) return res.status(404).send("Engine not initialized");
+    try {
+        const screenshot = await enginePage.screenshot({ type: 'jpeg', quality: 60 });
+        res.setHeader('Content-Type', 'image/jpeg');
+        res.send(screenshot);
+    } catch (e) {
+        res.status(500).send(e.message);
+    }
+});
+
+// 🖱️ REMOTE INTERACTION
+app.post('/api/control/interact', async (req, res) => {
+    const { type, x, y, key } = req.body;
+    if (!enginePage) return res.status(404).send("Engine not initialized");
+    
+    try {
+        if (type === 'click') {
+            await enginePage.mouse.click(x, y);
+        } else if (type === 'type') {
+            await enginePage.keyboard.type(key, { delay: 50 });
+        } else if (type === 'press') {
+            await enginePage.keyboard.press(key);
+        }
+        res.json({ status: "ok" });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 function normalizeFromXHR(trx) {
     return {
         externalId: trx.merchantTransactionId || '',

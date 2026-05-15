@@ -81,147 +81,138 @@ async function run() {
         log(`[WARNING] Initial check timed out, attempting login...`);
     }
 
-    let loopCount = 0;
-    const maxLoops = 20; 
-    let isLoggedIn = false;
+    if (isManual) {
+        const express = require('express');
+        const cors = require('cors');
+        const app = express();
+        app.use(cors());
+        app.use(express.json());
+        
+        // Use a deterministic port for interaction
+        const INTERACT_PORT = 5000 + (parseInt(Buffer.from(ACCOUNT_NAME).toString('hex').slice(0, 4), 16) % 1000); 
 
-    while (loopCount < maxLoops) {
-        loopCount++;
-        await page.waitForTimeout(1500); // GPay 9 optimized delay
+        app.get('/api/control/screen', async (req, res) => {
+            try {
+                const screenshot = await page.screenshot({ type: 'jpeg', quality: 60 });
+                res.setHeader('Content-Type', 'image/jpeg');
+                res.send(screenshot);
+            } catch (e) { res.status(500).send(e.message); }
+        });
 
-        const currentUrl = page.url();
-        log(`Scan: State \${loopCount}/\${maxLoops}`);
+        app.post('/api/control/interact', async (req, res) => {
+            const { type, x, y, key } = req.body;
+            try {
+                if (type === 'click') await page.mouse.click(x, y);
+                else if (type === 'type') await page.keyboard.type(key, { delay: 50 });
+                else if (type === 'press') await page.keyboard.press(key);
+                res.json({ status: "ok" });
+            } catch (e) { res.status(500).json({ error: e.message }); }
+        });
 
-        if (currentUrl.includes('pay.google.com/g4b/signup') || currentUrl.includes('pay.google.com/g4b/transactions') || currentUrl.includes('pay.google.com/g4b/home')) {
-            const loginBtn = await page.$('a[href*="accounts.google.com"], button:has-text("Sign in")');
-            if (loginBtn && !currentUrl.includes('home')) {
-                await loginBtn.click();
-                continue;
-            }
-            
-            const match = page.url().match(/(BCR[A-Z0-9]{10,})/);
-            if (match || currentUrl.includes('home') || currentUrl.includes('transactions')) {
-                log(`[SUCCESS] Login verified.`);
+        const server = app.listen(INTERACT_PORT, () => {
+            log(`📡 Interaction Server live on port ${INTERACT_PORT}`);
+        });
+
+        // Loop and wait for success URL
+        while (true) {
+            const currentUrl = page.url();
+            if (currentUrl.includes('BCR') || currentUrl.includes('/home') || currentUrl.includes('/transactions')) {
+                log(`[SUCCESS] Interactive login verified.`);
                 isLoggedIn = true;
                 break;
             }
+            await page.waitForTimeout(2000);
         }
+        server.close();
+    } else {
+        let loopCount = 0;
+        const maxLoops = 20; 
+        isLoggedIn = false;
 
-        // Email
-        const emailInput = await page.$('input[type="email"], input#identifierId, input[name="identifier"]');
-        if (emailInput && await emailInput.isVisible()) {
-            log(`Auth: Email...`);
-            await emailInput.focus();
-            await page.waitForTimeout(800 + Math.random() * 500);
-            await page.keyboard.type(EMAIL, { delay: 100 + Math.random() * 100 });
-            await page.waitForTimeout(1000 + Math.random() * 1000);
-            
-            const nextBtns = await page.$$('button:has-text("Next"), span:has-text("Next"), button:has-text("Continue"), span:has-text("Continue")');
-            if (nextBtns.length > 0) {
-                await nextBtns[0].click();
-            } else {
-                await page.keyboard.press('Enter');
-            }
-            await page.waitForTimeout(3000 + Math.random() * 1000);
-            continue;
-        }
+        while (loopCount < maxLoops) {
+            loopCount++;
+            await page.waitForTimeout(1500);
 
-        // Password
-        const passInput = await page.$('input[type="password"], input[name="Passwd"]');
-        if (passInput && await passInput.isVisible()) {
-            log(`Auth: Password...`);
-            await passInput.focus();
-            await page.waitForTimeout(800 + Math.random() * 500);
-            await page.keyboard.type(PASSWORD, { delay: 100 + Math.random() * 100 });
-            await page.waitForTimeout(1000 + Math.random() * 1000);
-            
-            const nextBtns = await page.$$('button:has-text("Next"), span:has-text("Next"), button:has-text("Continue"), span:has-text("Continue")');
-            if (nextBtns.length > 0) {
-                await nextBtns[0].click();
-            } else {
-                await page.keyboard.press('Enter');
-            }
-            await page.waitForTimeout(4000 + Math.random() * 2000);
-            continue;
-        }
+            const currentUrl = page.url();
+            log(`Scan: State ${loopCount}/${maxLoops}`);
 
-        // Bypasses
-        const buttonTexts = ['Not now', 'Skip', 'I understand', 'No thanks', 'Continue', 'Done', 'Confirm'];
-        let clicked = false;
-        for (const text of buttonTexts) {
-            const btn = page.getByRole('button', { name: text, exact: true });
-            if (await btn.count() > 0 && await btn.first().isVisible()) {
-                log(`Skip: \${text}...`);
-                await btn.first().click();
-                clicked = true;
-                await page.waitForTimeout(2000);
-                break;
-            }
-        }
-        if (clicked) continue;
-
-        if (await page.getByText('2-Step Verification').count() > 0 || 
-            await page.getByText('Verify it\'s you').count() > 0 ||
-            await page.getByText('Verify it’s you').count() > 0 ||
-            await page.getByText('Confirm your recovery email').count() > 0 ||
-            await page.getByText('Confirm your phone number').count() > 0 ||
-            await page.getByText('Protect your account').count() > 0 ||
-            await page.getByText('Add recovery phone').count() > 0 ||
-            await page.getByText('Enter code').count() > 0) {
-            
-            const vpsUrl = process.env.VPS_URL || process.env.HUB_URL || 'http://localhost:3000';
-            const botSecret = process.env.BOT_SECRET || process.env.BOT_SYSTEM_SECRET || 'wave_collect_bridge_secret_998877';
-
-            log(`[WARNING] Security checkpoint reached (2FA/Recovery). Requesting OTP from Dashboard...`);
-            
-            try {
-                await axios.post(`${vpsUrl}/api/bots/control`, {
-                    action: "waiting_otp",
-                    name: ACCOUNT_NAME
-                }, { 
-                    headers: { "x-bot-secret": botSecret },
-                    timeout: 10000
-                });
-            } catch(e) {}
-
-            let otpReceived = null;
-            for (let i = 0; i < 60; i++) { // Wait up to 5 minutes
-                await page.waitForTimeout(5000);
-                try {
-                    const res = await axios.post(`${vpsUrl}/api/bots/bridge`, { action: "sync" }, { 
-                        headers: { "x-bot-secret": botSecret },
-                        timeout: 10000
-                    });
-                    const acc = res.data.accounts.find(a => a.name === ACCOUNT_NAME);
-                    if (acc && acc.desiredStatus === "OTP_READY" && acc.otpCode) {
-                        otpReceived = acc.otpCode;
-                        break;
-                    }
-                } catch(e) {}
-            }
-
-            if (otpReceived) {
-                log(`[SUCCESS] Received OTP from Dashboard: ${otpReceived}`);
-                // Try to find the generic OTP or text input field
-                const otpInput = await page.$('input[type="tel"], input[name="Pin"], input[autocomplete="one-time-code"], input[type="text"], input[type="email"]');
-                if (otpInput) {
-                    await otpInput.focus();
-                    await page.waitForTimeout(500);
-                    await page.keyboard.type(otpReceived, { delay: 100 + Math.random() * 100 });
-                    await page.waitForTimeout(1000);
-                    const nextBtns = await page.$$('button:has-text("Next"), span:has-text("Next"), button:has-text("Continue"), span:has-text("Continue")');
-                    if (nextBtns.length > 0) {
-                        await nextBtns[0].click();
-                    } else {
-                        await page.keyboard.press('Enter');
-                    }
-                    await page.waitForTimeout(5000);
-                    continue; // Re-evaluate URL after submitting OTP
+            if (currentUrl.includes('pay.google.com/g4b/signup') || currentUrl.includes('pay.google.com/g4b/transactions') || currentUrl.includes('pay.google.com/g4b/home')) {
+                const loginBtn = await page.$('a[href*="accounts.google.com"], button:has-text("Sign in")');
+                if (loginBtn && !currentUrl.includes('home')) {
+                    await loginBtn.click();
+                    continue;
+                }
+                
+                const match = page.url().match(/(BCR[A-Z0-9]{10,})/);
+                if (match || currentUrl.includes('home') || currentUrl.includes('transactions')) {
+                    log(`[SUCCESS] Login verified.`);
+                    isLoggedIn = true;
+                    break;
                 }
             }
-            
-            log(`[ERROR] Timed out waiting for OTP or could not find input field.`);
-            break;
+
+            // Email
+            const emailInput = await page.$('input[type="email"], input#identifierId, input[name="identifier"]');
+            if (emailInput && await emailInput.isVisible()) {
+                log(`Auth: Email...`);
+                await emailInput.focus();
+                await page.waitForTimeout(800 + Math.random() * 500);
+                await page.keyboard.type(EMAIL, { delay: 100 + Math.random() * 100 });
+                await page.waitForTimeout(1000 + Math.random() * 1000);
+                
+                const nextBtns = await page.$$('button:has-text("Next"), span:has-text("Next"), button:has-text("Continue"), span:has-text("Continue")');
+                if (nextBtns.length > 0) {
+                    await nextBtns[0].click();
+                } else {
+                    await page.keyboard.press('Enter');
+                }
+                await page.waitForTimeout(3000 + Math.random() * 1000);
+                continue;
+            }
+
+            // Password
+            const passInput = await page.$('input[type="password"], input[name="Passwd"]');
+            if (passInput && await passInput.isVisible()) {
+                log(`Auth: Password...`);
+                await passInput.focus();
+                await page.waitForTimeout(800 + Math.random() * 500);
+                await page.keyboard.type(PASSWORD, { delay: 100 + Math.random() * 100 });
+                await page.waitForTimeout(1000 + Math.random() * 1000);
+                
+                const nextBtns = await page.$$('button:has-text("Next"), span:has-text("Next"), button:has-text("Continue"), span:has-text("Continue")');
+                if (nextBtns.length > 0) {
+                    await nextBtns[0].click();
+                } else {
+                    await page.keyboard.press('Enter');
+                }
+                await page.waitForTimeout(4000 + Math.random() * 2000);
+                continue;
+            }
+
+            // Bypasses
+            const buttonTexts = ['Not now', 'Skip', 'I understand', 'No thanks', 'Continue', 'Done', 'Confirm'];
+            let clicked = false;
+            for (const text of buttonTexts) {
+                const btn = page.getByRole('button', { name: text, exact: true });
+                if (await btn.count() > 0 && await btn.first().isVisible()) {
+                    log(`Skip: ${text}...`);
+                    await btn.first().click();
+                    clicked = true;
+                    await page.waitForTimeout(2000);
+                    break;
+                }
+            }
+            if (clicked) continue;
+
+            if (await page.getByText('2-Step Verification').count() > 0 || 
+                await page.getByText('Verify it\'s you').count() > 0 ||
+                await page.getByText('Confirm your recovery email').count() > 0 ||
+                await page.getByText('Confirm your phone number').count() > 0 ||
+                await page.getByText('Enter code').count() > 0) {
+                
+                log(`[WARNING] Security challenge reached. Use Manual Mode if this stalls.`);
+                await page.waitForTimeout(10000); // Give it some time
+            }
         }
     }
 
