@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   const merchantName = intent.merchant.brandName || intent.merchant.businessName || intent.merchant.name;
   const brandColor = intent.merchant.brandColor || "#4338ca";
   const brandLogo = intent.merchant.brandLogo;
-  const amount = intent.amount;
+  const amount = Number(intent.amount);
   const referenceId = intent.referenceId;
   const upiDeepLink = intent.upiDeepLink || "";
   

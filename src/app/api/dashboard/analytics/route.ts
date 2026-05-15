@@ -39,7 +39,7 @@ export async function GET() {
           select: { amount: true }
         });
 
-        const dailySum = dailyIntents.reduce((acc, curr) => acc + curr.amount, 0);
+        const dailySum = dailyIntents.reduce((acc, curr) => acc + Number(curr.amount), 0);
         revenueByDay.push({
           name: days[date.getDay()],
           amount: dailySum,
@@ -54,7 +54,7 @@ export async function GET() {
         where: { merchantId, status: "SUCCESS", createdAt: { gte: lastWeek } },
         select: { amount: true }
       });
-      summary.totalWeeklyVolume = weeklyIntents.reduce((acc, curr) => acc + curr.amount, 0);
+      summary.totalWeeklyVolume = weeklyIntents.reduce((acc, curr) => acc + Number(curr.amount), 0);
       summary.totalTxns = weeklyIntents.length;
 
       const lastMonth = new Date();
@@ -63,7 +63,7 @@ export async function GET() {
         where: { merchantId, status: "SUCCESS", createdAt: { gte: lastMonth } },
         select: { amount: true }
       });
-      summary.totalMonthlyVolume = monthlyIntents.reduce((acc, curr) => acc + curr.amount, 0);
+      summary.totalMonthlyVolume = monthlyIntents.reduce((acc, curr) => acc + Number(curr.amount), 0);
 
       // 3. Pulse (Recent Successful)
       recentIntents = await prisma.paymentIntent.findMany({

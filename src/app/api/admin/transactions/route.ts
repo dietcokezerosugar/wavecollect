@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       });
 
       // SaaS Billing: Deduct fee for manual success
-      const fee = (updatedIntent.amount * (updatedIntent.merchant.commissionRate || 0)) / 100;
+      const fee = (Number(updatedIntent.amount) * (Number(updatedIntent.merchant.commissionRate) || 0)) / 100;
       if (fee > 0) {
         const { WalletService } = require("@/services/wallet/WalletService");
         await WalletService.debit(
@@ -76,11 +76,11 @@ export async function POST(req: NextRequest) {
 
       // Notify Merchant via Webhook
       if (updatedIntent.merchant.webhookUrl) {
-        const { WebhookService } = require("@/services/notifications/WebhookService");
-        WebhookService.dispatch(updatedIntent.merchantId, updatedIntent.merchant.webhookUrl, {
+        const { WebhookService } = require("@/services/webhook/WebhookService");
+        WebhookService.queueEvent(updatedIntent.merchantId, "payment.success", {
           event: "payment.success",
           status: "SUCCESS",
-          amount: updatedIntent.amount,
+          amount: Number(updatedIntent.amount),
           txn_id: updatedIntent.id,
           reference_id: updatedIntent.referenceId,
           utr: utr,
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     // 3. Log Audit Trail
     await prisma.auditLog.create({
       data: {
-        userId: "SYSTEM_ADMIN", // In prod, get current user session
+        userId: "SYSTEM_ADMIN",
         action: `MANUAL_OVERRIDE_${status}`,
         metadata: JSON.stringify({ intentId: id, utr, note })
       }

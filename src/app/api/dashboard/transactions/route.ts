@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
         WebhookService.dispatch(merchantId, merchant.webhookUrl, {
           event: "payment.success",
           status: "SUCCESS",
-          amount: intent.amount,
+          amount: Number(intent.amount),
           txn_id: `MANUAL-${id}`,
           reference_id: intent.referenceId,
           utr: utr,
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
 
       // 2. Telegram Alert
       const { TelegramService } = await import("@/services/notifications/TelegramService");
-      TelegramService.notifyManualApproval(merchant, intent.amount, intent.referenceId);
+      TelegramService.notifyManualApproval(merchant, Number(intent.amount), intent.referenceId);
     }
 
     // Audit log

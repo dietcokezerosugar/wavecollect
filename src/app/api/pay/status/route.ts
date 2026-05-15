@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
     if (baseRedirect) {
       redirectUrl = MatchingEngine.buildRedirectUrl(baseRedirect, {
         status: "SUCCESS",
-        amount: intent.amount,
+        amount: Number(intent.amount),
         txn_id: intent.transaction?.externalId || intent.transactionId || "",
         reference_id: intent.referenceId,
       });

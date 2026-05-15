@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
         }, { HIGH: 0, MID: 0, LOW: 0 }),
         vpaHealth: {
           activeAccounts: vpaHealth._count.id,
-          averageScore: Math.round(vpaHealth._avg.healthScore || 100)
+          averageScore: Math.round(Number(vpaHealth._avg.healthScore) || 100)
         },
         settlements: settlementData.reduce((acc: any, status: any) => {
           acc[status.status] = status._sum.totalAmount || 0;

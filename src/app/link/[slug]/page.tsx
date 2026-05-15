@@ -33,7 +33,7 @@ export default async function PaymentLinkPage({ params }: { params: Promise<{ sl
   let intent;
   try {
     intent = await PaymentEngine.createIntent({
-      amount: link.amount,
+      amount: Number(link.amount),
       orderId,
       apiKey: apiKey.key,
     });

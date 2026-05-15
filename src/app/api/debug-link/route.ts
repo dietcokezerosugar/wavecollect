@@ -13,7 +13,7 @@ export async function GET() {
 
     const orderId = `TEST-${Date.now()}`;
     const intent = await PaymentEngine.createIntent({
-      amount: link.amount,
+      amount: Number(link.amount),
       orderId,
       apiKey: apiKey!.key,
     });
