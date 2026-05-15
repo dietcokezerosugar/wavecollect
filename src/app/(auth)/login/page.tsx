@@ -140,7 +140,7 @@ function LoginForm() {
                 <input type="checkbox" className="w-4 h-4 rounded border-slate-200 text-blue-600 focus:ring-blue-50 transition-all" />
                 <span className="text-xs font-bold text-slate-500 group-hover:text-slate-900 transition-colors">Remember me</span>
               </label>
-              <Link href="#" className="text-xs font-bold text-blue-600 hover:text-blue-700">Forgot password?</Link>
+              <Link href="/forgot-password" className="text-xs font-bold text-blue-600 hover:text-blue-700">Forgot password?</Link>
             </div>
 
             <button 
