@@ -15,23 +15,28 @@ export async function GET(req: NextRequest) {
   if (!botName) return NextResponse.json({ error: "Bot name required" }, { status: 400 });
 
   const sessionsDir = path.join(process.cwd(), ".sessions");
+  if (!fs.existsSync(sessionsDir)) fs.mkdirSync(sessionsDir, { recursive: true });
+
+  // 🔍 FUZZY DISCOVERY: Scan for the best matching session folder
+  let logPath = "";
+  const availableSessions = fs.readdirSync(sessionsDir);
   
-  // Try exact match first, then lowercase slug match
-  let logPath = path.join(sessionsDir, `session-${botName}`, "bot.log");
-  if (!fs.existsSync(logPath)) {
-    const slugName = botName.toLowerCase().replace(/@/g, '-').replace(/\./g, '-');
-    logPath = path.join(sessionsDir, `session-${slugName}`, "bot.log");
+  // 1. Try to find a folder that contains the botName (slugified)
+  const targetSlug = botName.toLowerCase().split('@')[0].replace(/[^a-z0-9]/g, '');
+  const match = availableSessions.find(s => {
+    const folderSlug = s.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return folderSlug.includes(targetSlug) || targetSlug.includes(folderSlug);
+  });
+
+  if (match) {
+    logPath = path.join(sessionsDir, match, "bot.log");
+  } else {
+    // 2. Fallback to exact path if fuzzy fails
+    logPath = path.join(sessionsDir, `session-${botName}`, "bot.log");
   }
 
   if (!fs.existsSync(logPath)) {
-    // If still not found, try common slug variations
-    const simpleSlug = botName.split('@')[0].toLowerCase();
-    const altPath = path.join(sessionsDir, `session-${simpleSlug}`, "bot.log");
-    if (fs.existsSync(altPath)) logPath = altPath;
-  }
-
-  if (!fs.existsSync(logPath)) {
-    return NextResponse.json({ error: "Log file not found" }, { status: 404 });
+    return NextResponse.json({ error: `Log file not found. Searched for: ${targetSlug}` }, { status: 404 });
   }
 
   const stream = new ReadableStream({
