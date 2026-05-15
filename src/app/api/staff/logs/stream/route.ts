@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import fs from "fs";
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const botName = searchParams.get("botName");
-  if (!botName) return new NextResponse("Bot name required", { status: 400 });
+  if (!botName) return NextResponse.json({ error: "Bot name required" }, { status: 400 });
 
   const sessionsDir = path.join(process.cwd(), ".sessions");
   
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
   }
 
   if (!fs.existsSync(logPath)) {
-    return new NextResponse("Log file not found", { status: 404 });
+    return NextResponse.json({ error: "Log file not found" }, { status: 404 });
   }
 
   const stream = new ReadableStream({
