@@ -64,7 +64,7 @@ export default function AdminDashboard() {
             <span className="text-[10px] md:text-[11px] font-black text-slate-600 uppercase tracking-widest">LIVE: {new Date().toLocaleTimeString()}</span>
           </div>
           <button 
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => signOut({ callbackUrl: "/login" })}
             className="p-2.5 bg-rose-50 text-rose-600 rounded-xl border border-rose-100 hover:bg-rose-100 transition-all shadow-sm group active:scale-95"
             title="Sign Out"
           >

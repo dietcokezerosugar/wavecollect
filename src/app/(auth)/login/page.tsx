@@ -1,18 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Zap, ArrowRight, Loader2, ShieldCheck, Mail, Lock } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 text-slate-300 animate-spin" /></div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("from");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,9 +45,11 @@ export default function LoginPage() {
         const session = await getSession();
         
         if (session?.user?.role === "ADMIN") {
-          router.push("/admin");
+          router.push(callbackUrl || "/admin");
+        } else if (session?.user?.role === "STAFF") {
+          router.push(callbackUrl || "/staff");
         } else {
-          router.push("/dashboard");
+          router.push(callbackUrl || "/dashboard");
         }
         router.refresh();
       }
@@ -48,7 +61,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 py-8 md:p-6 relative overflow-hidden">
       {/* Background Gradients */}
       <div className="absolute top-0 left-0 w-full h-full -z-10">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-50 rounded-full blur-[120px] opacity-60" />
@@ -146,7 +159,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <div className="mt-10 flex items-center justify-center gap-8 opacity-40">
+        <div className="mt-8 md:mt-10 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 opacity-40">
           <div className="flex items-center gap-2">
             <ShieldCheck size={14} />
             <span className="text-[10px] font-black uppercase tracking-widest">Secure Handshake</span>
