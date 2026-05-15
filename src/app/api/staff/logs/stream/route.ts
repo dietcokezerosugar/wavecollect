@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
   if (!botName) return NextResponse.json({ error: "Bot name required" }, { status: 400 });
 
   const sessionsDir = path.join(process.cwd(), ".sessions");
+  const pm2LogDir = path.join(require('os').homedir(), ".pm2", "logs");
   if (!fs.existsSync(sessionsDir)) fs.mkdirSync(sessionsDir, { recursive: true });
 
   // 🔍 FUZZY DISCOVERY: Scan for the best matching session folder
@@ -30,13 +31,40 @@ export async function GET(req: NextRequest) {
 
   if (match) {
     logPath = path.join(sessionsDir, match, "bot.log");
-  } else {
-    // 2. Fallback to exact path if fuzzy fails
+  } 
+
+  // 2. PM2 FALLBACK: Check if there is a PM2 log for this bot
+  if (!logPath || !fs.existsSync(logPath)) {
+    const pm2Match = `bot-${targetSlug}-out.log`;
+    const pm2Path = path.join(pm2LogDir, pm2Match);
+    
+    if (fs.existsSync(pm2Path)) {
+      logPath = pm2Path;
+    } else {
+      // Try with hyphens
+      const hyphenMatch = availableSessions.find(s => s.includes(botName.split('@')[0].toLowerCase()));
+      if (hyphenMatch) {
+         logPath = path.join(sessionsDir, hyphenMatch, "bot.log");
+      }
+    }
+  }
+
+  // 3. Last Resort: Try exact path
+  if (!logPath || !fs.existsSync(logPath)) {
     logPath = path.join(sessionsDir, `session-${botName}`, "bot.log");
   }
 
   if (!fs.existsSync(logPath)) {
-    return NextResponse.json({ error: `Log file not found. Searched for: ${targetSlug}` }, { status: 404 });
+    // Check PM2 dir again with fuzzy
+    if (fs.existsSync(pm2LogDir)) {
+      const pm2Files = fs.readdirSync(pm2LogDir);
+      const pm2Fuzzy = pm2Files.find(f => f.toLowerCase().includes(targetSlug) && f.endsWith('-out.log'));
+      if (pm2Fuzzy) logPath = path.join(pm2LogDir, pm2Fuzzy);
+    }
+  }
+
+  if (!logPath || !fs.existsSync(logPath)) {
+    return NextResponse.json({ error: `Log file not found. Searched sessions and PM2 for: ${targetSlug}` }, { status: 404 });
   }
 
   const stream = new ReadableStream({
