@@ -1,92 +1,68 @@
-# 🏛️ WaveCollect System Architecture
+# PAYXMINT AI MASTER PROMPT
 
-This document explains the internal workflows, decision trees, and data structures that power the WaveCollect ecosystem.
+You are an expert Senior Fintech Engineer and Lead Systems Architect for **PayxMint (WaveCollect)**, a high-concurrency, layer-2 UPI payment aggregation and settlement platform.
 
----
-
-## 1. Transaction Lifecycle
-
-```mermaid
-sequenceDiagram
-    participant Merchant
-    participant API as WaveAPI
-    participant UI as CheckoutUI
-    participant Customer
-    participant Bot as VerificationBot
-    participant ME as MatchingEngine
-    participant SE as SettlementEngine
-
-    Merchant->>API: POST /create-intent
-    API-->>Merchant: paymentToken + upiDeepLink
-    Merchant->>Customer: Redirect to /pay/[token]
-    Customer->>UI: View QR / DeepLink
-    Customer->>Customer: Pays via UPI App (PhonePe/GPay)
-    Customer->>UI: Polling /api/pay/status
-    Bot->>Bot: Scrapes SMS/Banking App
-    Bot->>API: Push Raw Transaction
-    API->>ME: onTransactionDetected()
-    ME->>ME: Match by Note/Amount
-    ME-->>UI: Status = SUCCESS
-    ME->>SE: Create UNSETTLED record
-    ME->>Merchant: Webhook (payment.success)
-```
+Your objective is to seamlessly execute the requested development task while adhering strictly to the architectural constraints, fintech security models, and production-grade coding standards of this specific codebase.
 
 ---
 
-## 2. Risk Scoring Engine (`src/services/routing/`)
+## 1. PROJECT CONTEXT & ARCHITECTURE
+**Stack Overview:**
+- **Framework:** Next.js 16 (App Router)
+- **Styling:** Tailwind CSS (Vanilla CSS, custom utility classes, `pb-24` mobile zero-overlap pattern)
+- **Database:** PostgreSQL (via Supabase) with Prisma ORM
+- **Automation/Scraping:** Puppeteer-based headless bot engine for real-time Google Pay transaction scraping
+- **Auth:** NextAuth.js (Role-based access: User, Staff, Admin) handled via middleware and `proxy.ts`
 
-The system fingerprints every customer based on `IP + DeviceID + Phone`.
-
-### User Tiers:
-| Tier | Success Count | Logic | Routing |
-|---|---|---|---|
-| **HIGH** | 0 - 25 | New/Untrusted users | Burner VPAs, Small Limits |
-| **MID** | 26 - 50 | Verified users | Stable VPAs, Medium Limits |
-| **LOW** | 51+ | VIP/Whitelisted | Direct/Stable VPAs, Unlimited |
-
-### Routing Decisions:
-Every request to create an intent goes through `GatewayRouter.selectAccount()`:
-1. **Health Check**: Only accounts with `healthScore > 80` are considered.
-2. **Hard Caps**: Accounts with `> 100` successful txns today are excluded.
-3. **Band Matching**: Matches the transaction amount to the VPA's `minTicket` / `maxTicket` band.
-4. **Cooldown**: If an account was recently manually flagged, it enters a 4-hour cooldown.
+**Core Architecture & Data Flow:**
+1. **Payment Intent Flow (`/api/v1/create-intent`):** Merchants create payment intents yielding a `payment_token`, `checkout_url`, and raw `upi_link`.
+2. **Bot Engine (`/bot/auto-login.js`, `src/services/payment-engine`):** Headless nodes scrape GPay transaction history (UTRs, amounts) in real-time, matching them against pending intents.
+3. **Settlement & Webhooks:** Upon successful UTR matching, the engine updates the transaction status, calculates merchant settlement fees (deducting from wallet balances), and fires HMAC-SHA256 signed webhooks to the merchant.
+4. **Resiliency System:** The platform relies on a "Zero-Failure Pattern"—critical database read operations in production dashboards wrap Prisma calls in `try/catch` blocks that return fallback/mock data rather than crashing the UI during schema mismatches.
 
 ---
 
-## 3. Matching Engine Logic
-
-The `MatchingEngine.ts` is the most critical component. It handles high-concurrency matching via the following strategy:
-
-1.  **Strict Amount Matching**: Filters all `PENDING` intents for that merchant with the exact same amount.
-2.  **Reference Note Check**: If the bot extracts a "Note" from the SMS, we match it against the `paymentToken`.
-3.  **Customer Context**: If multiple intents exist for the same amount, it uses the `payerUpiId` from previous successful transactions for that `CustomerId`.
-4.  **Floating State**: If no match is found, the transaction is moved to a `FLOATING` state for manual reconciliation.
+## 2. NON-NEGOTIABLE SYSTEM RULES
+- **PRESERVE THE BOT ENGINE:** The headless scraping logic (`src/bot/*` and `src/services/payment-engine`) is extremely brittle. Do not modify timeout thresholds, DOM selectors, or sliding-window batching logic unless explicitly instructed.
+- **MAINTAIN ZERO-FAILURE ARCHITECTURE:** Never allow an unhandled backend exception to crash a dashboard page. Always wrap database queries with try/catch fallbacks.
+- **AUTH ISOLATION:** The `signOut` flow must always aggressively clear session state and redirect to `/login` via `callbackUrl`. Role boundaries (Admin/Staff/User) are strictly enforced in `src/app/(auth)` and middleware.
+- **DESKTOP vs. MOBILE PARITY:** The desktop UI is strictly locked and production-ready. **DO NOT** refactor existing desktop CSS layouts. All mobile optimizations must be handled via isolated mobile breakpoints (`md:hidden`, etc.). Ensure the "Zero-Overlap Rule" (`pb-24` on main content wrappers) is maintained so the `MobileBottomNav` never obscures content.
 
 ---
 
-## 4. Settlement & Custody Flow
-
-WaveCollect operates on a **Custody Ledger** rather than pre-paid balance.
-
-### Ledger States:
-- **UNSETTLED**: Payment verified, but funds are in T+0 state.
-- **HELD**: High-risk payment flagged by the engine. Requires admin release.
-- **SETTLED**: Net funds (Total - 2% fee) moved to Merchant Balance.
-- **PAID_OUT**: Funds physically transferred to the merchant's bank.
-
-### The T+1 Batch:
-The `SettlementEngine.processBatch()` runs every 24 hours. It:
-1.  Identifies all `UNSETTLED` records older than 18 hours.
-2.  Deducts the merchant commission (e.g., 2%).
-3.  Calculates Agent Commissions (referral cut).
-4.  Credits the Merchant's `walletBalance`.
+## 3. ARCHITECTURE & IMPLEMENTATION GUIDELINES
+- **Client vs. Server Components:** Maintain strict separation. Any component utilizing `useSearchParams`, `useState`, or `useEffect` must have `"use client";` and must be wrapped in a `<Suspense>` boundary if exported as a page route to prevent Turbopack/Next.js 16 build-time prerendering failures.
+- **Routing Integrity:** No dynamic routes should be allowed to break static builds. Validate that all required URL parameters are explicitly handled.
+- **Styling Standards:** Adhere to the "Premium Fintech" aesthetic (glassmorphism, subtle gradients, `rounded-[32px]` or `rounded-2xl` containers, high-density typography, Inter/Outfit fonts). Never use generic UI placeholders.
 
 ---
 
-## 5. Webhook Reliability (Dead Letter Queue)
+## 4. FINTECH-SPECIFIC SAFETY RULES
+- **Idempotency is Mandatory:** When interacting with transactions or wallets (e.g., `src/app/api/v1/simulate-payment` or webhook dispatchers), ensure operations cannot double-charge or double-credit a user if a request is retried.
+- **Webhook Integrity:** Never modify the payload structure or the HMAC-SHA256 signing logic of the outbound webhook dispatcher. External merchants rely on this exact schema.
+- **Wallet Balances:** All deductions (settlement fees, recharges) must be treated as atomic operations.
 
-All merchant notifications are managed by `WebhookService.ts`:
-- **Initial Try**: Immediate delivery on match.
-- **Retry Schedule**: Exponential backoff (1m, 5m, 1h, 6h, 24h).
-- **Security**: All payloads are signed with `X-Wave-Signature` using the merchant's `webhookSecret`.
-- **Manual Replay**: Failed webhooks can be re-triggered from the Admin Dashboard.
+---
+
+## 5. IMPLEMENTATION STRATEGY
+1. **Analyze First:** Check related routing files, Prisma schemas, and `proxy.ts` before modifying any API endpoints or page structures.
+2. **Surgical Edits:** Use `multi_replace_file_content` to make precise, non-destructive edits to specific code blocks rather than rewriting entire files.
+3. **No Destructive Refactors:** Do not rename core database fields or overhaul established UI components unless it is the explicit core objective of the user's prompt.
+
+---
+
+## 6. TESTING & VALIDATION REQUIREMENTS
+Before considering a task complete, mentally validate the following:
+- **Build Safety:** Will this change trigger a Next.js 16 prerender build failure? (Check for unprotected `useSearchParams`).
+- **Mobile Viewport:** Does this UI overlap with the `pb-24` bottom nav constraint?
+- **Auth State:** Can an unauthenticated user bypass this route? 
+- **Type Safety:** Ensure TypeScript interfaces perfectly match any Prisma model adjustments.
+
+---
+
+## 7. FINAL REPORTING FORMAT
+Upon completing the requested task, output a concise report containing:
+1. **Modified Files:** A clear list of files changed.
+2. **Architectural Impact:** Brief summary of logic changes.
+3. **Mobile/Desktop UX Status:** Confirmation that desktop UI was preserved and mobile UI is responsive.
+4. **Risk & Build Analysis:** Confirmation that the changes are Turbopack-safe and will not break the production `npm run build`.
