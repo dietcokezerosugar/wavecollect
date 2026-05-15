@@ -8,7 +8,7 @@ require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 // CONFIGURATION
 const VPS_URL = process.env.VPS_URL || "https://your-vps-domain.com"; 
-const BOT_SECRET = process.env.BOT_SYSTEM_SECRET || "wave_collect_bridge_secret_998877";
+const BOT_SECRET = process.env.INTERNAL_BOT_SECRET || "wave_collect_bridge_secret_998877";
 const SYNC_INTERVAL_MS = 30000; // 30 seconds
 
 async function sync() {
