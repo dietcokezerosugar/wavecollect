@@ -38,6 +38,7 @@ const navItems = [
   { href: "/admin/logs", icon: Terminal, label: "System Logs" },
   { href: "/admin/referrals", icon: Users, label: "Referral Hub" },
   { href: "/admin/analytics", icon: BarChart3, label: "System Health" },
+  { href: "/admin/pool", icon: Smartphone, label: "Platform Pool" },
   { href: "/admin/calculator", icon: Calculator, label: "Cost Planner" },
   { href: "/admin/settings", icon: Settings, label: "Settings" },
 ];
