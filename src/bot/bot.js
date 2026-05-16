@@ -363,8 +363,16 @@ async function runDualPollingLoop() {
         await reportStatus("online");
 
         log('[ENGINE-A] ⚡ XHR sweep complete');
-        if (totalSweeps % 15 === 0) await runEngineB(); // Every 15 sweeps (~2 min) — full CSV reconciliation
-        setTimeout(runDualPollingLoop, 8000); // 8-second sweep cycle
+        
+        // Engine-B: Run CSV download every 12 sweeps (~2 minutes at 10s intervals)
+        // This gives full coverage of ALL today's transactions as a completeness layer
+        const ENGINE_B_EVERY_N_SWEEPS = 12;
+        if (totalSweeps % ENGINE_B_EVERY_N_SWEEPS === 0) {
+            log('[ENGINE-B] 📄 Scheduled CSV reconciliation cycle...');
+            await runEngineB();
+        }
+        
+        setTimeout(runDualPollingLoop, (accountConfig.download_interval_sec || 10) * 1000);
     } catch(e) {
         log(`[CRASH] Playwright stalled: ${e.message}. Recovering...`);
         engineRunning = false;
