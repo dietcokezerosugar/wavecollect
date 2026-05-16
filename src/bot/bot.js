@@ -363,8 +363,8 @@ async function runDualPollingLoop() {
         await reportStatus("online");
 
         log('[ENGINE-A] ⚡ XHR sweep complete');
-        if (statsEngineB.captured === 0 || Math.random() < 0.2) await runEngineB();
-        setTimeout(runDualPollingLoop, (accountConfig.download_interval_sec || 10) * 1000);
+        if (totalSweeps % 15 === 0) await runEngineB(); // Every 15 sweeps (~2 min) — full CSV reconciliation
+        setTimeout(runDualPollingLoop, 8000); // 8-second sweep cycle
     } catch(e) {
         log(`[CRASH] Playwright stalled: ${e.message}. Recovering...`);
         engineRunning = false;
