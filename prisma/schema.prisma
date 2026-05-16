@@ -373,3 +373,18 @@ model Settlement {
   paidOutAt      DateTime?
   createdAt      DateTime @default(now())
 }
+
+// NEW: Manual CSV Reconciliation History
+model ReconciliationUpload {
+  id            String   @id @default(cuid())
+  staffEmail    String
+  fileName      String
+  totalRows     Int
+  matched       Int      @default(0)
+  alreadyExists Int      @default(0)
+  unmatched     Int      @default(0)
+  skipped       Int      @default(0)
+  errors        Int      @default(0)
+  results       String?  // JSON string of detailed row-level results
+  createdAt     DateTime @default(now())
+}

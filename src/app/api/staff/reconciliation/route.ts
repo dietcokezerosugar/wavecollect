@@ -148,66 +148,60 @@ export async function POST(req: NextRequest) {
     let skippedCount = 0;
     let errorCount = 0;
 
+    // 1. First pass: extract all valid transactions and collect IDs for batch fetching
+    const validTxns = [];
+    const externalIds = new Set<string>();
+    const utrs = new Set<string>();
+
     for (let i = 0; i < rows.length; i++) {
       const txn = extractTxnFromRow(rows[i]);
-
-      // Skip rows with no amount or no ID
-      if (!txn.amount || (!txn.externalId && !txn.utr)) {
-        results.push({
-          row: i + 1,
-          externalId: txn.externalId || "N/A",
-          amount: txn.amount,
-          status: "SKIPPED",
-          detail: "Missing amount or transaction ID",
-        });
-        skippedCount++;
-        continue;
-      }
-
-      // Skip non-successful transactions (only reconcile completed payments)
-      // GPay uses "Settled", PhonePe uses "SUCCESS", etc.
-      if (txn.status && !["SUCCESS", "COMPLETED", "PAID", "CREDIT", "RECEIVED", "SETTLED", ""].includes(txn.status)) {
-        results.push({
-          row: i + 1,
-          externalId: txn.externalId,
-          amount: txn.amount,
-          status: "SKIPPED",
-          detail: `Skipped: status is ${txn.status}`,
-        });
-        skippedCount++;
-        continue;
-      }
-
-      // Generate a unique externalId if missing
       const finalExternalId = txn.externalId || `CSV_${Date.now()}_${i}`;
+      txn.externalId = finalExternalId;
 
+      if (!txn.amount || (!txn.externalId && !txn.utr)) {
+        results.push({ row: i + 1, externalId: finalExternalId, amount: txn.amount, status: "SKIPPED", detail: "Missing amount or ID" });
+        skippedCount++;
+        continue;
+      }
+      if (txn.status && !["SUCCESS", "COMPLETED", "PAID", "CREDIT", "RECEIVED", "SETTLED", ""].includes(txn.status)) {
+        results.push({ row: i + 1, externalId: finalExternalId, amount: txn.amount, status: "SKIPPED", detail: `Skipped: status ${txn.status}` });
+        skippedCount++;
+        continue;
+      }
+
+      validTxns.push({ row: i + 1, txn });
+      externalIds.add(finalExternalId);
+      if (txn.utr) utrs.add(txn.utr);
+    }
+
+    // 2. Batch Fetch Existing Transactions (Huge performance boost)
+    const existingTxns = await prisma.transaction.findMany({
+      where: {
+        OR: [
+          { externalId: { in: Array.from(externalIds) } },
+          ...(utrs.size > 0 ? [{ utr: { in: Array.from(utrs) } }] : [])
+        ]
+      },
+      include: { paymentIntent: { select: { id: true, status: true, referenceId: true } } }
+    });
+
+    const existingByExternalId = new Map(existingTxns.map(t => [t.externalId, t]));
+    const existingByUtr = new Map(existingTxns.filter(t => t.utr).map(t => [t.utr!, t]));
+
+    // 3. Process each valid transaction
+    for (const { row, txn } of validTxns) {
       try {
-        // Check if transaction already exists in the DB
-        const existing = await prisma.transaction.findFirst({
-          where: {
-            OR: [
-              { externalId: finalExternalId },
-              ...(txn.utr ? [{ utr: txn.utr }] : []),
-            ],
-          },
-          include: { paymentIntent: { select: { id: true, status: true, referenceId: true } } },
-        });
+        const existing = existingByExternalId.get(txn.externalId) || (txn.utr ? existingByUtr.get(txn.utr) : undefined);
 
         if (existing) {
           const alreadyMatched = existing.paymentIntent ? `Linked to intent ${existing.paymentIntent.referenceId}` : "Exists but unmatched";
-          results.push({
-            row: i + 1,
-            externalId: finalExternalId,
-            amount: txn.amount,
-            status: "ALREADY_EXISTS",
-            detail: alreadyMatched,
-          });
+          results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "ALREADY_EXISTS", detail: alreadyMatched });
           existsCount++;
 
-          // If it exists but has no matched intent, try matching again
           if (!existing.paymentIntent) {
+            // Attempt re-match
             const matched = await MatchingEngine.onTransactionDetected({
-              externalId: `CSV_RETRY_${finalExternalId}_${Date.now()}`,
+              externalId: `CSV_RETRY_${txn.externalId}_${Date.now()}`,
               utr: txn.utr || existing.utr || undefined,
               amount: txn.amount,
               payerName: txn.payerName || existing.payerName || undefined,
@@ -225,9 +219,9 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
-        // Feed into MatchingEngine for fresh reconciliation
+        // Fresh Match
         const matched = await MatchingEngine.onTransactionDetected({
-          externalId: finalExternalId,
+          externalId: txn.externalId,
           utr: txn.utr || undefined,
           amount: txn.amount,
           payerName: txn.payerName || undefined,
@@ -237,51 +231,38 @@ export async function POST(req: NextRequest) {
         });
 
         if (matched) {
-          results.push({
-            row: i + 1,
-            externalId: finalExternalId,
-            amount: txn.amount,
-            status: "MATCHED",
-            detail: "Successfully matched to a pending payment intent",
-          });
+          results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "MATCHED", detail: "Successfully matched to intent" });
           matchedCount++;
         } else {
-          results.push({
-            row: i + 1,
-            externalId: finalExternalId,
-            amount: txn.amount,
-            status: "UNMATCHED",
-            detail: "No matching payment intent found",
-          });
+          results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "UNMATCHED", detail: "No matching intent found" });
           unmatchedCount++;
         }
       } catch (err: any) {
-        results.push({
-          row: i + 1,
-          externalId: finalExternalId,
-          amount: txn.amount,
-          status: "ERROR",
-          detail: err.message?.substring(0, 100) || "Unknown error",
-        });
+        results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "ERROR", detail: err.message?.substring(0, 100) });
         errorCount++;
       }
     }
 
-    await logApi(
-      "SUCCESS",
-      `[Reconciliation] Complete: ${matchedCount} matched, ${existsCount} existing, ${unmatchedCount} unmatched, ${skippedCount} skipped, ${errorCount} errors`
-    );
-
-    return NextResponse.json({
-      success: true,
-      summary: {
+    // 4. Save Reconciliation History
+    await prisma.reconciliationUpload.create({
+      data: {
+        staffEmail: session.user.email,
+        fileName: file.name,
         totalRows: rows.length,
         matched: matchedCount,
         alreadyExists: existsCount,
         unmatched: unmatchedCount,
         skipped: skippedCount,
         errors: errorCount,
-      },
+        results: JSON.stringify(results) // Save detailed results for later review
+      }
+    });
+
+    await logApi("SUCCESS", `[Reconciliation] Complete: ${matchedCount} matched, ${existsCount} existing, ${unmatchedCount} unmatched, ${skippedCount} skipped, ${errorCount} errors`);
+
+    return NextResponse.json({
+      success: true,
+      summary: { totalRows: rows.length, matched: matchedCount, alreadyExists: existsCount, unmatched: unmatchedCount, skipped: skippedCount, errors: errorCount },
       results,
     });
   } catch (err: any) {
