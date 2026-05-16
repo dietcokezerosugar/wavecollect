@@ -7,19 +7,48 @@ import { MatchingEngine } from "@/services/matching/MatchingEngine";
 
 export const dynamic = "force-dynamic";
 
-// ── CSV Parser ─────────────────────────────────────────────
+// ── RFC 4180 CSV Parser (handles quoted fields with commas) ──
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') {
+        current += '"';
+        i++; // skip escaped quote
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        result.push(current.trim());
+        current = "";
+      } else {
+        current += ch;
+      }
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
 function parseCSV(text: string): Record<string, string>[] {
   const lines = text.split(/\r?\n/).filter((l) => l.trim());
   if (lines.length < 2) return [];
 
-  // Detect headers — normalize them
-  const rawHeaders = lines[0].split(",").map((h) => h.trim().replace(/"/g, ""));
-  const headers = rawHeaders.map((h) => h.toLowerCase());
+  const headers = parseCSVLine(lines[0]).map((h) => h.toLowerCase());
 
   const rows: Record<string, string>[] = [];
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(",").map((v) => v.trim().replace(/^"|"$/g, ""));
-    if (values.length < headers.length) continue;
+    const values = parseCSVLine(lines[i]);
+    if (values.length < 2) continue; // skip empty/malformed lines
     const row: Record<string, string> = {};
     headers.forEach((h, idx) => {
       row[h] = values[idx] || "";
@@ -30,35 +59,55 @@ function parseCSV(text: string): Record<string, string>[] {
 }
 
 // ── Field Mapping ──────────────────────────────────────────
-// GPay CSV exports use different column names. We normalize them.
+// GPay Business CSV headers:
+//   Payer, Paid via, Type (UPI / UPI CC), Creation time, Transaction ID,
+//   Amount, Processing Fee, Net Amount, Status, Update time, Notes
+//
+// Also supports generic CSV formats from PhonePe/Paytm exports.
 function extractTxnFromRow(row: Record<string, string>) {
-  // Try common column names for each field
-  const amount =
-    row["amount"] || row["transaction amount"] || row["txn amount"] || row["amt"] || row["value"] || "";
+  // Amount (GPay uses "amount" directly)
+  const amountRaw =
+    row["amount"] || row["net amount"] || row["transaction amount"] || row["txn amount"] || row["amt"] || row["value"] || "";
+
+  // Notes = our referenceId (critical for matching!)
   const note =
-    row["note"] || row["description"] || row["remarks"] || row["notes"] || row["transaction note"] || "";
-  const utr =
-    row["utr"] || row["reference number"] || row["ref no"] || row["reference id"] || row["transaction id"] || "";
+    row["notes"] || row["note"] || row["description"] || row["remarks"] || row["transaction note"] || "";
+
+  // Transaction ID = externalId
   const externalId =
-    row["transaction id"] || row["id"] || row["txn id"] || row["merchant transaction id"] || utr || "";
+    row["transaction id"] || row["id"] || row["txn id"] || row["merchant transaction id"] || "";
+
+  // UTR (GPay doesn't provide UTR separately — Transaction ID is the closest)
+  const utr =
+    row["utr"] || row["reference number"] || row["ref no"] || row["reference id"] || "";
+
+  // Payer info
   const payerName =
-    row["payer name"] || row["sender name"] || row["from"] || row["name"] || "";
+    row["payer"] || row["payer name"] || row["sender name"] || row["from"] || row["name"] || "";
+
   const payerUpiId =
-    row["payer upi id"] || row["sender vpa"] || row["upi id"] || row["from upi"] || "";
+    row["payer upi id"] || row["sender vpa"] || row["upi id"] || row["from upi"] || row["paid via"] || "";
+
+  // Timestamp
   const timestamp =
-    row["date"] || row["timestamp"] || row["transaction date"] || row["created at"] || row["time"] || "";
-  const status =
+    row["creation time"] || row["date"] || row["timestamp"] || row["transaction date"] || row["created at"] || row["time"] || "";
+
+  // Status (GPay uses "Settled", not "SUCCESS")
+  const statusRaw =
     row["status"] || row["transaction status"] || row["txn status"] || "";
 
+  // Parse amount (strip currency symbols, commas)
+  const amount = parseFloat(amountRaw.replace(/[₹,\s]/g, "")) || 0;
+
   return {
-    amount: parseFloat(amount.replace(/[₹,\s]/g, "")) || 0,
+    amount,
     note: note.trim(),
     utr: utr.trim(),
     externalId: externalId.trim(),
     payerName: payerName.trim(),
     payerUpiId: payerUpiId.trim(),
     timestamp: timestamp.trim(),
-    status: status.trim().toUpperCase(),
+    status: statusRaw.trim().toUpperCase(),
   };
 }
 
@@ -116,7 +165,8 @@ export async function POST(req: NextRequest) {
       }
 
       // Skip non-successful transactions (only reconcile completed payments)
-      if (txn.status && !["SUCCESS", "COMPLETED", "PAID", "CREDIT", "RECEIVED", ""].includes(txn.status)) {
+      // GPay uses "Settled", PhonePe uses "SUCCESS", etc.
+      if (txn.status && !["SUCCESS", "COMPLETED", "PAID", "CREDIT", "RECEIVED", "SETTLED", ""].includes(txn.status)) {
         results.push({
           row: i + 1,
           externalId: txn.externalId,
