@@ -17,30 +17,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   }
 
   const merchantName = intent.merchant.brandName || intent.merchant.businessName || intent.merchant.name;
-  const brandColor = intent.merchant.brandColor || "#4338ca";
-  const brandLogo = intent.merchant.brandLogo;
   const amount = Number(intent.amount);
   const referenceId = intent.referenceId;
   const upiDeepLink = intent.upiDeepLink || "";
   
-  // Generate QR on the fly for "Instant Load" performance
-  const qrData = await QRCode.toDataURL(upiDeepLink, { width: 400, margin: 2 });
+  // Generate QR
+  const qrData = await QRCode.toDataURL(upiDeepLink, { width: 400, margin: 1, color: { dark: '#18181b', light: '#ffffff' } });
   
   const status = intent.status;
   const expireAt = intent.expireAt ? intent.expireAt.toISOString() : "";
 
-  // Extract UPI ID from deep link
+  // Extract UPI ID
   const upiMatch = upiDeepLink.match(/pa=([^&]+)/);
   const merchantUpi = upiMatch ? decodeURIComponent(upiMatch[1]) : "merchant@upi";
-  const maskedUpi = merchantUpi.length > 11
-    ? merchantUpi.substring(0, 5) + "***" + merchantUpi.substring(merchantUpi.length - 6)
-    : merchantUpi;
 
-  // BloomxHub intents
+  // Intents
   const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${referenceId}&tr=${referenceId}&mc=4722&&sign=AAuN7izDWN5cb8A5scnUiNME%2BLkZqI2DWgkXlN1McoP6WZABa%2FKkFTiLvuPRP6%2FnWK8BPg%2FrPhb%2Bu4QMrUEX10UsANTDbJaALcSM9b8Wk218X%2B55T%2FzOzb7xoiB%2BBcX8yYuYayELImXJHIgL%2Fc7nkAnHrwUCmbM97nRbCVVRvU0ku3Tr&featuretype=money_transfer`;
-  const gpayIntent = `tez://upi/pay?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&tid=${referenceId}&tr=${referenceId}&tn=${referenceId}&cu=INR`;
 
-  // PhonePe intent — BloomxHub-exact: Base64-encoded JSON payload
   const phonepePayload = JSON.stringify({
     contact: { cbsName: "", nickName: "", vpa: merchantUpi, type: "VPA" },
     p2pPaymentCheckoutParams: {
@@ -54,7 +47,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   const phonepeBase64 = Buffer.from(phonepePayload).toString("base64");
   const phonepeIntent = `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
 
-  // Escape URLs for safe embedding inside onclick='...' JS strings
   const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
   const html = `<!DOCTYPE html>
@@ -65,175 +57,149 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
 <title>Pay ₹${amount} | ${merchantName}</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:${brandColor};color:#fff;min-height:100dvh;display:flex;flex-direction:column}
-.hdr{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;background:${brandColor}}
-.hdr-left{display:flex;align-items:center;gap:10px}
-.logo{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden}
-.logo img{width:100%;height:100%;object-fit:cover}
-.hdr-label{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.6)}
-.hdr-name{font-size:14px;font-weight:700}
-.timer{font-size:13px;font-weight:800;padding:6px 14px;border-radius:12px;font-family:monospace;background:rgba(255,255,255,.1)}
-.timer.urgent{background:rgba(239,68,68,.25);color:#fca5a5}
-.progress{width:100%;height:2px;background:rgba(0,0,0,.2)}
-.progress-bar{height:100%;background:#34d399;transition:width 1s linear}
-.amt{text-align:center;padding:16px 20px 32px;background:${brandColor}}
-.amt h1{font-size:42px;font-weight:900;display:flex;align-items:baseline;justify-content:center}
-.amt h1 span{font-size:18px;opacity:.6;margin-right:2px}
-.amt p{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,.6);margin-top:8px}
-.card{flex:1;background:#fff;border-radius:28px 28px 0 0;margin-top:-16px;display:flex;flex-direction:column;color:#0f172a;overflow:hidden}
-.tabs{display:flex;gap:4px;margin:20px 20px 0;padding:4px;background:#f1f5f9;border-radius:16px}
-.tab{flex:1;border:none;padding:10px 8px;border-radius:12px;font-weight:800;font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;background:transparent;color:#94a3b8;transition:.2s}
-.tab.active{background:#fff;color:${brandColor};box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.content{flex:1;padding:20px;overflow-y:auto}
-.tab-panel{display:none}
-.tab-panel.active{display:block}
-.qr-wrap{text-align:center;margin-bottom:16px}
-.qr-border{display:inline-block;padding:16px;background:#fff;border:2px solid #e2e8f0;border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,.06)}
-.qr-border img{width:180px;height:180px;border-radius:12px;display:block}
-.upi-row{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:10px 14px;border-radius:14px;border:1px solid #e2e8f0;margin-bottom:12px}
-.upi-label{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#94a3b8}
-.upi-val{font-size:12px;font-weight:900;font-family:monospace}
-.copy-btn{width:36px;height:36px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
-.apps-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#94a3b8;text-align:center;margin:12px 0 6px}
-.app-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
-.app-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:14px;text-decoration:none;font-family:inherit;font-size:9px;font-weight:700;border:none}
-.app-btn.gpay{background:#fff;color:#334155;border:1px solid #e2e8f0}
-.app-btn.phonepe{background:#5f259f;color:#fff}
-.app-btn.paytm{background:#00BAF2;color:#fff}
-.fallback{display:block;text-align:center;padding:12px;background:#f1f5f9;border-radius:14px;border:1px solid #e2e8f0;text-decoration:none;color:#475569;font-size:12px;font-weight:700;margin-bottom:8px}
-.app-list{display:flex;flex-direction:column;gap:10px}
-.app-list a{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;text-decoration:none;font-family:inherit}
-.app-icon{width:44px;height:44px;background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.04);border:1px solid #f1f5f9;flex-shrink:0;font-size:22px}
-.app-info p:first-child{font-weight:800;font-size:14px;margin:0}
-.app-info p:last-child{font-size:10px;opacity:.7;margin:0}
-.footer{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;border-top:1px solid #f1f5f9;font-size:9px;font-weight:800;color:#cbd5e1;text-transform:uppercase;letter-spacing:1.5px}
-.hint{font-size:10px;color:#94a3b8;text-align:center;margin-top:8px}
-.card-placeholder{text-align:center;padding:40px 20px}
-.card-placeholder .icon{width:64px;height:64px;background:#f1f5f9;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px}
-#successOverlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(15,23,42,.85);align-items:center;justify-content:center;padding:16px}
-#successOverlay.show{display:flex}
-.success-card{max-width:380px;width:100%;background:#fff;border-radius:36px;padding:24px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.15);position:relative;overflow:hidden;color:#0f172a}
-.success-card .top-bar{position:absolute;top:0;left:0;right:0;height:4px;background:${brandColor}}
-.success-check{width:80px;height:80px;background:${brandColor};color:#fff;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;margin:16px auto 20px;box-shadow:0 8px 24px rgba(16,185,129,.25)}
-#expiredView{display:none;min-height:100dvh;align-items:center;justify-content:center;background:#f8fafc;padding:16px}
-#expiredView.show{display:flex}
-.expired-card{max-width:400px;background:#fff;border-radius:28px;padding:40px 24px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.06);color:#0f172a}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background-color:#f4f4f5;display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:20px;color:#18181b}
+.card{width:100%;max-width:420px;background:#fff;border-radius:16px;box-shadow:0 10px 40px -10px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.05);display:flex;flex-direction:column;overflow:hidden}
+.header{padding:32px 24px;background:#fafafa;border-bottom:1px solid #f0f0f0}
+.merchant-info{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.avatar{width:48px;height:48px;border-radius:50%;background:#18181b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600}
+.merchant-label{font-size:13px;color:#71717a;margin:0 0 2px 0;font-weight:500}
+.merchant-name{font-size:18px;color:#18181b;margin:0;font-weight:600;letter-spacing:-0.3px}
+.amount-container{display:flex;align-items:baseline;gap:4px}
+.currency{font-size:24px;font-weight:500;color:#71717a}
+.amount{font-size:42px;font-weight:700;color:#18181b;letter-spacing:-1px}
+.payment-section{padding:24px}
+.instruction{font-size:14px;color:#52525b;font-weight:500;text-align:center;margin:0 0 16px 0}
+.qr-section{display:flex;flex-direction:column;align-items:center}
+.qr-container{padding:12px;background:#fff;border:1px solid #e4e4e7;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:24px}
+.qr-image{width:180px;height:180px;display:block;border-radius:6px}
+.upi-container{width:100%;display:flex;align-items:center;justify-content:space-between;background:#fafafa;border:1px solid #e4e4e7;padding:12px 16px;border-radius:10px}
+.upi-text-container{overflow:hidden}
+.upi-label{font-size:11px;color:#a1a1aa;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin:0 0 2px 0}
+.upi-value{font-size:14px;color:#27272a;font-weight:600;margin:0;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.copy-btn{background:#fff;border:1px solid #d4d4d8;color:#18181b;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.deep-link-section{display:none;flex-direction:column;gap:12px;margin-top:24px;padding-top:24px;border-top:1px solid #e2e8f0}
+.app-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
+.app-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;background:#fff;border:1px solid #e4e4e7;border-radius:12px;text-decoration:none;color:#18181b;box-shadow:0 1px 2px rgba(0,0,0,.02)}
+.app-name{font-size:14px;font-weight:600}
+.footer{padding:20px 24px;background:#fafafa;border-top:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.timer-container{display:flex;align-items:center;gap:6px;background:#fff7ed;color:#ea580c;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600}
+.timer-text{font-variant-numeric:tabular-nums}
+.secure-text{font-size:12px;color:#a1a1aa;font-weight:500;margin:0}
+
+#successView, #expiredView { display:none; width:100%; max-width:420px; }
+.status-card { background:#fff; border-radius:16px; box-shadow:0 10px 40px -10px rgba(0,0,0,.08); display:flex; flex-direction:column; text-align:center; padding-bottom:32px; overflow:hidden;}
+.status-icon { margin:40px auto 24px; width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+.status-icon.success { background:#ecfdf5; }
+.status-icon.expired { background:#fef2f2; }
+.status-heading { font-size:22px; font-weight:600; color:#18181b; margin-bottom:8px; }
+.status-subtext { font-size:14px; color:#71717a; padding:0 24px; margin-bottom:24px; line-height:1.5; }
+.details-box { margin:0 24px; padding:16px; background:#fafafa; border-radius:8px; border:1px solid #f0f0f0; text-align:left; }
+.detail-row { display:flex; justify-content:space-between; margin-bottom:12px; }
+.detail-label { font-size:13px; color:#71717a; font-weight:500; }
+.detail-value { font-size:13px; color:#18181b; font-weight:600; font-family:monospace; }
 </style>
 </head>
 <body>
-<div id="mainView">
-  <div class="hdr">
-    <div class="hdr-left">
-      <div class="logo">
-        ${brandLogo ? `<img src="${brandLogo}" alt="Logo">` : '⚡'}
+
+<div id="mainView" class="card">
+  <div class="header">
+    <div class="merchant-info">
+      <div class="avatar">${merchantName.charAt(0).toUpperCase()}</div>
+      <div>
+        <p class="merchant-label">Pay</p>
+        <h1 class="merchant-name">${merchantName}</h1>
       </div>
-      <div><p class="hdr-label">Paying To</p><p class="hdr-name">${merchantName}</p></div>
     </div>
-    <div class="timer" id="timerChip">⏱ <span id="countdown">--:--</span></div>
+    <div class="amount-container">
+      <span class="currency">₹</span>
+      <span class="amount">${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+    </div>
   </div>
-  <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
-  <div class="amt"><h1><span>₹</span>${amount.toLocaleString()}</h1><p>Secure UPI Payment</p></div>
-  <div class="card">
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('qr')"><span style="font-size:16px">⊞</span>QR Code</button>
-      <button class="tab" onclick="switchTab('upi')"><span style="font-size:16px">@</span>UPI App</button>
-      <button class="tab" onclick="switchTab('card')"><span style="font-size:16px">⊟</span>Cards</button>
-    </div>
-    <div class="content">
-      <div class="tab-panel active" id="panel-qr">
-        <div class="qr-wrap"><div class="qr-border"><img src="${qrData}" alt="QR"></div></div>
-        <div class="upi-row">
-          <div><p class="upi-label">UPI ID</p><p class="upi-val">${maskedUpi}</p></div>
-          <button class="copy-btn" onclick="copyUpi()">📋</button>
-        </div>
-        <p class="apps-label">Or pay directly via</p>
-        <div class="app-grid">
-          <a href="#" onclick="event.preventDefault();window.location.href='${esc(gpayIntent)}'" class="app-btn gpay"><span style="font-size:20px">💳</span>Google Pay</a>
-          <a href="#" onclick="event.preventDefault();window.location.href='${esc(phonepeIntent)}'" class="app-btn phonepe"><span style="font-size:20px">📲</span>PhonePe</a>
-          <a href="${paytmIntent}" class="app-btn paytm"><span style="font-size:20px">💰</span>Paytm</a>
-        </div>
-        <a href="${upiDeepLink}" class="fallback">@ Other UPI App</a>
-        <p class="hint">Scan with any UPI app to pay</p>
+  
+  <div class="payment-section">
+    <div class="qr-section">
+      <p class="instruction">Scan QR with any UPI app</p>
+      <div class="qr-container">
+        <img src="${qrData}" class="qr-image" alt="QR Code">
       </div>
-      <div class="tab-panel" id="panel-upi">
-        <h3 style="font-size:18px;font-weight:900;text-align:center;margin-bottom:4px">Pay ₹${amount.toLocaleString()} via UPI</h3>
-        <p style="font-size:12px;color:#64748b;text-align:center;margin-bottom:16px">Choose your preferred app</p>
-        <div class="app-list">
-          <a href="#" onclick="event.preventDefault();window.location.href='${esc(gpayIntent)}'" style="background:#fff;color:#334155;border:1px solid #e2e8f0">
-            <div class="app-icon">💳</div><div class="app-info"><p>Google Pay</p><p>Tap to open</p></div>
-          </a>
-          <a href="#" onclick="event.preventDefault();window.location.href='${esc(phonepeIntent)}'" style="background:#5f259f;color:#fff;border:1px solid #5f259f">
-            <div class="app-icon">📲</div><div class="app-info"><p>PhonePe</p><p>Tap to open</p></div>
-          </a>
-          <a href="${paytmIntent}" style="background:#00BAF2;color:#fff;border:1px solid #00BAF2">
-            <div class="app-icon">💰</div><div class="app-info"><p>Paytm</p><p>Tap to open</p></div>
-          </a>
-          <a href="${upiDeepLink}" style="background:#f8fafc;color:#475569;border:1px solid #e2e8f0">
-            <div class="app-icon" style="font-size:18px;color:#4f46e5">@</div><div class="app-info"><p>Other UPI App</p><p style="color:#94a3b8">BHIM, Cred, Jupiter</p></div>
-          </a>
+      <div class="upi-container">
+        <div class="upi-text-container">
+          <p class="upi-label">UPI ID</p>
+          <p class="upi-value" id="upiValue">${merchantUpi}</p>
         </div>
-      </div>
-      <div class="tab-panel" id="panel-card">
-        <div class="card-placeholder">
-          <div class="icon">🔒</div>
-          <p style="font-weight:900;font-size:18px;margin-bottom:6px">Coming Soon</p>
-          <p style="color:#64748b;font-size:13px">Card payments being optimized.</p>
-          <button onclick="switchTab('qr')" style="margin-top:16px;padding:10px 24px;background:#f1f5f9;border:none;border-radius:12px;font-size:12px;font-weight:700;color:#475569;cursor:pointer">Back to UPI</button>
-        </div>
+        <button class="copy-btn" onclick="copyUpi(this)">Copy</button>
       </div>
     </div>
-    <div class="footer"><span>🛡️ PCI DSS</span><span style="width:4px;height:4px;background:#cbd5e1;border-radius:50%;display:inline-block"></span><span>🔒 256-bit SSL</span></div>
+
+    <div class="deep-link-section" id="deepLinks">
+      <p class="instruction">Or pay directly using</p>
+      <div class="app-grid">
+        <a href="#" onclick="event.preventDefault();window.location.href='${esc(phonepeIntent)}'" class="app-button">
+          <svg viewBox="0 0 24 24" width="24" height="24"><rect width="24" height="24" rx="4" fill="#5f259f"/><path fill="#fff" d="M16 11.5L14.5 13H13v3h-2v-3H9.5L8 11.5 9.5 10H11V7h2v3h1.5L16 11.5z M12 3a9 9 0 100 18 9 9 0 000-18zm0 16a7 7 0 110-14 7 7 0 010 14z"/></svg>
+          <span class="app-name">PhonePe</span>
+        </a>
+        <a href="${paytmIntent}" class="app-button">
+          <svg viewBox="0 0 24 24" width="24" height="24"><rect width="24" height="24" rx="4" fill="#00BAF2"/><path fill="#fff" d="M7 16h2v-6h3v6h2V8H7v8zm1-5h3V9H8v2z"/></svg>
+          <span class="app-name">Paytm</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="timer-container">
+      <span>⏳</span>
+      <span class="timer-text">Expires in <span id="countdown">--:--</span></span>
+    </div>
+    <p class="secure-text">🔒 Secured by PayxMint</p>
   </div>
 </div>
 
-<div id="successOverlay">
-  <div class="success-card">
-    <div class="top-bar"></div>
-    <div class="success-check">✓</div>
-    <p style="font-size:10px;font-weight:800;color:#10b981;text-transform:uppercase;letter-spacing:3px;margin-bottom:6px">Payment Confirmed</p>
-    <h2 style="font-size:40px;font-weight:900;margin-bottom:20px">₹${amount.toLocaleString()}</h2>
-    <div style="background:#f8fafc;border-radius:20px;padding:20px;text-align:left;border:1px solid #f1f5f9">
-      <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#94a3b8">Payer</p>
-      <p id="payerDisplay" style="font-weight:700;font-size:14px;margin-bottom:10px">Verified</p>
-      <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#94a3b8">UTR</p>
-      <p id="utrDisplay" style="font-weight:700;font-size:12px;color:#10b981;font-family:monospace;margin-bottom:10px">Verified</p>
-      <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#94a3b8">Status</p>
-      <p style="font-weight:700;font-size:12px;color:${brandColor}">✅ Approved</p>
-    </div>
-    <p style="color:#94a3b8;font-size:12px;margin-top:16px">Auto-redirecting...</p>
+<div id="successView" class="status-card">
+  <div class="status-icon success">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
   </div>
+  <h2 class="status-heading">Payment Successful</h2>
+  <p class="status-subtext">Your payment of <strong>₹${amount.toLocaleString()}</strong> to ${merchantName} was successful.</p>
+  <div class="details-box">
+    <div class="detail-row"><span class="detail-label">Paid by</span><span class="detail-value" id="payerName">Verified</span></div>
+    <div class="detail-row"><span class="detail-label">Reference (UTR)</span><span class="detail-value" id="utrVal">Verified</span></div>
+  </div>
+  <p style="font-size:13px;color:#64748b;margin-top:24px">Redirecting back to merchant...</p>
 </div>
 
-<div id="expiredView">
-  <div class="expired-card">
-    <div style="width:64px;height:64px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px">⚠️</div>
-    <h2 style="font-size:22px;font-weight:800;margin-bottom:8px">Payment Expired</h2>
-    <p style="color:#64748b;font-size:14px">This payment link has expired.</p>
+<div id="expiredView" class="status-card">
+  <div class="status-icon expired">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
   </div>
+  <h2 class="status-heading">Payment Expired</h2>
+  <p class="status-subtext">This session has ended. Please return to the merchant and try again.</p>
 </div>
 
 <script>
-// === PURE VANILLA JS — NO FRAMEWORK ===
+// Device Detection
+var ua = navigator.userAgent;
+var isAndroid = /Android/.test(ua);
+if (isAndroid) {
+  document.getElementById('deepLinks').style.display = 'flex';
+}
+
+// Timer
 var TOKEN = "${token}";
 var STATUS = "${status}";
 var EXPIRE_AT = "${expireAt}";
 var TOTAL_SECS = 600;
-
-// Timer
 var timeLeft = TOTAL_SECS;
+
 if (EXPIRE_AT) {
   var diff = new Date(EXPIRE_AT).getTime() - Date.now();
   timeLeft = diff > 0 ? Math.floor(diff / 1000) : 0;
-  TOTAL_SECS = timeLeft > 0 ? timeLeft : 1;
 }
 
 function updateTimer() {
   var el = document.getElementById("countdown");
-  var chip = document.getElementById("timerChip");
-  var bar = document.getElementById("progressBar");
   if (timeLeft <= 0) {
     el.textContent = "0:00";
-    bar.style.width = "0%";
     showExpired();
     return;
   }
@@ -241,77 +207,60 @@ function updateTimer() {
   var m = Math.floor(timeLeft / 60);
   var s = timeLeft % 60;
   el.textContent = m + ":" + (s < 10 ? "0" + s : s);
-  bar.style.width = ((timeLeft / TOTAL_SECS) * 100) + "%";
-  if (timeLeft < 60) chip.classList.add("urgent");
 }
 
-// Initial display
-(function(){
-  var m = Math.floor(timeLeft / 60);
-  var s = timeLeft % 60;
-  document.getElementById("countdown").textContent = m + ":" + (s < 10 ? "0" + s : s);
-  document.getElementById("progressBar").style.width = ((timeLeft / TOTAL_SECS) * 100) + "%";
-})();
-
-// Start timer immediately
-if (STATUS === "PENDING" && timeLeft > 0) {
+if(STATUS === "PENDING") {
+  updateTimer();
   setInterval(updateTimer, 1000);
 }
 
-// Polling — every 500ms for instant detection
-if (STATUS === "PENDING") {
-  setInterval(function() {
-    fetch("/api/pay/status?token=" + TOKEN + "&_t=" + Date.now())
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.data && data.data.payment_status === "SUCCESS") {
-          showSuccess(data.data.payer_name, data.data.utr, data.data.redirect_url);
-        } else if (data.data && data.data.payment_status === "EXPIRED") {
-          showExpired();
-        }
-      })
-      .catch(function(e) { console.error("Poll err:", e); });
-  }, 500);
+function copyUpi(btn) {
+  var text = document.getElementById("upiValue").innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.innerText = "Copied";
+    setTimeout(function(){ btn.innerText = "Copy"; }, 2000);
+  });
 }
 
-function showSuccess(payer, utr, redirect) {
+function showSuccess(data) {
   document.getElementById("mainView").style.display = "none";
-  document.getElementById("successOverlay").classList.add("show");
-  if (payer) document.getElementById("payerDisplay").textContent = payer;
-  if (utr) document.getElementById("utrDisplay").textContent = utr;
-  if (redirect) setTimeout(function() { window.location.href = redirect; }, 5000);
+  document.getElementById("expiredView").style.display = "none";
+  document.getElementById("successView").style.display = "flex";
+  if(data && data.payer_name) document.getElementById("payerName").innerText = data.payer_name;
+  if(data && data.utr) document.getElementById("utrVal").innerText = data.utr;
+  
+  if(data && data.redirect_url) {
+    setTimeout(function(){ window.location.href = data.redirect_url; }, 5000);
+  }
 }
 
 function showExpired() {
   document.getElementById("mainView").style.display = "none";
-  document.getElementById("expiredView").classList.add("show");
+  document.getElementById("successView").style.display = "none";
+  document.getElementById("expiredView").style.display = "flex";
 }
 
-if (STATUS === "EXPIRED" || timeLeft <= 0) showExpired();
-if (STATUS === "SUCCESS") showSuccess(null, null, null);
-
-// Tab switching
-function switchTab(id) {
-  document.querySelectorAll(".tab").forEach(function(t) { t.classList.remove("active"); });
-  document.querySelectorAll(".tab-panel").forEach(function(p) { p.classList.remove("active"); });
-  event.currentTarget.classList.add("active");
-  document.getElementById("panel-" + id).classList.add("active");
-}
-
-// Copy UPI
-function copyUpi() {
-  navigator.clipboard.writeText("${merchantUpi}");
-  event.currentTarget.textContent = "✓";
-  setTimeout(function() { event.currentTarget.textContent = "📋"; }, 2000);
+if (STATUS === "SUCCESS") showSuccess();
+else if (STATUS === "EXPIRED") showExpired();
+else {
+  setInterval(function(){
+    if (timeLeft <= 0) return;
+    fetch('/api/pay/status?token=' + TOKEN)
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (res.data && res.data.payment_status === "SUCCESS") {
+          timeLeft = 0;
+          showSuccess(res.data);
+        } else if (res.data && res.data.payment_status === "EXPIRED") {
+          timeLeft = 0;
+          showExpired();
+        }
+      }).catch(function(e){});
+  }, 1500);
 }
 </script>
 </body>
 </html>`;
 
-  return new NextResponse(html, {
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-    },
-  });
+  return new NextResponse(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
