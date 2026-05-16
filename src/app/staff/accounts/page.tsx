@@ -29,6 +29,8 @@ export default function StaffAccountReview() {
   const [newPoolAccount, setNewPoolAccount] = useState({ name: '', email: '', password: '', upiId: '', proxy: '' });
   const [isCreating, setIsCreating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [editingReportId, setEditingReportId] = useState<string | null>(null);
+  const [reportIdValue, setReportIdValue] = useState("");
 
   const copyToClipboard = (text: string, id: string) => {
     try {
@@ -80,6 +82,23 @@ export default function StaffAccountReview() {
       }
     } catch (e) {
       console.error(`Failed to ${action} account`, e);
+    }
+  };
+
+  const saveReportId = async (id: string) => {
+    try {
+      const res = await fetch("/api/staff/accounts", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: 'set_report_id', reportId: reportIdValue }),
+      });
+      const json = await res.json();
+      if (json.status === "success") {
+        fetchAccounts();
+        setEditingReportId(null);
+      }
+    } catch (e) {
+      console.error("Failed to save report ID", e);
     }
   };
 
@@ -229,6 +248,57 @@ export default function StaffAccountReview() {
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">UPI ID</p>
                               <p className="text-xs font-bold text-slate-700">{account.upiId}</p>
                            </div>
+                        </div>
+
+                        {/* Merchant ID (Report ID) — Editable */}
+                        <div className="space-y-1.5 pt-3 border-t border-slate-200">
+                           <div className="flex items-center justify-between">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                 <Terminal className="w-3 h-3" /> Merchant ID (BCR)
+                              </p>
+                              {account.reportId && (
+                                <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">Auto-Discovered</span>
+                              )}
+                           </div>
+                           {editingReportId === account.id ? (
+                             <div className="flex items-center gap-2">
+                                <input
+                                  value={reportIdValue}
+                                  onChange={(e) => setReportIdValue(e.target.value.trim())}
+                                  placeholder="BCR2DN5T7OGZNGQJ"
+                                  className="flex-1 px-3 py-2 bg-white border-2 border-blue-300 rounded-lg text-xs font-mono font-bold outline-none focus:ring-4 focus:ring-blue-600/10"
+                                  autoFocus
+                                />
+                                <button
+                                  onClick={() => saveReportId(account.id)}
+                                  disabled={!reportIdValue}
+                                  className="px-3 py-2 bg-emerald-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => setEditingReportId(null)}
+                                  className="px-3 py-2 bg-slate-100 text-slate-500 rounded-lg text-[9px] font-black uppercase"
+                                >
+                                  ✕
+                                </button>
+                             </div>
+                           ) : (
+                             <div className="flex items-center gap-2">
+                                <p className={`text-xs font-mono font-bold ${account.reportId ? 'text-slate-900' : 'text-rose-400 italic'}`}>
+                                   {account.reportId || 'Not set — bot will auto-discover on login'}
+                                </p>
+                                <button
+                                  onClick={() => { setEditingReportId(account.id); setReportIdValue(account.reportId || ''); }}
+                                  className="px-2 py-1 bg-slate-200 text-slate-600 rounded text-[8px] font-black uppercase hover:bg-slate-300 transition-all"
+                                >
+                                  {account.reportId ? 'Edit' : 'Set Manually'}
+                                </button>
+                             </div>
+                           )}
+                           {!account.reportId && (
+                             <p className="text-[9px] text-amber-600 font-medium mt-1">⚠ If auto-discovery fails after login, find the BCR ID from pay.google.com/g4b/transactions/BCR... URL</p>
+                           )}
                         </div>
                         {account.proxyConfig && (
                           <div className="space-y-1">

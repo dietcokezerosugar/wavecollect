@@ -62,6 +62,16 @@ export async function PUT(req: NextRequest) {
       updateData.sessionStatus = "STARTING";
       updateData.assignedStaff = session.user.id;
       break;
+    case "set_report_id":
+      // Staff can manually set the Merchant ID (BCR...) if auto-discovery fails
+      if (!body.reportId) {
+        return NextResponse.json({ error: "reportId is required" }, { status: 400 });
+      }
+      updateData.reportId = body.reportId.trim();
+      delete updateData.reviewedBy;
+      delete updateData.reviewedAt;
+      delete updateData.reviewNote;
+      break;
     default:
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   }
