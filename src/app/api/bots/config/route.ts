@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const BOT_SECRET = process.env.BOT_SYSTEM_SECRET;
+const BOT_SECRET = process.env.INTERNAL_BOT_SECRET;
 
 function checkAuth(req: NextRequest) {
   const secret = req.headers.get("x-bot-secret");

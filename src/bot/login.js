@@ -3,10 +3,13 @@ const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
 
+// GPay 9 Standard: Initialize environment from root .env
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+
 const ACCOUNT_NAME = process.argv[2];
 const PROXY_CONFIG = process.argv[3];
 const HUB_URL = process.env.HUB_URL || "http://localhost:3000";
-const BOT_SECRET = process.env.BOT_SYSTEM_SECRET || "wave_collect_bridge_secret_998877";
+const BOT_SECRET = process.env.INTERNAL_BOT_SECRET || "wave_collect_bridge_secret_998877";
 
 if (!ACCOUNT_NAME) {
     console.error("Account name required");
