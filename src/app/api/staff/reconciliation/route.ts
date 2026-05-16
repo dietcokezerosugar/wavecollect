@@ -188,59 +188,45 @@ export async function POST(req: NextRequest) {
     const existingByExternalId = new Map(existingTxns.map(t => [t.externalId, t]));
     const existingByUtr = new Map(existingTxns.filter(t => t.utr).map(t => [t.utr!, t]));
 
-    // 3. Process each valid transaction
-    for (const { row, txn } of validTxns) {
-      try {
-        const existing = existingByExternalId.get(txn.externalId) || (txn.utr ? existingByUtr.get(txn.utr) : undefined);
+    // 3. Process each valid transaction concurrently in chunks of 20
+    const CHUNK_SIZE = 20;
+    for (let i = 0; i < validTxns.length; i += CHUNK_SIZE) {
+      const chunk = validTxns.slice(i, i + CHUNK_SIZE);
 
-        if (existing) {
-          const alreadyMatched = existing.paymentIntent ? `Linked to intent ${existing.paymentIntent.referenceId}` : "Exists but unmatched";
-          results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "ALREADY_EXISTS", detail: alreadyMatched });
-          existsCount++;
+      await Promise.all(chunk.map(async ({ row, txn }) => {
+        try {
+          const existing = existingByExternalId.get(txn.externalId) || (txn.utr ? existingByUtr.get(txn.utr) : undefined);
 
-          if (!existing.paymentIntent) {
-            // Attempt re-match
-            const matched = await MatchingEngine.onTransactionDetected({
-              externalId: `CSV_RETRY_${txn.externalId}_${Date.now()}`,
-              utr: txn.utr || existing.utr || undefined,
-              amount: txn.amount,
-              payerName: txn.payerName || existing.payerName || undefined,
-              payerUpiId: txn.payerUpiId || existing.payerUpiId || undefined,
-              note: txn.note || existing.note || undefined,
-              timestamp: txn.timestamp || undefined,
-            });
-            if (matched) {
-              results[results.length - 1].status = "MATCHED";
-              results[results.length - 1].detail = "Re-matched from existing transaction";
-              matchedCount++;
-              existsCount--;
-            }
+          if (existing) {
+            const alreadyMatched = existing.paymentIntent ? `Linked to intent ${existing.paymentIntent.referenceId}` : "Exists but unmatched";
+            results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "ALREADY_EXISTS", detail: alreadyMatched });
+            existsCount++;
+            return;
           }
-          continue;
-        }
 
-        // Fresh Match
-        const matched = await MatchingEngine.onTransactionDetected({
-          externalId: txn.externalId,
-          utr: txn.utr || undefined,
-          amount: txn.amount,
-          payerName: txn.payerName || undefined,
-          payerUpiId: txn.payerUpiId || undefined,
-          note: txn.note || undefined,
-          timestamp: txn.timestamp || undefined,
-        });
+          // Fresh Match
+          const matched = await MatchingEngine.onTransactionDetected({
+            externalId: txn.externalId,
+            utr: txn.utr || undefined,
+            amount: txn.amount,
+            payerName: txn.payerName || undefined,
+            payerUpiId: txn.payerUpiId || undefined,
+            note: txn.note || undefined,
+            timestamp: txn.timestamp || undefined,
+          });
 
-        if (matched) {
-          results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "MATCHED", detail: "Successfully matched to intent" });
-          matchedCount++;
-        } else {
-          results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "UNMATCHED", detail: "No matching intent found" });
-          unmatchedCount++;
+          if (matched) {
+            results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "MATCHED", detail: "Successfully matched to intent" });
+            matchedCount++;
+          } else {
+            results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "UNMATCHED", detail: "No matching intent found" });
+            unmatchedCount++;
+          }
+        } catch (err: any) {
+          results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "ERROR", detail: err.message?.substring(0, 100) });
+          errorCount++;
         }
-      } catch (err: any) {
-        results.push({ row, externalId: txn.externalId, amount: txn.amount, status: "ERROR", detail: err.message?.substring(0, 100) });
-        errorCount++;
-      }
+      }));
     }
 
     // 4. Save Reconciliation History
