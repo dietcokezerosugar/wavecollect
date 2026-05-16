@@ -57,7 +57,7 @@ export default function MerchantAccountsPage() {
     const interval = setInterval(() => {
       fetchAccounts();
       fetchPoolStatus();
-    }, 10000); // Poll PM2 status and pool status
+    }, 8000); // Poll PM2 status and pool status
     return () => clearInterval(interval);
   }, []);
 

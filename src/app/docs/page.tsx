@@ -549,6 +549,80 @@ def verify_webhook(payload, signature, secret):
                   </section>
 
                   <section>
+                    <SectionHeading id="code-template">Stripe-style Code Template</SectionHeading>
+                    <p className="text-slate-600 mb-6 text-sm md:text-base">
+                      Use this production-ready React component as a base for your checkout page. It is optimized for mobile screens and features a minimal, premium aesthetic.
+                    </p>
+                    <CodeBlock snippets={{
+                      REACT: `"use client";
+import React, { useState, useEffect } from 'react';
+import QRCode from 'react-qr-code';
+
+export default function CustomCheckout({ intent }) {
+  const [status, setStatus] = useState('PENDING');
+
+  // 🔄 Poll for payment status
+  useEffect(() => {
+    if (status !== 'PENDING') return;
+    const interval = setInterval(async () => {
+      const res = await fetch(\`/api/v1/check-status?token=\${intent.payment_token}\`);
+      const data = await res.json();
+      if (data.status === 'SUCCESS') setStatus('SUCCESS');
+    }, 8000); // 8s polling
+    return () => clearInterval(interval);
+  }, [status]);
+
+  if (status === 'SUCCESS') return <SuccessView />;
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
+      {/* 📦 Order Summary (Left/Top) */}
+      <div className="flex-1 p-8 md:p-16 border-r border-slate-200">
+        <h3 className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-4">Merchant Name</h3>
+        <h1 className="text-4xl font-black text-slate-900 mb-8">₹{intent.amount}</h1>
+        <div className="space-y-4 border-t border-slate-200 pt-6">
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Order ID</span>
+            <span className="font-bold text-slate-900">{intent.order_id}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 💳 Payment Section (Right/Bottom) */}
+      <div className="flex-1 bg-white p-8 md:p-16 flex flex-col items-center">
+        <h2 className="text-xl font-bold mb-8 self-start">Pay with UPI</h2>
+        <div className="p-4 border border-slate-100 rounded-3xl shadow-xl mb-8">
+          <QRCode value={intent.upi_link} size={200} />
+        </div>
+        <p className="text-sm text-slate-500 font-medium mb-8">Scan QR or use a UPI app below</p>
+        
+        {/* Mobile Intent Buttons */}
+        <div className="w-full flex gap-3">
+          <a href={intent.upi_link} className="flex-1 bg-slate-900 text-white py-4 rounded-2xl text-center font-black text-xs uppercase tracking-widest">
+            Open UPI Apps
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}`,
+                      HTML: `<!-- Native Mobile Script -->
+<script>
+  function openUPI() {
+    window.location.href = intent.upi_link;
+  }
+  
+  // High-performance status polling
+  setInterval(async () => {
+    const r = await fetch('/api/v1/check-status?token=' + intent.token);
+    const d = await r.json();
+    if(d.status === 'SUCCESS') window.location.href = '/success';
+  }, 8000);
+</script>`
+                    }} />
+                  </section>
+
+                  <section>
                     <SubHeading id="response-data">Intent Response Data</SubHeading>
                     <p className="text-slate-600 mb-6 text-sm md:text-base">When you create an intent, our engine returns a payload rich with metadata for your custom UI.</p>
                     <Table 
@@ -579,12 +653,21 @@ const handlePay = async (upiLink) => {
                   </section>
 
                   <section>
-                    <SubHeading id="status-polling">Real-time Status Polling</SubHeading>
-                    <p className="text-slate-600 mb-4 text-sm md:text-base">While waiting for a webhook, your frontend should poll the public status endpoint to provide immediate feedback to the user.</p>
-                    <div className="flex items-center gap-3 bg-slate-100 px-4 py-2.5 rounded-xl w-fit mb-6 border border-slate-200 overflow-x-auto">
-                      <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest bg-white px-2 py-1 rounded shadow-sm">GET</span>
-                      <code className="text-sm font-bold text-slate-700 whitespace-nowrap">/api/v1/check-status?token={"{payment_token}"}</code>
-                    </div>
+                    <SectionHeading id="limits">API Limits & Routing</SectionHeading>
+                    <p className="text-slate-600 mb-6 text-sm md:text-base">
+                      Each Google Pay account has individual limits enforced by our Gateway Router. If an account hits its daily or monthly limit, it is automatically rotated out of the active pool.
+                    </p>
+                    <Table 
+                      headers={["Limit Type", "Behavior", "Recovery"]}
+                      rows={[
+                        ["Daily Limit", "Max volume per 24 hours per VPA", "Resets at 12:00 AM IST"],
+                        ["Monthly Limit", "Max aggregate volume per month", "Resets on the 1st of every month"],
+                        ["Ticket Range", "Min/Max allowed transaction size", "Adjustable in Account Settings"]
+                      ]}
+                    />
+                    <Callout type="info" title="Routing Logic">
+                      Our engine automatically selects the healthiest node with the lowest current daily usage to ensure high success rates and balance the load across your VPAs.
+                    </Callout>
                   </section>
 
                   <Callout type="warning" title="Protocol Safety">

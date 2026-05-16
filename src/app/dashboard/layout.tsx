@@ -121,7 +121,7 @@ export default function DashboardLayout({
     };
 
     checkStatus();
-    const interval = setInterval(checkStatus, 10000);
+    const interval = setInterval(checkStatus, 8000);
     return () => clearInterval(interval);
   }, []);
 

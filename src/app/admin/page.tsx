@@ -42,7 +42,7 @@ export default function AdminDashboard() {
     };
 
     fetchStats();
-    const interval = setInterval(fetchStats, 10000); // Live update every 10s
+    const interval = setInterval(fetchStats, 8000); // Live update every 8s
     return () => clearInterval(interval);
   }, []);
 

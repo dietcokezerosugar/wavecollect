@@ -53,7 +53,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     fetchAnalytics();
-    const interval = setInterval(fetchAnalytics, 10000); // Pulse refresh every 10s
+    const interval = setInterval(fetchAnalytics, 8000); // Pulse refresh every 8s
     return () => clearInterval(interval);
   }, []);
 

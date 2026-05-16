@@ -337,13 +337,13 @@ async function runDualPollingLoop() {
         log(`[STABILITY] 🔄 ${reason}. Restarting browser context...`);
         try { if (engineContext) await engineContext.close(); } catch(e) {}
         engineContext = null; enginePage = null;
-        return setTimeout(async () => { await bootEngine(); }, 1000);
+        return setTimeout(async () => { await bootEngine(); }, 8000);
     }
 
     try {
         log('[DUAL] 🔄 Sweep cycle starting...');
         totalSweeps++;
-        await enginePage.reload({ waitUntil: 'domcontentloaded', timeout: 10000 });
+        await enginePage.reload({ waitUntil: 'domcontentloaded', timeout: 8000 });
         
         // GPay 9 Resilience: Health Check (Smart Detection)
         const currentUrl = enginePage.url();
@@ -367,14 +367,14 @@ async function runDualPollingLoop() {
         // Engine-B: Run CSV download every sweep for full transaction coverage
         await runEngineB();
         
-        setTimeout(runDualPollingLoop, (accountConfig.download_interval_sec || 10) * 1000);
+        setTimeout(runDualPollingLoop, (accountConfig.download_interval_sec || 8) * 1000);
     } catch(e) {
         log(`[CRASH] Playwright stalled: ${e.message}. Recovering...`);
         engineRunning = false;
         await reportStatus("error");
         try { if (engineContext) await engineContext.close(); } catch(x){}
         engineContext = null; enginePage = null;
-        setTimeout(async () => { engineRunning = true; await bootEngine(); }, 5000);
+        setTimeout(async () => { engineRunning = true; await bootEngine(); }, 8000);
     }
 }
 
