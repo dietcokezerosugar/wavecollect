@@ -111,8 +111,8 @@ export default function PaymentPageClient({
     // First poll immediately
     poll();
 
-    // Then every 1 second
-    const interval = setInterval(poll, 1000);
+    // Then every 500ms for instant detection
+    const interval = setInterval(poll, 500);
 
     return () => {
       console.log("[PayxMint] Polling cleanup");

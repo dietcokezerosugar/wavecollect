@@ -241,7 +241,7 @@ if (STATUS === "PENDING" && timeLeft > 0) {
   setInterval(updateTimer, 1000);
 }
 
-// Polling — every 1 second
+// Polling — every 500ms for instant detection
 if (STATUS === "PENDING") {
   setInterval(function() {
     fetch("/api/pay/status?token=" + TOKEN + "&_t=" + Date.now())
@@ -254,7 +254,7 @@ if (STATUS === "PENDING") {
         }
       })
       .catch(function(e) { console.error("Poll err:", e); });
-  }, 1000);
+  }, 500);
 }
 
 function showSuccess(payer, utr, redirect) {
