@@ -14,6 +14,39 @@ interface Props {
   expireAt?: string;
 }
 
+// ═══════════════════════════════════════════════════════════════
+// SVG Assets
+// ═══════════════════════════════════════════════════════════════
+const GPayIcon = () => (
+  <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#4285F4" d="M12.06 9.69v4.22h5.81c-.24 1.35-1.04 2.5-2.2 3.28v2.7h3.54c2.08-1.91 3.28-4.74 3.28-8.2 0-.69-.06-1.36-.18-2.01h-10.25z"/>
+    <path fill="#34A853" d="M12.06 24c2.88 0 5.3-1 7.07-2.61l-3.54-2.7c-.96.64-2.18 1.02-3.53 1.02-2.71 0-5.01-1.83-5.83-4.29H2.5v2.79A11.96 11.96 0 0012.06 24z"/>
+    <path fill="#FBBC05" d="M6.23 15.42a7.19 7.19 0 010-4.59V8.04H2.5a12.01 12.01 0 000 10.17l3.73-2.79z"/>
+    <path fill="#EA4335" d="M12.06 4.74c1.57 0 2.97.54 4.08 1.6l3.07-3.07C17.36 1.48 14.94 0 12.06 0 7.42 0 3.32 2.68 1.13 6.64l3.73 2.79c.82-2.46 3.12-4.69 7.2-4.69z"/>
+  </svg>
+);
+
+const PhonePeIcon = () => (
+  <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <rect width="24" height="24" rx="4" fill="#5f259f"/>
+    <path fill="#fff" d="M16 11.5L14.5 13H13v3h-2v-3H9.5L8 11.5 9.5 10H11V7h2v3h1.5L16 11.5z M12 3a9 9 0 100 18 9 9 0 000-18zm0 16a7 7 0 110-14 7 7 0 010 14z"/>
+  </svg>
+);
+
+const PaytmIcon = () => (
+  <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <rect width="24" height="24" rx="4" fill="#00BAF2"/>
+    <path fill="#fff" d="M7 16h2v-6h3v6h2V8H7v8zm1-5h3V9H8v2z"/>
+  </svg>
+);
+
+const UpiIcon = () => (
+  <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <path d="M12 8v8M8 12h8"></path>
+  </svg>
+);
+
 export default function PaymentPageClient({
   token,
   amount,
@@ -28,8 +61,12 @@ export default function PaymentPageClient({
   const [qrData, setQrData] = useState<string | null>(serverQr || null);
   const [payerName, setPayerName] = useState<string | null>(null);
   const [utr, setUtr] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("qr");
   const [copied, setCopied] = useState(false);
+
+  // Device Detection
+  const [isIOS, setIsIOS] = useState(false);
+  const [isAndroid, setIsAndroid] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
 
   const getInitialTimeLeft = () => {
     if (!expireAt) return 600;
@@ -38,31 +75,28 @@ export default function PaymentPageClient({
   };
 
   const [timeLeft, setTimeLeft] = useState(getInitialTimeLeft());
-
-  function handleCopy(text: string) {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
   const [mounted, setMounted] = useState(false);
 
-  // Mark as mounted (client-side only) and generate QR
   useEffect(() => {
     setMounted(true);
+    
+    // Detect OS
+    const ua = navigator.userAgent;
+    const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const android = /Android/.test(ua);
+    setIsIOS(ios);
+    setIsAndroid(android);
+    setIsDesktop(!ios && !android);
+
     if (!qrData && upiDeepLink) {
-      QRCode.toDataURL(upiDeepLink, { width: 300, margin: 2 })
+      QRCode.toDataURL(upiDeepLink, { width: 300, margin: 1, color: { dark: '#0f172a', light: '#ffffff' } })
         .then(setQrData)
-        .catch(err => console.error("QR Generation Error:", err));
+        .catch(err => console.error("QR Error:", err));
     }
-    console.log("[PayxMint] Payment page mounted. Status:", initialStatus, "Token:", token);
   }, []);
 
-  // Timer countdown — simple setInterval, no deps that reset it
   useEffect(() => {
-    if (!mounted) return;
-    if (status !== "PENDING") return;
-    console.log("[PayxMint] Timer started. TimeLeft:", timeLeft);
+    if (!mounted || status !== "PENDING") return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -75,23 +109,16 @@ export default function PaymentPageClient({
       });
     }, 1000);
 
-    return () => {
-      console.log("[PayxMint] Timer cleanup");
-      clearInterval(timer);
-    };
+    return () => clearInterval(timer);
   }, [mounted, status]);
 
-  // Poll for payment status every 1 second
   useEffect(() => {
-    if (!mounted) return;
-    if (status !== "PENDING") return;
-    console.log("[PayxMint] Polling started for token:", token);
+    if (!mounted || status !== "PENDING") return;
 
     const poll = async () => {
       try {
         const res = await fetch(`/api/pay/status?token=${token}`);
         const data = await res.json();
-        console.log("[PayxMint] Poll response:", data.data?.payment_status);
         
         if (data.data?.payment_status === "SUCCESS") {
           setStatus("SUCCESS");
@@ -103,43 +130,30 @@ export default function PaymentPageClient({
         } else if (data.data?.payment_status === "EXPIRED") {
           setStatus("EXPIRED");
         }
-      } catch (err) {
-        console.error("[PayxMint] Poll error:", err);
-      }
+      } catch (err) {}
     };
 
-    // First poll immediately
     poll();
-
-    // Then every 500ms for instant detection
-    const interval = setInterval(poll, 500);
-
-    return () => {
-      console.log("[PayxMint] Polling cleanup");
-      clearInterval(interval);
-    };
+    const interval = setInterval(poll, 1500); // Polling every 1.5s is sufficient
+    return () => clearInterval(interval);
   }, [mounted, token, status]);
 
-  // Derived values
+  function handleCopy(text: string) {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
   const timerStr = `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
 
-  const maskedOrderId = referenceId.length > 8
-    ? referenceId.substring(0, 4) + "***" + referenceId.substring(referenceId.length - 4)
-    : referenceId;
-
   const upiMatch = upiDeepLink.match(/pa=([^&]+)/);
   const merchantUpi = upiMatch ? decodeURIComponent(upiMatch[1]) : "merchant@upi";
-  const maskedUpi = merchantUpi.length > 11
-    ? merchantUpi.substring(0, 5) + "***" + merchantUpi.substring(merchantUpi.length - 6)
-    : merchantUpi;
 
-  // ═══════════════════════════════════════════════════════════════
-  // BloomxHub Intent Generation — exact PHP→JS port
-  // ═══════════════════════════════════════════════════════════════
+  // Intent links
   const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${referenceId}&tr=${referenceId}&mc=4722&&sign=AAuN7izDWN5cb8A5scnUiNME+LkZqI2DWgkXlN1McoP6WZABa/KkFTiLvuPRP6/nWK8BPg/rPhb+u4QMrUEX10UsANTDbJaALcSM9b8Wk218X+55T/zOzb7xoiB+BcX8yYuYayELImXJHIgL/c7nkAnHrwUCmbM97nRbCVVRvU0ku3Tr&featuretype=money_transfer`;
-
+  
   const phonepeData = {
     contact: { cbsName: "", nickName: "", vpa: merchantUpi, type: "VPA" },
     p2pPaymentCheckoutParams: {
@@ -153,18 +167,18 @@ export default function PaymentPageClient({
   const phonepeBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(phonepeData))));
   const phonepeIntent = `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
 
-  const gpayIntent = `tez://upi/pay?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&tid=${referenceId}&tr=${referenceId}&tn=${referenceId}&cu=INR`;
-
-  const progressPct = (timeLeft / (expireAt ? Math.max(getInitialTimeLeft(), 1) : 600)) * 100;
+  if (!mounted) return <div style={styles.pageWrap}></div>;
 
   // ─── EXPIRED ───
   if (status === "EXPIRED" || timeLeft <= 0) {
     return (
-      <div style={styles.expiredWrap}>
-        <div style={styles.expiredCard}>
-          <div style={styles.expiredIcon}>⚠️</div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1e293b", margin: 0 }}>Payment Expired</h2>
-          <p style={{ color: "#64748b", fontSize: 14 }}>This payment link has expired. Please request a new one.</p>
+      <div style={styles.pageWrap}>
+        <div style={styles.card}>
+          <div style={styles.expiredIcon}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          </div>
+          <h2 style={styles.heading}>Payment Expired</h2>
+          <p style={styles.subtext}>This session has ended. Please return to the merchant and try again.</p>
         </div>
       </div>
     );
@@ -173,279 +187,406 @@ export default function PaymentPageClient({
   // ─── SUCCESS ───
   if (status === "SUCCESS") {
     return (
-      <div style={styles.successOverlay}>
-        <div style={styles.successCard}>
-          <div style={styles.successTopBar} />
-          <div style={styles.successCheckCircle}>✓</div>
-          <p style={{ fontSize: 10, fontWeight: 800, color: "#10b981", textTransform: "uppercase" as const, letterSpacing: 3, margin: "0 0 6px" }}>Payment Confirmed</p>
-          <h2 style={{ fontSize: 40, fontWeight: 900, color: "#0f172a", margin: "0 0 20px" }}>₹{amount.toLocaleString()}</h2>
-          <div style={styles.successDetails}>
-            <div><span style={styles.detailLabel}>Payer</span><span style={styles.detailValue}>{payerName || "Verified"}</span></div>
-            <div><span style={styles.detailLabel}>UTR / Ref</span><span style={{ ...styles.detailValue, color: "#10b981", fontFamily: "monospace", fontSize: 12 }}>{utr || "Verified"}</span></div>
-            <div><span style={styles.detailLabel}>Status</span><span style={{ ...styles.detailValue, color: "#10b981" }}>✅ Approved</span></div>
+      <div style={styles.pageWrap}>
+        <div style={styles.card}>
+          <div style={styles.successIcon}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
-          <p style={{ color: "#94a3b8", fontSize: 12, marginTop: 16 }}>Auto-redirecting...</p>
+          <h2 style={styles.heading}>Payment Successful</h2>
+          <p style={styles.subtext}>Your payment of <strong>₹{amount.toLocaleString()}</strong> to {merchantName} was successful.</p>
+          
+          <div style={styles.detailsBox}>
+            <div style={styles.detailRow}>
+              <span style={styles.detailLabel}>Paid by</span>
+              <span style={styles.detailValue}>{payerName || "Verified"}</span>
+            </div>
+            <div style={styles.detailRow}>
+              <span style={styles.detailLabel}>Reference (UTR)</span>
+              <span style={styles.detailValue}>{utr || "Verified"}</span>
+            </div>
+          </div>
+          
+          <p style={{ fontSize: 13, color: '#64748b', textAlign: 'center', marginTop: 24 }}>Redirecting back to merchant...</p>
         </div>
       </div>
     );
   }
 
-  // ─── MAIN PAYMENT PAGE ───
+  // ─── CHECKOUT PAGE ───
   return (
     <div style={styles.pageWrap}>
-      {/* Mobile Header */}
-      <div style={styles.mobileHeader}>
-        <div style={styles.mobileHeaderInner}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={styles.logoBox}>⚡</div>
+      <div style={styles.card}>
+        
+        {/* Header Section */}
+        <div style={styles.header}>
+          <div style={styles.merchantInfo}>
+            <div style={styles.avatar}>{merchantName.charAt(0).toUpperCase()}</div>
             <div>
-              <p style={{ fontSize: 8, fontWeight: 900, textTransform: "uppercase" as const, letterSpacing: 2, color: "#a5b4fc", margin: 0, lineHeight: 1 }}>Paying To</p>
-              <p style={{ fontSize: 14, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>{merchantName}</p>
+              <p style={styles.merchantLabel}>Pay</p>
+              <h1 style={styles.merchantName}>{merchantName}</h1>
             </div>
           </div>
-          <div style={{ ...styles.timerChip, background: timeLeft < 60 ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.1)", color: timeLeft < 60 ? "#fca5a5" : "#fff" }}>
-            ⏱ {timerStr}
+          <div style={styles.amountContainer}>
+            <span style={styles.currency}>₹</span>
+            <span style={styles.amount}>{amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
         </div>
-        <div style={styles.progressTrack}>
-          <div style={{ ...styles.progressBar, width: `${progressPct}%` }} />
-        </div>
-      </div>
 
-      {/* Amount */}
-      <div style={styles.amountSection}>
-        <h1 style={styles.amountText}>
-          <span style={{ fontSize: 18, opacity: 0.6, marginRight: 2 }}>₹</span>
-          {amount.toLocaleString()}
-        </h1>
-        <p style={{ fontSize: 9, fontWeight: 900, textTransform: "uppercase" as const, letterSpacing: 3, color: "rgba(165,180,252,0.6)", margin: "8px 0 0" }}>Secure UPI Payment</p>
-      </div>
-
-      {/* Content Card */}
-      <div style={styles.contentCard}>
-        {/* Tab Bar */}
-        <div style={styles.tabBar}>
-          {[
-            { id: "qr", label: "QR Code", icon: "⊞" },
-            { id: "upi", label: "UPI App", icon: "@" },
-            { id: "card", label: "Cards", icon: "⊟" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                ...styles.tab,
-                background: activeTab === tab.id ? "#fff" : "transparent",
-                color: activeTab === tab.id ? "#4338ca" : "#94a3b8",
-                boxShadow: activeTab === tab.id ? "0 2px 8px rgba(0,0,0,0.06)" : "none",
-              }}
-            >
-              <span style={{ fontSize: 16 }}>{tab.icon}</span>
-              <span style={{ fontSize: 11 }}>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* ─── QR TAB ─── */}
-        {activeTab === "qr" && (
-          <div style={styles.tabContent}>
-            {/* QR Code */}
-            <div style={styles.qrWrapper}>
-              <div style={styles.qrBorder}>
-                {qrData ? (
-                  <img src={qrData} alt="QR Code" style={{ width: 180, height: 180, borderRadius: 12, display: "block" }} />
-                ) : (
-                  <div style={{ width: 180, height: 180, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", borderRadius: 12 }}>
-                    <div style={styles.loadingSpinner}></div>
-                  </div>
-                )}
+        {/* Dynamic Payment Options based on OS */}
+        <div style={styles.paymentSection}>
+          
+          {/* iOS OR Desktop -> Show QR Code and UPI Details */}
+          {(isIOS || isDesktop) && (
+            <div style={styles.qrSection}>
+              <p style={styles.instruction}>Scan QR with any UPI app</p>
+              <div style={styles.qrContainer}>
+                {qrData ? <img src={qrData} style={styles.qrImage} alt="QR Code" /> : <div style={styles.qrPlaceholder} />}
               </div>
-            </div>
-
-            {/* UPI ID Row */}
-            <div style={styles.upiRow}>
-              <div>
-                <p style={styles.upiLabel}>UPI ID</p>
-                <p style={styles.upiValue}>{maskedUpi}</p>
-              </div>
-              <button onClick={() => handleCopy(merchantUpi)} style={styles.copyBtn}>
-                {copied ? "✓" : "📋"}
-              </button>
-            </div>
-
-            {/* App Buttons */}
-            <p style={{ fontSize: 9, fontWeight: 900, textTransform: "uppercase" as const, letterSpacing: 2, color: "#94a3b8", textAlign: "center" as const, margin: "12px 0 6px" }}>
-              Or pay directly via
-            </p>
-            <div style={styles.appGrid}>
-              <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = gpayIntent; }} style={{ ...styles.appBtn, background: "#fff", color: "#334155", border: "1px solid #e2e8f0" }}>
-                <span style={{ fontSize: 20 }}>💳</span>
-                <span style={{ fontSize: 9, fontWeight: 700 }}>Google Pay</span>
-              </a>
-              <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = phonepeIntent; }} style={{ ...styles.appBtn, background: "#5f259f", color: "#fff" }}>
-                <span style={{ fontSize: 20 }}>📲</span>
-                <span style={{ fontSize: 9, fontWeight: 700 }}>PhonePe</span>
-              </a>
-              <a href={paytmIntent} style={{ ...styles.appBtn, background: "#00BAF2", color: "#fff" }}>
-                <span style={{ fontSize: 20 }}>💰</span>
-                <span style={{ fontSize: 9, fontWeight: 700 }}>Paytm</span>
-              </a>
-            </div>
-
-            {/* Fallback */}
-            <a href={upiDeepLink} style={styles.fallbackBtn}>
-              @ Other UPI App
-            </a>
-
-            <p style={{ fontSize: 10, color: "#94a3b8", textAlign: "center" as const, marginTop: 8 }}>
-              Scan with PhonePe, Google Pay, Paytm or any UPI app
-            </p>
-          </div>
-        )}
-
-        {/* ─── UPI APPS TAB ─── */}
-        {activeTab === "upi" && (
-          <div style={styles.tabContent}>
-            <h3 style={{ fontSize: 18, fontWeight: 900, color: "#0f172a", textAlign: "center" as const, margin: "0 0 4px" }}>
-              Pay ₹{amount.toLocaleString()} via UPI
-            </h3>
-            <p style={{ fontSize: 12, color: "#64748b", textAlign: "center" as const, margin: "0 0 16px" }}>Choose your preferred UPI app</p>
-
-            <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
-              {[
-                { name: "Google Pay", intent: gpayIntent, bg: "#fff", fg: "#334155", border: "#e2e8f0", emoji: "💳" },
-                { name: "PhonePe", intent: phonepeIntent, bg: "#5f259f", fg: "#fff", border: "#5f259f", emoji: "📲" },
-                { name: "Paytm", intent: paytmIntent, bg: "#00BAF2", fg: "#fff", border: "#00BAF2", emoji: "💰" },
-              ].map((app) => (
-                <a key={app.name} href="#" onClick={(e) => { e.preventDefault(); window.location.href = app.intent; }} style={{ ...styles.appListBtn, background: app.bg, color: app.fg, border: `1px solid ${app.border}` }}>
-                  <div style={styles.appListIcon}><span style={{ fontSize: 22 }}>{app.emoji}</span></div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontWeight: 800, fontSize: 14 }}>{app.name}</p>
-                    <p style={{ margin: 0, fontSize: 10, opacity: 0.7 }}>Tap to open {app.name}</p>
-                  </div>
-                  <span style={{ opacity: 0.4 }}>→</span>
-                </a>
-              ))}
-
-              <a href={upiDeepLink} style={{ ...styles.appListBtn, background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0" }}>
-                <div style={styles.appListIcon}><span style={{ fontSize: 18, color: "#4f46e5" }}>@</span></div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, fontWeight: 800, fontSize: 14 }}>Other UPI App</p>
-                  <p style={{ margin: 0, fontSize: 10, color: "#94a3b8" }}>BHIM, Cred, Jupiter, etc.</p>
+              <div style={styles.upiContainer}>
+                <div style={styles.upiTextContainer}>
+                  <p style={styles.upiLabel}>UPI ID</p>
+                  <p style={styles.upiValue}>{merchantUpi}</p>
                 </div>
-                <span style={{ opacity: 0.3 }}>→</span>
-              </a>
+                <button onClick={() => handleCopy(merchantUpi)} style={styles.copyButton}>
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* ─── CARDS TAB ─── */}
-        {activeTab === "card" && (
-          <div style={{ ...styles.tabContent, textAlign: "center" as const }}>
-            <div style={{ width: 64, height: 64, background: "#f1f5f9", borderRadius: 20, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 28 }}>🔒</div>
-            <p style={{ fontWeight: 900, fontSize: 18, color: "#0f172a", margin: "0 0 6px" }}>Coming Soon</p>
-            <p style={{ color: "#64748b", fontSize: 13 }}>Card payments are being optimized.</p>
-            <button onClick={() => setActiveTab("qr")} style={{ marginTop: 16, padding: "10px 24px", background: "#f1f5f9", border: "none", borderRadius: 12, fontSize: 12, fontWeight: 700, color: "#475569", cursor: "pointer" }}>
-              Go Back to UPI
-            </button>
-          </div>
-        )}
+          {/* Android -> Show Deep Links (No GPay per request) */}
+          {isAndroid && (
+            <div style={styles.deepLinkSection}>
+              <p style={styles.instruction}>Select an app to pay</p>
+              <div style={styles.appGrid}>
+                <a href={phonepeIntent} style={styles.appButton}>
+                  <PhonePeIcon />
+                  <span style={styles.appName}>PhonePe</span>
+                </a>
+                <a href={paytmIntent} style={styles.appButton}>
+                  <PaytmIcon />
+                  <span style={styles.appName}>Paytm</span>
+                </a>
+              </div>
+              <a href={upiDeepLink} style={styles.otherAppButton}>
+                <UpiIcon />
+                <span>Other UPI Apps</span>
+              </a>
+              
+              {/* Optional: Add a 'Show QR' toggle if they want to scan from another device */}
+              <div style={{ marginTop: 24, padding: "20px 0", borderTop: "1px solid #e2e8f0" }}>
+                 <p style={{...styles.instruction, fontSize: 13, marginBottom: 12}}>Or scan from another device</p>
+                 <div style={{ display: 'flex', justifyContent: 'center' }}>
+                   {qrData && <img src={qrData} style={{ width: 140, height: 140, borderRadius: 8, border: '1px solid #e2e8f0' }} alt="QR Code" />}
+                 </div>
+              </div>
+            </div>
+          )}
 
-        {/* Footer */}
-        <div style={styles.footer}>
-          <span>🛡️ PCI DSS Compliant</span>
-          <span style={{ width: 4, height: 4, background: "#cbd5e1", borderRadius: "50%", display: "inline-block" }}></span>
-          <span>🔒 256-bit SSL</span>
         </div>
+
+        {/* Footer Area */}
+        <div style={styles.footer}>
+          <div style={styles.timerContainer}>
+            <span style={styles.timerIcon}>⏳</span>
+            <span style={styles.timerText}>Expires in {timerStr}</span>
+          </div>
+          <p style={styles.secureText}>🔒 Secured by PayxMint</p>
+        </div>
+
       </div>
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════
-// All styles as plain objects — zero external dependencies
+// Modern Stripe-like Styles
 // ═══════════════════════════════════════════════════════════════
 const styles: Record<string, React.CSSProperties> = {
-  // Page
-  pageWrap: { minHeight: "100dvh", display: "flex", flexDirection: "column", background: "#4338ca", fontFamily: "'Inter','Segoe UI',system-ui,sans-serif", margin: 0 },
-  
-  // Mobile Header
-  mobileHeader: { position: "sticky" as const, top: 0, zIndex: 30, background: "#4338ca" },
-  mobileHeaderInner: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px" },
-  logoBox: { width: 32, height: 32, background: "rgba(255,255,255,0.15)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 },
-  timerChip: { fontSize: 13, fontWeight: 800, padding: "6px 14px", borderRadius: 12, fontFamily: "monospace" },
-  progressTrack: { width: "100%", height: 2, background: "rgba(0,0,0,0.2)" },
-  progressBar: { height: "100%", background: "#34d399", transition: "width 1s linear" },
-
-  // Amount
-  amountSection: { background: "#4338ca", color: "#fff", textAlign: "center" as const, padding: "16px 20px 32px" },
-  amountText: { fontSize: 42, fontWeight: 900, margin: 0, display: "flex", alignItems: "baseline", justifyContent: "center" },
-
-  // Content Card
-  contentCard: { flex: 1, background: "#fff", borderRadius: "28px 28px 0 0", marginTop: -16, display: "flex", flexDirection: "column" as const, overflow: "hidden" },
-
-  // Tab Bar
-  tabBar: { display: "flex", gap: 4, margin: "20px 20px 0", padding: 4, background: "#f1f5f9", borderRadius: 16 },
-  tab: { flex: 1, border: "none", padding: "10px 8px", borderRadius: 12, fontWeight: 800, fontSize: 11, cursor: "pointer", display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 2, transition: "all 0.2s" },
-
-  // Tab Content
-  tabContent: { flex: 1, padding: "20px 20px 0", overflowY: "auto" as const },
-
-  // QR
-  qrWrapper: { display: "flex", justifyContent: "center", marginBottom: 16 },
-  qrBorder: { padding: 16, background: "#fff", border: "2px solid #e2e8f0", borderRadius: 24, boxShadow: "0 8px 32px rgba(0,0,0,0.06)" },
-
-  // UPI Row
-  upiRow: { display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc", padding: "10px 14px", borderRadius: 14, border: "1px solid #e2e8f0" },
-  upiLabel: { fontSize: 8, fontWeight: 900, textTransform: "uppercase" as const, letterSpacing: 2, color: "#94a3b8", margin: 0 },
-  upiValue: { fontSize: 12, fontWeight: 900, color: "#0f172a", fontFamily: "monospace", margin: 0 },
-  copyBtn: { width: 36, height: 36, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 },
-
-  // App Grid (under QR)
-  appGrid: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 },
-  appBtn: { display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4, padding: "10px 6px", borderRadius: 14, textDecoration: "none", fontFamily: "inherit" },
-
-  // Fallback
-  fallbackBtn: { display: "block", textAlign: "center" as const, padding: "12px", background: "#f1f5f9", borderRadius: 14, border: "1px solid #e2e8f0", textDecoration: "none", color: "#475569", fontSize: 12, fontWeight: 700, marginTop: 8 },
-
-  // App List (UPI tab)
-  appListBtn: { display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 18, textDecoration: "none", fontFamily: "inherit" },
-  appListIcon: { width: 44, height: 44, background: "#fff", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9", flexShrink: 0 },
-
-  // Footer
-  footer: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "14px 20px", borderTop: "1px solid #f1f5f9", fontSize: 9, fontWeight: 800, color: "#cbd5e1", textTransform: "uppercase" as const, letterSpacing: 1.5 },
-
-  // Expired
-  expiredWrap: { minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", padding: 16 },
-  expiredCard: { maxWidth: 400, background: "#fff", borderRadius: 28, padding: "40px 24px", textAlign: "center" as const, boxShadow: "0 8px 40px rgba(0,0,0,0.06)" },
-  expiredIcon: { width: 64, height: 64, background: "#fee2e2", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 16px" },
-
-  // Success
-  successOverlay: { position: "fixed" as const, inset: 0, zIndex: 100, background: "rgba(15,23,42,0.85)", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 },
-  successCard: { maxWidth: 380, width: "100%", background: "#fff", borderRadius: 36, padding: "24px", textAlign: "center" as const, boxShadow: "0 24px 64px rgba(0,0,0,0.15)", position: "relative" as const, overflow: "hidden" },
-  successTopBar: { position: "absolute" as const, top: 0, left: 0, right: 0, height: 4, background: "#10b981" },
-  successCheckCircle: { width: 80, height: 80, background: "#10b981", color: "#fff", borderRadius: 24, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40, fontWeight: 900, margin: "16px auto 20px", boxShadow: "0 8px 24px rgba(16,185,129,0.25)" },
-  successDetails: { background: "#f8fafc", borderRadius: 20, padding: 20, textAlign: "left" as const, display: "flex", flexDirection: "column" as const, gap: 10, border: "1px solid #f1f5f9" },
-  detailLabel: { display: "block", fontSize: 9, fontWeight: 900, textTransform: "uppercase" as const, letterSpacing: 2, color: "#94a3b8" },
-  detailValue: { display: "block", fontSize: 14, fontWeight: 700, color: "#0f172a" },
-  loadingSpinner: {
-    width: 24,
-    height: 24,
-    border: "3px solid #e2e8f0",
-    borderTop: "3px solid #4f46e5",
+  pageWrap: {
+    minHeight: "100dvh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f4f4f5", // Light cool gray
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    padding: "20px",
+  },
+  card: {
+    width: "100%",
+    maxWidth: "420px",
+    backgroundColor: "#ffffff",
+    borderRadius: "16px",
+    boxShadow: "0 10px 40px -10px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)",
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+  },
+  header: {
+    padding: "32px 24px",
+    backgroundColor: "#fafafa",
+    borderBottom: "1px solid #f0f0f0",
+  },
+  merchantInfo: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    marginBottom: "24px",
+  },
+  avatar: {
+    width: "48px",
+    height: "48px",
     borderRadius: "50%",
-    animation: "spin 1s linear infinite",
+    backgroundColor: "#18181b", // Stripe-dark
+    color: "#ffffff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "20px",
+    fontWeight: 600,
+  },
+  merchantLabel: {
+    fontSize: "13px",
+    color: "#71717a",
+    margin: "0 0 2px 0",
+    fontWeight: 500,
+  },
+  merchantName: {
+    fontSize: "18px",
+    color: "#18181b",
+    margin: 0,
+    fontWeight: 600,
+    letterSpacing: "-0.3px",
+  },
+  amountContainer: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: "4px",
+  },
+  currency: {
+    fontSize: "24px",
+    fontWeight: 500,
+    color: "#71717a",
+  },
+  amount: {
+    fontSize: "42px",
+    fontWeight: 700,
+    color: "#18181b",
+    letterSpacing: "-1px",
+  },
+  paymentSection: {
+    padding: "24px",
+  },
+  instruction: {
+    fontSize: "14px",
+    color: "#52525b",
+    fontWeight: 500,
+    textAlign: "center",
+    margin: "0 0 16px 0",
+  },
+  qrSection: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  qrContainer: {
+    padding: "12px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e4e4e7",
+    borderRadius: "12px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+    marginBottom: "24px",
+  },
+  qrImage: {
+    width: "180px",
+    height: "180px",
+    display: "block",
+    borderRadius: "6px",
+  },
+  qrPlaceholder: {
+    width: "180px",
+    height: "180px",
+    backgroundColor: "#f4f4f5",
+    borderRadius: "6px",
+  },
+  upiContainer: {
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#fafafa",
+    border: "1px solid #e4e4e7",
+    padding: "12px 16px",
+    borderRadius: "10px",
+  },
+  upiTextContainer: {
+    overflow: "hidden",
+  },
+  upiLabel: {
+    fontSize: "11px",
+    color: "#a1a1aa",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+    fontWeight: 600,
+    margin: "0 0 2px 0",
+  },
+  upiValue: {
+    fontSize: "14px",
+    color: "#27272a",
+    fontWeight: 600,
+    margin: 0,
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+  },
+  copyButton: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #d4d4d8",
+    color: "#18181b",
+    padding: "6px 12px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "all 0.15s ease",
+    whiteSpace: "nowrap",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+  },
+  
+  // App Deep Links
+  deepLinkSection: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
+  appGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "12px",
+    marginBottom: "8px",
+  },
+  appButton: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    padding: "16px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e4e4e7",
+    borderRadius: "12px",
+    textDecoration: "none",
+    color: "#18181b",
+    transition: "all 0.2s ease",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
+  },
+  appName: {
+    fontSize: "14px",
+    fontWeight: 600,
+  },
+  otherAppButton: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    padding: "14px",
+    backgroundColor: "#fafafa",
+    border: "1px solid #e4e4e7",
+    borderRadius: "10px",
+    textDecoration: "none",
+    color: "#52525b",
+    fontSize: "14px",
+    fontWeight: 600,
+    transition: "background 0.2s",
+  },
+  
+  // Footer
+  footer: {
+    padding: "20px 24px",
+    backgroundColor: "#fafafa",
+    borderTop: "1px solid #f0f0f0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  timerContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    backgroundColor: "#fff7ed", // Subtle orange
+    color: "#ea580c",
+    padding: "6px 12px",
+    borderRadius: "20px",
+    fontSize: "13px",
+    fontWeight: 600,
+  },
+  timerText: {
+    fontVariantNumeric: "tabular-nums",
+  },
+  secureText: {
+    fontSize: "12px",
+    color: "#a1a1aa",
+    fontWeight: 500,
+    margin: 0,
+  },
+
+  // States
+  heading: {
+    fontSize: "22px",
+    fontWeight: 600,
+    color: "#18181b",
+    textAlign: "center",
+    margin: "0 0 8px 0",
+  },
+  subtext: {
+    fontSize: "14px",
+    color: "#71717a",
+    textAlign: "center",
+    margin: "0 0 24px 0",
+    padding: "0 24px",
+    lineHeight: 1.5,
+  },
+  expiredIcon: {
+    margin: "40px auto 24px",
+    width: "64px",
+    height: "64px",
+    backgroundColor: "#fef2f2",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  successIcon: {
+    margin: "40px auto 24px",
+    width: "64px",
+    height: "64px",
+    backgroundColor: "#ecfdf5",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  detailsBox: {
+    margin: "0 24px 32px",
+    padding: "16px",
+    backgroundColor: "#fafafa",
+    borderRadius: "8px",
+    border: "1px solid #f0f0f0",
+  },
+  detailRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: "12px",
+  },
+  detailLabel: {
+    fontSize: "13px",
+    color: "#71717a",
+    fontWeight: 500,
+  },
+  detailValue: {
+    fontSize: "13px",
+    color: "#18181b",
+    fontWeight: 600,
+    fontFamily: "monospace",
   }
 };
-
-// Add global animation
-if (typeof document !== 'undefined') {
-  const style = document.createElement('style');
-  style.innerHTML = `
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  `;
-  document.head.appendChild(style);
-}
