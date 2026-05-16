@@ -180,8 +180,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
   <h2 class="status-title">Session expired</h2>
   <p class="status-desc">This payment session has timed out for security. Please return to the merchant and try again.</p>
 </div>
-/p>
-</div>
 
 <script>
 // Device Detection
