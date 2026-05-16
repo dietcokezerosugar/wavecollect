@@ -150,7 +150,7 @@ export default function PaymentPageClient({
       disableNotesEdit: true, showKeyboard: false, currency: "INR", shouldShowMaskedNumber: true,
     },
   };
-  const phonepeBase64 = globalThis.btoa(JSON.stringify(phonepeData));
+  const phonepeBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(phonepeData))));
   const phonepeIntent = `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
 
   const gpayIntent = `tez://upi/pay?pa=${encodeURIComponent(merchantUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amount.toFixed(2)}&tid=${encodeURIComponent(referenceId)}&tr=${encodeURIComponent(referenceId)}&tn=${encodeURIComponent("Pay " + referenceId)}&cu=INR`;
@@ -278,11 +278,11 @@ export default function PaymentPageClient({
               Or pay directly via
             </p>
             <div style={styles.appGrid}>
-              <a href={gpayIntent} style={{ ...styles.appBtn, background: "#fff", color: "#334155", border: "1px solid #e2e8f0" }}>
+              <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = gpayIntent; }} style={{ ...styles.appBtn, background: "#fff", color: "#334155", border: "1px solid #e2e8f0" }}>
                 <span style={{ fontSize: 20 }}>💳</span>
                 <span style={{ fontSize: 9, fontWeight: 700 }}>Google Pay</span>
               </a>
-              <a href={phonepeIntent} style={{ ...styles.appBtn, background: "#5f259f", color: "#fff" }}>
+              <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = phonepeIntent; }} style={{ ...styles.appBtn, background: "#5f259f", color: "#fff" }}>
                 <span style={{ fontSize: 20 }}>📲</span>
                 <span style={{ fontSize: 9, fontWeight: 700 }}>PhonePe</span>
               </a>
@@ -317,7 +317,7 @@ export default function PaymentPageClient({
                 { name: "PhonePe", intent: phonepeIntent, bg: "#5f259f", fg: "#fff", border: "#5f259f", emoji: "📲" },
                 { name: "Paytm", intent: paytmIntent, bg: "#00BAF2", fg: "#fff", border: "#00BAF2", emoji: "💰" },
               ].map((app) => (
-                <a key={app.name} href={app.intent} style={{ ...styles.appListBtn, background: app.bg, color: app.fg, border: `1px solid ${app.border}` }}>
+                <a key={app.name} href="#" onClick={(e) => { e.preventDefault(); window.location.href = app.intent; }} style={{ ...styles.appListBtn, background: app.bg, color: app.fg, border: `1px solid ${app.border}` }}>
                   <div style={styles.appListIcon}><span style={{ fontSize: 22 }}>{app.emoji}</span></div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: 0, fontWeight: 800, fontSize: 14 }}>{app.name}</p>

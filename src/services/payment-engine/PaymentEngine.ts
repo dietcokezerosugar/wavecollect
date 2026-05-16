@@ -98,16 +98,9 @@ export class PaymentEngine {
 
     // ── 5. Generate UPI Deep Link (exactly like BloomXHub) ───────────
     const merchantName = keyData.merchant.brandName || keyData.merchant.businessName || keyData.merchant.name;
-    const upiParams = new URLSearchParams({
-      pa: account.upiId,
-      pn: merchantName,
-      am: amount.toFixed(2),
-      tid: orderId,
-      tr: orderId,
-      tn: orderId,
-      cu: "INR",
-    });
-    const upiDeepLink = `upi://pay?${upiParams.toString()}`;
+    // Sanitize name for raw UPI URL — encode only chars that break URL structure
+    const safeName = merchantName.replace(/[&#=?]/g, (c: string) => encodeURIComponent(c));
+    const upiDeepLink = `upi://pay?pa=${account.upiId}&pn=${safeName}&am=${amount}&mc=0000&mode=02&tid=${orderId}&tr=${orderId}&purpose=00&tn=${orderId}`;
 
     // ── 6. Generate cryptographically strong payment token ────────────
     const paymentToken = crypto.randomBytes(32).toString("hex");

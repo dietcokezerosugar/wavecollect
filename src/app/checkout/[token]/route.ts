@@ -40,6 +40,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${referenceId}&tr=${referenceId}&mc=4722&&sign=AAuN7izDWN5cb8A5scnUiNME%2BLkZqI2DWgkXlN1McoP6WZABa%2FKkFTiLvuPRP6%2FnWK8BPg%2FrPhb%2Bu4QMrUEX10UsANTDbJaALcSM9b8Wk218X%2B55T%2FzOzb7xoiB%2BBcX8yYuYayELImXJHIgL%2Fc7nkAnHrwUCmbM97nRbCVVRvU0ku3Tr&featuretype=money_transfer`;
   const gpayIntent = `tez://upi/pay?pa=${encodeURIComponent(merchantUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amount.toFixed(2)}&tid=${encodeURIComponent(referenceId)}&tr=${encodeURIComponent(referenceId)}&tn=${encodeURIComponent(referenceId)}&cu=INR`;
 
+  // PhonePe intent — BloomxHub-exact: Base64-encoded JSON payload
+  const phonepePayload = JSON.stringify({
+    contact: { cbsName: "", nickName: "", vpa: merchantUpi, type: "VPA" },
+    p2pPaymentCheckoutParams: {
+      note: referenceId, isByDefaultKnownContact: true, enableSpeechToText: false,
+      allowAmountEdit: false, showQrCodeOption: false, disableViewHistory: true,
+      shouldShowUnsavedContactBanner: false, isRecurring: false, checkoutType: "DEFAULT",
+      transactionContext: "p2p", initialAmount: Math.floor(amount * 100),
+      disableNotesEdit: true, showKeyboard: false, currency: "INR", shouldShowMaskedNumber: true
+    }
+  });
+  const phonepeBase64 = Buffer.from(phonepePayload).toString("base64");
+  const phonepeIntent = `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
+
+  // Escape URLs for safe embedding inside onclick='...' JS strings
+  const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -131,8 +148,8 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:${bran
         </div>
         <p class="apps-label">Or pay directly via</p>
         <div class="app-grid">
-          <a href="${gpayIntent}" class="app-btn gpay"><span style="font-size:20px">💳</span>Google Pay</a>
-          <a href="phonepe://native?data=${Buffer.from(JSON.stringify({contact:{cbsName:"",nickName:"",vpa:merchantUpi,type:"VPA"},p2pPaymentCheckoutParams:{note:referenceId,isByDefaultKnownContact:true,enableSpeechToText:false,allowAmountEdit:false,showQrCodeOption:false,disableViewHistory:true,shouldShowUnsavedContactBanner:false,isRecurring:false,checkoutType:"DEFAULT",transactionContext:"p2p",initialAmount:Math.floor(amount*100),disableNotesEdit:true,showKeyboard:false,currency:"INR",shouldShowMaskedNumber:true}})).toString("base64")}&id=p2ppayment" class="app-btn phonepe"><span style="font-size:20px">📲</span>PhonePe</a>
+          <a href="#" onclick="event.preventDefault();window.location.href='${esc(gpayIntent)}'" class="app-btn gpay"><span style="font-size:20px">💳</span>Google Pay</a>
+          <a href="#" onclick="event.preventDefault();window.location.href='${esc(phonepeIntent)}'" class="app-btn phonepe"><span style="font-size:20px">📲</span>PhonePe</a>
           <a href="${paytmIntent}" class="app-btn paytm"><span style="font-size:20px">💰</span>Paytm</a>
         </div>
         <a href="${upiDeepLink}" class="fallback">@ Other UPI App</a>
@@ -142,10 +159,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:${bran
         <h3 style="font-size:18px;font-weight:900;text-align:center;margin-bottom:4px">Pay ₹${amount.toLocaleString()} via UPI</h3>
         <p style="font-size:12px;color:#64748b;text-align:center;margin-bottom:16px">Choose your preferred app</p>
         <div class="app-list">
-          <a href="${gpayIntent}" style="background:#fff;color:#334155;border:1px solid #e2e8f0">
+          <a href="#" onclick="event.preventDefault();window.location.href='${esc(gpayIntent)}'" style="background:#fff;color:#334155;border:1px solid #e2e8f0">
             <div class="app-icon">💳</div><div class="app-info"><p>Google Pay</p><p>Tap to open</p></div>
           </a>
-          <a href="phonepe://native?data=${Buffer.from(JSON.stringify({contact:{cbsName:"",nickName:"",vpa:merchantUpi,type:"VPA"},p2pPaymentCheckoutParams:{note:referenceId,isByDefaultKnownContact:true,enableSpeechToText:false,allowAmountEdit:false,showQrCodeOption:false,disableViewHistory:true,shouldShowUnsavedContactBanner:false,isRecurring:false,checkoutType:"DEFAULT",transactionContext:"p2p",initialAmount:Math.floor(amount*100),disableNotesEdit:true,showKeyboard:false,currency:"INR",shouldShowMaskedNumber:true}})).toString("base64")}&id=p2ppayment" style="background:#5f259f;color:#fff;border:1px solid #5f259f">
+          <a href="#" onclick="event.preventDefault();window.location.href='${esc(phonepeIntent)}'" style="background:#5f259f;color:#fff;border:1px solid #5f259f">
             <div class="app-icon">📲</div><div class="app-info"><p>PhonePe</p><p>Tap to open</p></div>
           </a>
           <a href="${paytmIntent}" style="background:#00BAF2;color:#fff;border:1px solid #00BAF2">
