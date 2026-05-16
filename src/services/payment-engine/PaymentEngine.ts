@@ -64,12 +64,12 @@ export class PaymentEngine {
     // ── 3. RISK ENGINE: Customer Fingerprinting & Profiling ──────────
     // We create a unique hash of the customer's identity footprint
     const rawFingerprint = (options.customerMobile || "") + (options.customerIp || "") + (options.customerDeviceId || "");
-    const fingerprint = rawFingerprint.length > 5 
+    const fingerprint = rawFingerprint.length > 5
       ? crypto.createHash("sha256").update(rawFingerprint).digest("hex")
       : crypto.createHash("sha256").update(orderId + Date.now().toString()).digest("hex"); // Fallback to unique if no data provided
 
     let customer = await prisma.customer.findUnique({ where: { fingerprint } });
-    
+
     if (!customer) {
       // First Time Depositor (FTD) is treated as HIGH risk
       customer = await prisma.customer.create({
@@ -169,19 +169,8 @@ export class PaymentEngine {
     const { account } = routingResult;
 
     const orderId = `RCG_${Math.floor(Date.now() / 1000)}_${Math.floor(Math.random() * 1000)}`;
-    const upiParams = new URLSearchParams({
-      pa: account.upiId,
-      pn: "PayxMint SaaS",
-      am: amount.toFixed(2),
-      cu: "INR",
-      mc: "0000",
-      mode: "02",
-      tid: orderId,
-      tr: orderId,
-      purpose: "00",
-      tn: `Wallet Recharge: ${merchant.name}`,
-    });
-    const upiDeepLink = `upi://pay?${upiParams.toString()}`;
+    // Barebones UPI link for recharge QR
+    const upiDeepLink = `upi://pay?pa=${account.upiId.trim()}&pn=PayxMint%20SaaS&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`Wallet Recharge: ${merchant.name}`)}`;
 
     const paymentToken = crypto.randomBytes(32).toString("hex");
 
