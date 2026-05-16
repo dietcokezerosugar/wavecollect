@@ -30,7 +30,7 @@ export default function MasterTransactionLedger() {
 
   useEffect(() => {
     fetchTransactions();
-    const interval = setInterval(fetchTransactions, 10000);
+    const interval = setInterval(fetchTransactions, 8000);
     return () => clearInterval(interval);
   }, []);
 
