@@ -87,6 +87,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .timer-text{font-variant-numeric:tabular-nums}
 .secure-text{font-size:12px;color:#a1a1aa;font-weight:500;margin:0}
 
+.loader-wrap { display: flex; justify-content: center; margin-top: -12px; margin-bottom: 20px; }
+.loader { display: block; --height-of-loader: 4px; --loader-color: #0071e2; width: 130px; height: var(--height-of-loader); border-radius: 30px; background-color: rgba(0,0,0,0.1); position: relative; }
+.loader::before { content: ""; position: absolute; background: var(--loader-color); top: 0; left: 0; width: 0%; height: 100%; border-radius: 30px; animation: moving 1.5s ease-in-out infinite; }
+@keyframes moving { 50% { width: 100%; } 100% { width: 0; right: 0; left: unset; } }
+
 #successView, #expiredView { display:none; width:100%; max-width:420px; }
 .status-card { background:#fff; border-radius:16px; box-shadow:0 10px 40px -10px rgba(0,0,0,.08); display:flex; flex-direction:column; text-align:center; padding-bottom:32px; overflow:hidden;}
 .status-icon { margin:40px auto 24px; width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
@@ -122,6 +127,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       <p class="instruction">Scan QR with any UPI app</p>
       <div class="qr-container">
         <img src="${qrData}" class="qr-image" alt="QR Code">
+      </div>
+      <div class="loader-wrap">
+        <div class="loader"></div>
       </div>
       <div class="upi-container">
         <div class="upi-text-container">
