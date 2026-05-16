@@ -13,6 +13,9 @@ process.env.PLAYWRIGHT_CHROMIUM_USE_HEADLESS_NEW = '1';
 const ACCOUNT_NAME = process.argv[2];
 if (!ACCOUNT_NAME) { console.error('Required bot name via args'); process.exit(1); }
 
+const HUB_URL = process.env.HUB_URL || 'http://localhost:3000';
+const BOT_SECRET = process.env.INTERNAL_BOT_SECRET || 'wave_collect_bridge_secret_998877';
+
 console.log(`[BOOT] 🚀 Engine process started for ${ACCOUNT_NAME}`);
 console.log(`[BOOT] 📡 HUB_URL: ${HUB_URL}`);
 console.log(`[BOOT] 🔑 SECRET: ${BOT_SECRET.substring(0, 4)}...${BOT_SECRET.substring(BOT_SECRET.length - 4)}`);
@@ -65,8 +68,6 @@ function log(msg) {
     uiClients.forEach(client => client.write(`data: ${safeMsg}\n\n`));
 }
 
-const HUB_URL = process.env.HUB_URL || 'http://localhost:3000';
-const BOT_SECRET = process.env.INTERNAL_BOT_SECRET || 'wave_collect_bridge_secret_998877';
 
 // GPay 9 Standard: Fetch configuration from PayxMint Hub
 async function fetchConfig() {
