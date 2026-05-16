@@ -5,12 +5,17 @@ const fs = require('fs');
 const axios = require('axios');
 const { parseTransactions } = require('./parser');
 
+// GPay 9 Standard: Initialize environment from root .env
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+
 process.env.PLAYWRIGHT_CHROMIUM_USE_HEADLESS_NEW = '1';
 
 const ACCOUNT_NAME = process.argv[2];
 if (!ACCOUNT_NAME) { console.error('Required bot name via args'); process.exit(1); }
 
 console.log(`[BOOT] 🚀 Engine process started for ${ACCOUNT_NAME}`);
+console.log(`[BOOT] 📡 HUB_URL: ${HUB_URL}`);
+console.log(`[BOOT] 🔑 SECRET: ${BOT_SECRET.substring(0, 4)}...${BOT_SECRET.substring(BOT_SECRET.length - 4)}`);
 
 // Deterministic port for the bot's internal control UI
 const BOT_PORT = 5000 + (parseInt(Buffer.from(ACCOUNT_NAME).toString('hex').slice(0, 4), 16) % 1000);
@@ -102,7 +107,7 @@ async function reportStatus(status) {
             headers: { "x-bot-secret": BOT_SECRET }
         });
     } catch (e) {
-        // Silently fail, we don't want status reporting to crash the bot
+        log(`[HEARTBEAT] Warning: Failed to send status to hub: ${e.message} (URL: ${HUB_URL})`);
     }
 }
 

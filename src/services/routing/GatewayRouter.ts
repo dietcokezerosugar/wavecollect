@@ -15,7 +15,7 @@ export class GatewayRouter {
     if (!merchant) return null;
 
     const isPoolMode = merchant.processingMode === "PLATFORM_POOL";
-    const heartbeatThreshold = new Date(Date.now() - 2 * 60 * 1000); // 2 minutes stale = dead
+    const heartbeatThreshold = new Date(Date.now() - 10 * 60 * 1000); // 10 minutes stale = dead (Resilient for heavy loads)
 
     // 2. Build the BASE query (ACTIVE + APPROVED + ticket range + cooldown)
     //    Heartbeat/session are NOT hard requirements — we prefer them but don't block on them.
@@ -50,7 +50,7 @@ export class GatewayRouter {
 
     // 3. Filter by Hard Limits (100 txns OR daily/weekly/monthly limits)
     const validAccounts = allAccounts.filter((acc) => {
-      if (acc.successfulTxn >= 100) return false;
+      if (acc.successfulTxn >= 10000) return false;
       
       const dailyOk = Number(acc.dailyLimit) === 0 || Number(acc.currentDaily) + amount <= Number(acc.dailyLimit);
       const weeklyOk = Number(acc.weeklyLimit) === 0 || Number(acc.currentWeekly) + amount <= Number(acc.weeklyLimit);

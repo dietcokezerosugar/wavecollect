@@ -3,6 +3,9 @@ const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
 
+// GPay 9 Standard: Initialize environment from root .env
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+
 const ACCOUNT_NAME = process.argv[2];
 const EMAIL = process.argv[3];
 const PASSWORD = process.argv[4];
