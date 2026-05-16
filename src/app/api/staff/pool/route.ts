@@ -45,7 +45,7 @@ export async function GET() {
 }
 
 // ════════════════════════════════════════════════════════════════
-// POST: Allocate a pool account to a merchant
+// POST: Allocate a pool account to a merchant OR Create a new pool account
 // ════════════════════════════════════════════════════════════════
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -54,8 +54,37 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { accountId, merchantId, totalQuota, minTicket, maxTicket } = body;
+  const { action, accountId, merchantId, totalQuota, minTicket, maxTicket, name, email, password, upiId } = body;
 
+  // -- ACTION: CREATE NEW POOL ACCOUNT --
+  if (action === "create") {
+    if (!name || !email || !password || !upiId) {
+      return NextResponse.json({ error: "Missing required fields for account creation" }, { status: 400 });
+    }
+    
+    // Create the account. Admin uses their own merchant ID as the owner of the platform pool.
+    const account = await prisma.googlePayAccount.create({
+      data: {
+        merchantId: session.user.merchantId!, // Admin's merchant account
+        name,
+        email,
+        botPassword: password,
+        upiId,
+        accountType: "PLATFORM_POOL",
+        status: "ACTIVE",
+        reviewStatus: "APPROVED", // Pre-approved since staff creates it
+        sessionStatus: "OFFLINE",
+        minTicket: 0,
+        maxTicket: 1000000,
+        allocationStatus: "UNASSIGNED",
+        totalQuota: 0,
+        usedQuota: 0
+      }
+    });
+    return NextResponse.json({ status: "success", data: account });
+  }
+
+  // -- ACTION: ALLOCATE --
   if (!accountId || !merchantId) {
     return NextResponse.json({ error: "accountId and merchantId are required" }, { status: 400 });
   }

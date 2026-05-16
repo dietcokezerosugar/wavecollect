@@ -12,8 +12,9 @@ export default function PoolManagementPage() {
   // Modals
   const [allocateModal, setAllocateModal] = useState<{ merchant: any, accountId?: string } | null>(null);
   const [editModal, setEditModal] = useState<any>(null);
+  const [createModal, setCreateModal] = useState(false);
 
-  // Form State for Allocation
+  // Form State for Allocation & Creation
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [totalQuota, setTotalQuota] = useState("500000");
   const [minTicket, setMinTicket] = useState("0");
@@ -35,6 +36,36 @@ export default function PoolManagementPage() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const formData = new FormData(e.currentTarget);
+    try {
+      const res = await fetch("/api/staff/pool", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "create",
+          name: formData.get("name"),
+          email: formData.get("email"),
+          password: formData.get("password"),
+          upiId: formData.get("upiId")
+        })
+      });
+      const json = await res.json();
+      if (json.status === "success") {
+        setCreateModal(false);
+        fetchData();
+      } else {
+        alert(json.error || "Failed to create pool account");
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -100,6 +131,12 @@ export default function PoolManagementPage() {
           <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Platform Pool</h1>
           <p className="text-slate-500 mt-1 text-xs md:text-sm font-medium">Manage shared Google Pay accounts and merchant allocations.</p>
         </div>
+        <button 
+          onClick={() => setCreateModal(true)}
+          className="px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
+        >
+          + Add Pool Account
+        </button>
       </div>
 
       {/* Summary Cards */}
@@ -333,6 +370,45 @@ export default function PoolManagementPage() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Pool Account Modal */}
+      {createModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-6 border-b border-slate-100">
+              <h2 className="text-lg font-black text-slate-900">Add Platform Pool Account</h2>
+              <p className="text-xs text-slate-500 mt-1">This account will be available for allocation</p>
+            </div>
+            <form onSubmit={handleCreate}>
+              <div className="p-6 space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Alias / Name</label>
+                  <input name="name" required placeholder="e.g. pool-primary" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Google Email</label>
+                  <input name="email" type="email" required placeholder="pool1@gmail.com" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Google Password</label>
+                  <input name="password" type="password" required placeholder="••••••••" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">UPI ID</label>
+                  <input name="upiId" required placeholder="pool1@okaxis" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
+              </div>
+              <div className="p-4 bg-slate-50 flex justify-end gap-3 border-t border-slate-100">
+                <button type="button" onClick={() => setCreateModal(false)} className="px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 rounded-lg transition-colors">Cancel</button>
+                <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-lg disabled:opacity-50 hover:bg-slate-800 transition-colors flex items-center gap-2">
+                  {isSubmitting && <Loader2 className="w-3 h-3 animate-spin" />}
+                  Create Account
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
