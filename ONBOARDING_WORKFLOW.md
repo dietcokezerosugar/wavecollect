@@ -43,60 +43,133 @@ Follow these simple steps to set up your account and start taking payments.
 
 ---
 
-## Step 6: How the System Works
+## Step 6: How the System Works (The Technical Part)
 
-- **The Hub:** This is the brain that manages all payments.
-- **Nodes:** These are small helpers that watch for money entering the bank.
-- **Statuses:**
-  - **PENDING:** Waiting for the customer to pay.
-  - **SUCCESS:** Payment received!
-  - **EXPIRED:** The customer took too long to pay (over 15 minutes).
+- **The Hub (Intents Engine):** This is the central brain. It manages payment states, stores your custom metadata, and decides which bank account should receive the money.
+- **Nodes (Discovery Fleet):** These are small workers that watch bank apps (GPay/PhonePe) in real-time. When they see a transaction, they tell the Hub instantly.
+- **Payment States:**
+  - `PENDING`: Waiting for the customer to pay.
+  - `SUCCESS`: Money is in the bank and matched to your order.
+  - `EXPIRED`: The 15-minute timer ran out.
+  - `FLAGGED`: Something is wrong (e.g., duplicate UTR). Our staff will check it.
 
 ---
 
-## Step 7: How to Use the API
+## Step 7: API Reference (Full Details)
 
-### 1. Create a Payment
-Send a request to our system when a customer wants to pay.
+### 1. Create a Payment Intent
+Call this when your customer is ready to pay.
 
-**URL:** `https://api.payxmint.com/api/v1/create-intent`
+**URL:** `POST https://api.payxmint.com/api/v1/create-intent`
 
-**What to send:**
-- `amount`: The price (e.g., 500.00).
-- `order_id`: Your own ID for this order.
-- `metadata`: Any extra info you want to save.
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `amount` | number | Yes | The amount to collect (e.g., 500.00). |
+| `order_id` | string | Yes | Your unique ID for this order. |
+| `metadata` | object | No | Up to 20 key-value pairs (JSON). |
+| `customer_email` | string | No | For sending receipts. |
 
-**What you get back:**
-- `checkout_url`: Send the customer here so they can pay.
-- `upi_link`: Use this if you want to open a UPI app directly.
+**Response Example:**
+```json
+{
+  "id": "pi_88990011",
+  "status": "pending",
+  "amount": 500.00,
+  "checkout_url": "https://payxmint.com/pay/tok_65c3b...",
+  "upi_link": "upi://pay?pa=merchant@bank&am=500...",
+  "payment_token": "tok_65c3b...",
+  "metadata": { "order_type": "retail" }
+}
+```
 
 ### 2. Check Payment Status
-If you want to check if a payment is done, use:
-`GET https://api.payxmint.com/api/v1/check-status?token={token}`
+Check if a specific payment is done.
+
+**URL:** `GET https://api.payxmint.com/api/v1/check-status?token={token}`
+
+**Response (Success):**
+```json
+{
+  "status": "SUCCESS",
+  "utr": "412239102931",
+  "payer_name": "John Doe",
+  "paid_at": "2024-05-16T12:00:00Z"
+}
+```
 
 ---
 
-## Step 8: Security & Rules
+## Step 8: Webhooks & Safety
 
-### 1. Idempotency (Safe Retries)
-Always send a `Idempotency-Key` header. This makes sure that if you send the same request twice by mistake, we only process it once.
+### 1. Webhook Notification
+We send this JSON to your URL when a payment succeeds.
 
-### 2. Webhook Signatures
-When we send a notification to your server, we include a secret code (Signature) in the header. You should check this code to make sure the message actually came from us.
+**Payload:**
+```json
+{
+  "event": "payment.success",
+  "id": "evt_776655",
+  "data": {
+    "order_id": "INV-99",
+    "amount": 500.00,
+    "utr": "412239102931",
+    "metadata": { "ref": "abc-123" }
+  }
+}
+```
+
+### 2. Checking the Signature (Safety First)
+To make sure the webhook is really from us, check the `X-PayxMint-Signature` header.
+
+**The Logic:**
+1. Take the **Raw Request Body** (the JSON text).
+2. Create a hash using **HMAC-SHA256** with your **Webhook Secret**.
+3. Compare your hash with the one in the header.
+
+### 3. Idempotency (Preventing Duplicates)
+Always include the `Idempotency-Key` header in your requests.
+- If you send the same key twice within 24 hours, we will return the same result without charging the customer again.
 
 ---
 
-## Step 9: Solving Problems
+## Step 9: Error Codes
 
-- **Automatic Matching:** Most payments are matched automatically in seconds.
-- **Manual Check:** If a customer pays the wrong amount, it will show up in your dashboard under **"Unmatched"**. You can click it to manually mark the order as paid.
+If something goes wrong, we return a structured error:
+
+| Code | Meaning |
+| :--- | :--- |
+| `401 Unauthorized` | Your API Key is wrong or missing. |
+| `403 Forbidden` | Your Server IP is not whitelisted. |
+| `409 Conflict` | That `order_id` or `Idempotency-Key` was already used. |
+| `429 Rate Limit` | You are sending too many requests too fast. |
+| `503 Service Unavailable` | No VPA accounts are available in the pool right now. |
+
+**Example Error:**
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "parameter_missing",
+    "message": "The 'amount' parameter is required."
+  }
+}
+```
 
 ---
 
-**Final Checklist:**
-- [x] Account is **APPROVED**.
-- [x] Your server IP is **Whitelisted**.
-- [x] Your **Webhook URL** is saved.
-- [x] You have your **Secret API Key**.
+## Step 10: Troubleshooting
 
-Need help? Email us at [support@payxmint.com](mailto:support@payxmint.com).
+- **Unmatched Payments:** If a customer pays but the amount is wrong, it goes to the "Unmatched" list in your dashboard.
+- **Manual Binding:** You can manually link an unmatched payment to an order. This will trigger the webhook instantly.
+- **Node Sync:** If your node is "Offline", automatic matching stops. Check your GPay sync status in the dashboard.
+
+---
+
+**Final Production Checklist:**
+- [x] Account is **APPROVED** for Platform Pool.
+- [x] **Idempotency-Key** is sent with every request.
+- [x] **Webhook Signature** is verified on your server.
+- [x] **IP Whitelist** includes all your production server IPs.
+- [x] **Secret Key** is stored safely (not in your code).
+
+Need help? Email our tech team at [infra@payxmint.com](mailto:infra@payxmint.com).

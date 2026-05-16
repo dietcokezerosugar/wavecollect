@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import { EmailService } from "@/services/notifications/EmailService";
 
 export async function POST(req: Request) {
   try {
@@ -31,10 +32,17 @@ export async function POST(req: Request) {
       },
     });
 
-    const resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://payxmint.com'}/reset-password?token=${token}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://payxmint.com";
+    const resetLink = `${appUrl}/reset-password?token=${token}`;
 
-    // Log the reset link — replace with your email provider when ready
-    console.log(`[PASSWORD_RESET] Link for ${email}: ${resetLink}`);
+    // Send actual email
+    try {
+      await EmailService.sendPasswordResetEmail(email, resetLink);
+    } catch (emailError: any) {
+      console.error("[FORGOT_PASSWORD] Email send failed:", emailError.message);
+      // We still return success to the user for security, 
+      // but log the error for infrastructure monitoring
+    }
 
     return NextResponse.json({ 
       success: true, 
