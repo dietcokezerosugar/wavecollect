@@ -31,6 +31,7 @@ const STATUS_CONFIG: Record<ResultStatus, { label: string; color: string; bg: st
 };
 
 export default function ReconciliationPage() {
+  const [activeTab, setActiveTab] = useState<"upload" | "history">("upload");
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -38,7 +39,22 @@ export default function ReconciliationPage() {
   const [results, setResults] = useState<ReconciliationResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<ResultStatus | "ALL">("ALL");
+  const [history, setHistory] = useState<any[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchHistory = useCallback(async () => {
+    setIsLoadingHistory(true);
+    try {
+      const res = await fetch("/api/staff/reconciliation/history");
+      const data = await res.json();
+      if (res.ok) setHistory(data.history || []);
+    } catch (err) {
+      console.error("Failed to fetch history", err);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  }, []);
 
   const handleFile = useCallback(async (file: File) => {
     if (!file.name.endsWith(".csv")) {
@@ -127,193 +143,276 @@ export default function ReconciliationPage() {
             Upload transaction CSV reports for backup verification and auto-matching
           </p>
         </div>
-        {summary && (
-          <button
-            onClick={reset}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-slate-800 transition-colors"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            New Upload
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <div className="flex bg-slate-100 p-1 rounded-xl">
+            <button
+              onClick={() => setActiveTab("upload")}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === "upload" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              Upload
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("history");
+                fetchHistory();
+              }}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === "history" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              History
+            </button>
+          </div>
+          {summary && activeTab === "upload" && (
+            <button
+              onClick={reset}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              New Upload
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Drop Zone */}
-      {!summary && (
-        <div
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onClick={() => fileInputRef.current?.click()}
-          className={`relative cursor-pointer border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
-            isDragging
-              ? "border-blue-400 bg-blue-50 scale-[1.01]"
-              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-          } ${isUploading ? "pointer-events-none opacity-60" : ""}`}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleFile(file);
-            }}
-          />
+      {activeTab === "upload" ? (
+        <>
+          {/* Drop Zone */}
+          {!summary && (
+            <div
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              onClick={() => fileInputRef.current?.click()}
+              className={`relative cursor-pointer border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
+                isDragging
+                  ? "border-blue-400 bg-blue-50 scale-[1.01]"
+                  : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+              } ${isUploading ? "pointer-events-none opacity-60" : ""}`}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFile(file);
+                }}
+              />
 
-          {isUploading ? (
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-              <div>
-                <p className="text-sm font-bold text-slate-900">Processing {fileName}</p>
-                <p className="text-xs text-slate-500 mt-1">Parsing CSV and running reconciliation...</p>
-              </div>
+              {isUploading ? (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">Processing {fileName}</p>
+                    <p className="text-xs text-slate-500 mt-1">Parsing CSV and running reconciliation...</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4">
+                  <div
+                    className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${
+                      isDragging ? "bg-blue-100" : "bg-slate-100"
+                    }`}
+                  >
+                    {isDragging ? (
+                      <FileSpreadsheet className="w-7 h-7 text-blue-600" />
+                    ) : (
+                      <Upload className="w-7 h-7 text-slate-400" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">
+                      {isDragging ? "Drop CSV file here" : "Drag & drop your CSV file here"}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      or click to browse • Supports Google Pay, PhonePe, Paytm CSV exports
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4">
-              <div
-                className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${
-                  isDragging ? "bg-blue-100" : "bg-slate-100"
-                }`}
-              >
-                {isDragging ? (
-                  <FileSpreadsheet className="w-7 h-7 text-blue-600" />
-                ) : (
-                  <Upload className="w-7 h-7 text-slate-400" />
-                )}
+          )}
+
+          {/* Error */}
+          {error && (
+            <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <p className="text-sm font-medium text-red-700">{error}</p>
+            </div>
+          )}
+
+          {/* Summary Cards */}
+          {summary && (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {[
+                { label: "Total Rows", value: summary.totalRows, color: "bg-slate-50 border-slate-200", text: "text-slate-900" },
+                { label: "Matched", value: summary.matched, color: "bg-emerald-50 border-emerald-200", text: "text-emerald-700" },
+                { label: "Already Exists", value: summary.alreadyExists, color: "bg-blue-50 border-blue-200", text: "text-blue-700" },
+                { label: "Unmatched", value: summary.unmatched, color: "bg-amber-50 border-amber-200", text: "text-amber-700" },
+                { label: "Skipped/Errors", value: summary.skipped + summary.errors, color: "bg-red-50 border-red-200", text: "text-red-700" },
+              ].map((card) => (
+                <div
+                  key={card.label}
+                  className={`p-4 rounded-xl border ${card.color}`}
+                >
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{card.label}</p>
+                  <p className={`text-2xl font-black mt-1 ${card.text}`}>{card.value}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Results Table */}
+          {summary && results.length > 0 && (
+            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+              {/* Filter Tabs */}
+              <div className="px-4 pt-4 flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mr-2">Filter:</span>
+                {(["ALL", "MATCHED", "UNMATCHED", "ALREADY_EXISTS", "SKIPPED", "ERROR"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg border transition-colors ${
+                      filter === f
+                        ? "bg-slate-900 text-white border-slate-900"
+                        : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    {f === "ALL" ? `All (${results.length})` : `${f.replace("_", " ")} (${results.filter((r) => r.status === f).length})`}
+                  </button>
+                ))}
               </div>
-              <div>
-                <p className="text-sm font-bold text-slate-900">
-                  {isDragging ? "Drop CSV file here" : "Drag & drop your CSV file here"}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  or click to browse • Supports Google Pay, PhonePe, Paytm CSV exports
-                </p>
+
+              {/* Table */}
+              <div className="overflow-x-auto mt-4">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Row</th>
+                      <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Transaction ID</th>
+                      <th className="text-right px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Amount</th>
+                      <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
+                      <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Detail</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredResults.map((r, idx) => {
+                      const cfg = STATUS_CONFIG[r.status];
+                      const IconComp = cfg.icon;
+                      return (
+                        <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                          <td className="px-4 py-3 text-slate-400 font-mono text-xs">{r.row}</td>
+                          <td className="px-4 py-3 font-mono text-xs text-slate-700 max-w-[200px] truncate">{r.externalId}</td>
+                          <td className="px-4 py-3 text-right font-bold text-slate-900">₹{r.amount.toLocaleString("en-IN")}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${cfg.bg} ${cfg.color}`}>
+                              <IconComp className="w-3 h-3" />
+                              {cfg.label}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-slate-500 max-w-[250px] truncate">{r.detail}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {filteredResults.length === 0 && (
+                <div className="p-12 text-center">
+                  <BarChart3 className="w-8 h-8 text-slate-300 mx-auto mb-3" />
+                  <p className="text-sm font-medium text-slate-400">No results matching this filter</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Info Card */}
+          {!summary && !isUploading && (
+            <div className="bg-white border border-slate-200 rounded-2xl p-6">
+              <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-slate-400" />
+                How It Works
+              </h3>
+              <div className="space-y-3">
+                {[
+                  { step: "1", title: "Download CSV", desc: "Export the transaction report from Google Pay Business / PhonePe Merchant / Paytm Dashboard" },
+                  { step: "2", title: "Drop the file here", desc: "Drag and drop the CSV file onto this page. The system will automatically parse all rows." },
+                  { step: "3", title: "Auto Reconciliation", desc: "Each transaction is compared against pending payment intents. Matches are automatically confirmed and webhooks are fired." },
+                  { step: "4", title: "Review Results", desc: "See which transactions were matched, which already existed, and which remain unmatched for manual review." },
+                ].map((item) => (
+                  <div key={item.step} className="flex items-start gap-4">
+                    <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs font-black text-slate-500">{item.step}</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">{item.title}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Error */}
-      {error && (
-        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-          <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-          <p className="text-sm font-medium text-red-700">{error}</p>
-        </div>
-      )}
-
-      {/* Summary Cards */}
-      {summary && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          {[
-            { label: "Total Rows", value: summary.totalRows, color: "bg-slate-50 border-slate-200", text: "text-slate-900" },
-            { label: "Matched", value: summary.matched, color: "bg-emerald-50 border-emerald-200", text: "text-emerald-700" },
-            { label: "Already Exists", value: summary.alreadyExists, color: "bg-blue-50 border-blue-200", text: "text-blue-700" },
-            { label: "Unmatched", value: summary.unmatched, color: "bg-amber-50 border-amber-200", text: "text-amber-700" },
-            { label: "Skipped/Errors", value: summary.skipped + summary.errors, color: "bg-red-50 border-red-200", text: "text-red-700" },
-          ].map((card) => (
-            <div
-              key={card.label}
-              className={`p-4 rounded-xl border ${card.color}`}
-            >
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{card.label}</p>
-              <p className={`text-2xl font-black mt-1 ${card.text}`}>{card.value}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Results Table */}
-      {summary && results.length > 0 && (
+        </>
+      ) : (
+        /* History View */
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-          {/* Filter Tabs */}
-          <div className="px-4 pt-4 flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mr-2">Filter:</span>
-            {(["ALL", "MATCHED", "UNMATCHED", "ALREADY_EXISTS", "SKIPPED", "ERROR"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg border transition-colors ${
-                  filter === f
-                    ? "bg-slate-900 text-white border-slate-900"
-                    : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
-                }`}
-              >
-                {f === "ALL" ? `All (${results.length})` : `${f.replace("_", " ")} (${results.filter((r) => r.status === f).length})`}
-              </button>
-            ))}
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <h3 className="text-sm font-bold text-slate-900">Reconciliation Audit Trail</h3>
+            <button 
+              onClick={fetchHistory}
+              disabled={isLoadingHistory}
+              className="p-2 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 text-slate-500 ${isLoadingHistory ? "animate-spin" : ""}`} />
+            </button>
           </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto mt-4">
+          <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100">
-                  <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Row</th>
-                  <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Transaction ID</th>
-                  <th className="text-right px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Amount</th>
-                  <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                  <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Detail</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Date</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Staff</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">File Name</th>
+                  <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Stats</th>
+                  <th className="text-right px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Total Rows</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredResults.map((r, idx) => {
-                  const cfg = STATUS_CONFIG[r.status];
-                  const IconComp = cfg.icon;
-                  return (
-                    <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="px-4 py-3 text-slate-400 font-mono text-xs">{r.row}</td>
-                      <td className="px-4 py-3 font-mono text-xs text-slate-700 max-w-[200px] truncate">{r.externalId}</td>
-                      <td className="px-4 py-3 text-right font-bold text-slate-900">₹{r.amount.toLocaleString("en-IN")}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${cfg.bg} ${cfg.color}`}>
-                          <IconComp className="w-3 h-3" />
-                          {cfg.label}
-                        </span>
+                {isLoadingHistory ? (
+                  <tr>
+                    <td colSpan={5} className="p-12 text-center text-slate-400">Loading history...</td>
+                  </tr>
+                ) : history.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="p-12 text-center text-slate-400">No reconciliation history found</td>
+                  </tr>
+                ) : (
+                  history.map((item) => (
+                    <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                      <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
+                        {new Date(item.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-xs text-slate-500 max-w-[250px] truncate">{r.detail}</td>
+                      <td className="px-4 py-3 text-xs font-bold text-slate-900">{item.staffEmail}</td>
+                      <td className="px-4 py-3 text-xs text-slate-600 font-mono truncate max-w-[150px]">{item.fileName}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-1">
+                          <span className="px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-600 text-[10px] font-bold" title="Matched">M: {item.matched}</span>
+                          <span className="px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[10px] font-bold" title="Existing">E: {item.alreadyExists}</span>
+                          <span className="px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-bold" title="Unmatched">U: {item.unmatched}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right font-black text-slate-900">{item.totalRows}</td>
                     </tr>
-                  );
-                })}
+                  ))
+                )}
               </tbody>
             </table>
-          </div>
-
-          {filteredResults.length === 0 && (
-            <div className="p-12 text-center">
-              <BarChart3 className="w-8 h-8 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm font-medium text-slate-400">No results matching this filter</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Info Card */}
-      {!summary && !isUploading && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6">
-          <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-slate-400" />
-            How It Works
-          </h3>
-          <div className="space-y-3">
-            {[
-              { step: "1", title: "Download CSV", desc: "Export the transaction report from Google Pay Business / PhonePe Merchant / Paytm Dashboard" },
-              { step: "2", title: "Drop the file here", desc: "Drag and drop the CSV file onto this page. The system will automatically parse all rows." },
-              { step: "3", title: "Auto Reconciliation", desc: "Each transaction is compared against pending payment intents. Matches are automatically confirmed and webhooks are fired." },
-              { step: "4", title: "Review Results", desc: "See which transactions were matched, which already existed, and which remain unmatched for manual review." },
-            ].map((item) => (
-              <div key={item.step} className="flex items-start gap-4">
-                <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-xs font-black text-slate-500">{item.step}</span>
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">{item.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       )}
