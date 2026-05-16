@@ -55,7 +55,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Checkout | ${merchantName}</title>
-<script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+<script src="https://unpkg.com/@lottiefiles/dotlottie-wc@latest/dist/dotlottie-wc.js" type="module"></script>
 <style>
 :root { --primary: #18181b; --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-400: #94a3b8; --slate-500: #64748b; --slate-600: #475569; --slate-900: #0f172a; --blue-600: #2563eb; }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
@@ -96,6 +96,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
 .status-icon{margin-bottom:24px}
 .status-title{font-size:24px;font-weight:700;margin-bottom:12px}
 .status-desc{font-size:16px;color:var(--slate-500);max-width:400px;line-height:1.6}
+
+/* CSS Animated Checkmark Fallback */
+.success-checkmark{width:100px;height:100px;border-radius:50%;display:block;stroke-width:3;stroke:#10b981;stroke-miterlimit:10;box-shadow:inset 0px 0px 0px #10b981;animation:fillGreen .4s ease-in-out .4s forwards, scaleCheck .3s ease-in-out .9s both}
+.success-checkmark__circle{stroke-dasharray:166;stroke-dashoffset:166;stroke-width:3;stroke-miterlimit:10;stroke:#10b981;fill:none;animation:strokeCircle .6s cubic-bezier(0.65,0,0.45,1) forwards}
+.success-checkmark__check{transform-origin:50% 50%;stroke-dasharray:48;stroke-dashoffset:48;animation:strokeCheck .3s cubic-bezier(0.65,0,0.45,1) .8s forwards}
+@keyframes strokeCircle{100%{stroke-dashoffset:0}}
+@keyframes strokeCheck{100%{stroke-dashoffset:0}}
+@keyframes fillGreen{100%{box-shadow:inset 0px 0px 0px 60px rgba(16,185,129,0.1)}}
+@keyframes scaleCheck{0%,100%{transform:none}50%{transform:scale3d(1.1,1.1,1)}}
 
 /* Mobile: Revert to Centralized Card Style */
 @media (max-width: 850px) {
@@ -148,7 +157,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
 
   <div class="payment-panel">
     <div class="panel-content">
-      <!-- Mobile Only Header (Integrated into Card) -->
+      <!-- Mobile Only Header -->
       <div class="mobile-header">
         <div class="merchant-header" style="margin-bottom: 16px;">
           <div class="merchant-logo">${merchantName.charAt(0).toUpperCase()}</div>
@@ -189,8 +198,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
 </div>
 
 <div id="successView">
-  <div class="status-icon">
-    <dotlottie-player src="/Success.lottie" background="transparent" speed="1" style="width: 150px; height: 150px;" autoplay></dotlottie-player>
+  <div class="status-icon" id="lottieContainer">
+    <dotlottie-wc src="/Success.lottie" autoplay style="width: 150px; height: 150px;"></dotlottie-wc>
+  </div>
+  <!-- CSS fallback checkmark (shown if lottie CDN fails) -->
+  <div class="status-icon" id="svgFallback" style="display:none;">
+    <svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle class="success-checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+      <path class="success-checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+    </svg>
   </div>
   <h2 class="status-title">Payment successful</h2>
   <p class="status-desc">Your payment of <strong>₹${amount.toLocaleString()}</strong> has been verified. You will be redirected back shortly.</p>
@@ -205,6 +221,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
 </div>
 
 <script>
+// === GLOBAL STATE ===
+var TOKEN = "${token}";
+var STATUS = "${status}";
+var EXPIRE_AT = "${expireAt}";
+var TOTAL_SECS = 600;
+var timeLeft = TOTAL_SECS;
+var isResolved = false; // CRITICAL FLAG: prevents timer from overwriting success
+var timerInterval = null;
+var pollInterval = null;
+
 // Device Detection
 var ua = navigator.userAgent;
 var isAndroid = /Android/.test(ua);
@@ -212,20 +238,27 @@ if (isAndroid) {
   document.getElementById('deepLinks').style.display = 'flex';
 }
 
-// Timer
-var TOKEN = "${token}";
-var STATUS = "${status}";
-var EXPIRE_AT = "${expireAt}";
-var TOTAL_SECS = 600;
-var timeLeft = TOTAL_SECS;
+// Lottie fallback: if web component fails to render, show CSS animated checkmark
+setTimeout(function() {
+  var lottieEl = document.querySelector('dotlottie-wc');
+  if (!lottieEl || !lottieEl.shadowRoot || !lottieEl.shadowRoot.querySelector('canvas')) {
+    var container = document.getElementById('lottieContainer');
+    var fallback = document.getElementById('svgFallback');
+    if (container) container.style.display = 'none';
+    if (fallback) fallback.style.display = 'block';
+  }
+}, 3000);
 
+// Timer setup
 if (EXPIRE_AT) {
   var diff = new Date(EXPIRE_AT).getTime() - Date.now();
   timeLeft = diff > 0 ? Math.floor(diff / 1000) : 0;
 }
 
 function updateTimer() {
+  if (isResolved) return; // GUARD: never run after resolved
   var el = document.getElementById("countdown");
+  if (!el) return;
   if (timeLeft <= 0) {
     el.textContent = "0:00";
     showExpired();
@@ -237,11 +270,6 @@ function updateTimer() {
   el.textContent = m + ":" + (s < 10 ? "0" + s : s);
 }
 
-if(STATUS === "PENDING") {
-  updateTimer();
-  setInterval(updateTimer, 1000);
-}
-
 function copyUpi(btn) {
   var text = document.getElementById("upiValue").innerText;
   navigator.clipboard.writeText(text).then(function() {
@@ -251,36 +279,55 @@ function copyUpi(btn) {
 }
 
 function showSuccess(data) {
+  if (isResolved) return; // GUARD: prevent double-fire
+  isResolved = true;
+  
+  // Kill all intervals immediately
+  if (timerInterval) clearInterval(timerInterval);
+  if (pollInterval) clearInterval(pollInterval);
+  
   document.getElementById("mainView").style.display = "none";
   document.getElementById("expiredView").style.display = "none";
   document.getElementById("successView").style.display = "flex";
-  if(data && data.payer_name) document.getElementById("payerName").innerText = data.payer_name;
-  if(data && data.utr) document.getElementById("utrVal").innerText = data.utr;
   
-  if(data && data.redirect_url) {
+  if (data && data.redirect_url) {
     setTimeout(function(){ window.location.href = data.redirect_url; }, 5000);
   }
 }
 
 function showExpired() {
+  if (isResolved) return; // GUARD: never overwrite success
+  isResolved = true;
+  
+  // Kill all intervals immediately
+  if (timerInterval) clearInterval(timerInterval);
+  if (pollInterval) clearInterval(pollInterval);
+  
   document.getElementById("mainView").style.display = "none";
   document.getElementById("successView").style.display = "none";
   document.getElementById("expiredView").style.display = "flex";
 }
 
-if (STATUS === "SUCCESS") showSuccess();
-else if (STATUS === "EXPIRED") showExpired();
-else {
-  setInterval(function(){
-    if (timeLeft <= 0) return;
+// === BOOT ===
+if (STATUS === "SUCCESS") {
+  showSuccess();
+} else if (STATUS === "EXPIRED") {
+  showExpired();
+} else {
+  // Start countdown timer
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 1000);
+  
+  // Start status polling
+  pollInterval = setInterval(function(){
+    if (isResolved) return; // GUARD
     fetch('/api/pay/status?token=' + TOKEN)
       .then(function(r){ return r.json(); })
       .then(function(res){
+        if (isResolved) return; // GUARD: re-check after async
         if (res.data && res.data.payment_status === "SUCCESS") {
-          timeLeft = 0;
           showSuccess(res.data);
         } else if (res.data && res.data.payment_status === "EXPIRED") {
-          timeLeft = 0;
           showExpired();
         }
       }).catch(function(e){});
