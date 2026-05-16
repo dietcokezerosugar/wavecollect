@@ -9,7 +9,9 @@ import { GatewayRouter } from "../routing/GatewayRouter";
 export class MatchingEngine {
   /**
    * Called when the verification engine detects a new transaction.
-   * Matches it to a pending PaymentIntent by amount + reference (note).
+   * Uses a MULTI-STRATEGY matching approach:
+   *   1. STRICT: note === referenceId AND amount matches
+   *   2. AMOUNT+WINDOW: Same amount within a 30-minute creation window (no note required)
    * Must be idempotent — a transaction can match ONLY one intent.
    */
   static async onTransactionDetected(txn: {
@@ -21,7 +23,8 @@ export class MatchingEngine {
     note?: string;
     timestamp?: string;
   }): Promise<boolean> {
-    console.log(`[MatchingEngine] Processing txn: ${txn.externalId} amount=${txn.amount}`);
+    const txnAmount = Number(txn.amount);
+    console.log(`[MatchingEngine] Processing txn: ${txn.externalId} amount=₹${txnAmount} note="${txn.note || 'NULL'}" utr=${txn.utr || 'NULL'}`);
 
     // ── 1. Save the transaction (Idempotent) ─────────────────────────
     let newTxn;
@@ -30,7 +33,7 @@ export class MatchingEngine {
         data: {
           externalId: txn.externalId,
           utr: txn.utr || null,
-          amount: txn.amount,
+          amount: txnAmount,
           payerName: txn.payerName || null,
           payerUpiId: txn.payerUpiId || null,
           note: txn.note || null,
@@ -38,48 +41,106 @@ export class MatchingEngine {
         },
       });
     } catch (e: any) {
-      if (e.code === 'P2002') return false; // Already exists, skip
+      if (e.code === 'P2002') {
+        console.log(`[MatchingEngine] Duplicate txn ${txn.externalId}, skipping.`);
+        return false; // Already exists, skip
+      }
       throw e;
     }
 
-    // ── 2. Find and update matching intent (STRICT MATCH: NOTE + AMOUNT) 
-    if (!txn.note) return true; // Saved but no match possible without note
-
+    // ── 2. Multi-Strategy Matching ───────────────────────────────────
     try {
       const matchResult = await prisma.$transaction(async (tx) => {
-        const intent = await tx.paymentIntent.findFirst({
-          where: { 
-            status: "PENDING", 
-            referenceId: txn.note,
-            amount: txn.amount, // STRICT CHECK
-            OR: [
-              { expireAt: null },
-              { expireAt: { gte: new Date() } }
-            ]
-          },
-          include: { merchant: true, apiKey: true },
-        });
+        let intent = null;
 
-        if (!intent) {
-          // Check if this was a partial payment or duplicate
-          const potentialIntent = await tx.paymentIntent.findFirst({
-            where: { referenceId: txn.note }
+        // ═══ STRATEGY 1: STRICT (note + amount) ═══
+        if (txn.note && txn.note.trim().length > 0) {
+          const cleanNote = txn.note.trim();
+          
+          intent = await tx.paymentIntent.findFirst({
+            where: { 
+              status: "PENDING", 
+              referenceId: cleanNote,
+              OR: [
+                { expireAt: null },
+                { expireAt: { gte: new Date() } }
+              ]
+            },
+            include: { merchant: true, apiKey: true },
           });
 
-          if (potentialIntent) {
-            const reason = Number(potentialIntent.amount) !== txn.amount 
-              ? `Amount mismatch: expected ₹${potentialIntent.amount}, got ₹${txn.amount}`
-              : `Order already in status: ${potentialIntent.status}`;
-            
-            await logApi("WARNING", `Floating payment detected (${reason})`, potentialIntent.merchantId, { 
-              txnId: txn.externalId, 
-              note: txn.note 
+          if (intent) {
+            // Verify amount matches (with tolerance for decimal precision)
+            const intentAmount = Number(intent.amount);
+            if (Math.abs(intentAmount - txnAmount) > 0.01) {
+              await logApi("WARNING", `Note matched but amount mismatch: expected ₹${intentAmount}, got ₹${txnAmount}`, intent.merchantId, {
+                txnId: txn.externalId,
+                note: cleanNote
+              });
+              intent = null; // Don't match if amount differs
+            } else {
+              console.log(`[MatchingEngine] STRATEGY 1 HIT: note="${cleanNote}" matched intent ${intent.id}`);
+            }
+          }
+        }
+
+        // ═══ STRATEGY 2: AMOUNT + TIME WINDOW (fallback when note is missing/wrong) ═══
+        if (!intent) {
+          // Look for a PENDING intent with the exact same amount, created within the last 30 minutes
+          const windowStart = new Date(Date.now() - 30 * 60 * 1000);
+          
+          const candidates = await tx.paymentIntent.findMany({
+            where: {
+              status: "PENDING",
+              createdAt: { gte: windowStart },
+              OR: [
+                { expireAt: null },
+                { expireAt: { gte: new Date() } }
+              ]
+            },
+            include: { merchant: true, apiKey: true },
+            orderBy: { createdAt: 'desc' }
+          });
+
+          // Find one with matching amount (tolerance for decimal precision)
+          for (const candidate of candidates) {
+            const candidateAmount = Number(candidate.amount);
+            if (Math.abs(candidateAmount - txnAmount) <= 0.01) {
+              intent = candidate;
+              console.log(`[MatchingEngine] STRATEGY 2 HIT: amount=₹${txnAmount} matched intent ${intent.id} (note was "${txn.note || 'NULL'}", expected "${intent.referenceId}")`);
+              await logApi("INFO", `Fallback match: amount ₹${txnAmount} matched by time window (note mismatch: got "${txn.note || 'null'}", expected "${intent.referenceId}")`, intent.merchantId, {
+                txnId: txn.externalId,
+                strategy: "AMOUNT_WINDOW"
+              });
+              break;
+            }
+          }
+        }
+
+        // ═══ NO MATCH ═══
+        if (!intent) {
+          // Log detailed diagnostics
+          const pendingCount = await tx.paymentIntent.count({ where: { status: "PENDING" } });
+          console.log(`[MatchingEngine] NO MATCH for txn ${txn.externalId}: amount=₹${txnAmount}, note="${txn.note || 'NULL'}". Pending intents: ${pendingCount}`);
+          
+          if (txn.note) {
+            const potentialIntent = await tx.paymentIntent.findFirst({
+              where: { referenceId: txn.note }
             });
+            if (potentialIntent) {
+              const reason = Number(potentialIntent.amount) !== txnAmount 
+                ? `Amount mismatch: expected ₹${potentialIntent.amount}, got ₹${txnAmount}`
+                : `Order already in status: ${potentialIntent.status}`;
+              await logApi("WARNING", `Floating payment detected (${reason})`, potentialIntent.merchantId, { 
+                txnId: txn.externalId, 
+                note: txn.note 
+              });
+            }
           }
           return null;
         }
 
-        // Mark SUCCESS
+        // ── MATCHED! Update intent to SUCCESS ────────────────────────
         await tx.paymentIntent.update({
           where: { id: intent.id },
           data: {
@@ -97,7 +158,7 @@ export class MatchingEngine {
             where: { id: intent.customerId },
             data: {
               successfulTxnCount: { increment: 1 },
-              totalVolume: { increment: txn.amount },
+              totalVolume: { increment: txnAmount },
               isFTD: false,
               lastTxnAt: new Date(),
             }
@@ -126,7 +187,7 @@ export class MatchingEngine {
         // Update API key usage
         await tx.apiKey.update({
           where: { id: intent.apiKeyId },
-          data: { usedAmount: { increment: txn.amount } },
+          data: { usedAmount: { increment: txnAmount } },
         });
 
         // SaaS: Process Settlement Lifecycle
@@ -134,7 +195,7 @@ export class MatchingEngine {
           // Recharges still directly credit the pre-paid wallet if someone is using it
           await WalletService.credit(
             intent.merchantId,
-            txn.amount,
+            txnAmount,
             `Wallet Top-up (Ref: ${intent.referenceId})`,
             "RECHARGE",
             intent.id,
@@ -148,8 +209,8 @@ export class MatchingEngine {
           await tx.settlement.create({
             data: {
               merchantId: intent.merchantId,
-              totalAmount: txn.amount,
-              holdAmount: isHighRisk ? txn.amount : 0,
+              totalAmount: txnAmount,
+              holdAmount: isHighRisk ? txnAmount : 0,
               releasedAmount: 0,
               status: isHighRisk ? "HELD" : "UNSETTLED",
             }
@@ -163,17 +224,17 @@ export class MatchingEngine {
       });
 
       if (!matchResult) {
-        await logApi("WARNING", "No matching intent for note", undefined, { txnId: txn.externalId, note: txn.note });
+        await logApi("WARNING", "No matching intent for transaction", undefined, { txnId: txn.externalId, note: txn.note, amount: txnAmount });
         return true;
       }
 
       const intent = matchResult;
-      console.log(`[MatchingEngine] MATCH! Intent ${intent.id} ← Txn ${txn.externalId}`);
+      console.log(`[MatchingEngine] ✅ MATCH! Intent ${intent.id} ← Txn ${txn.externalId} (₹${txnAmount})`);
 
       await logApi("INFO", "Payment matched and verified", intent.merchantId, {
         intentId: intent.id,
         txnId: newTxn.externalId,
-        amount: txn.amount,
+        amount: txnAmount,
         payer: txn.payerName,
       });
 
@@ -187,7 +248,7 @@ export class MatchingEngine {
             where: { upiId: usedUpi, merchantId: intent.merchantId }
           });
           if (gpayAccount) {
-            await GatewayRouter.recordUsage(gpayAccount.id, txn.amount);
+            await GatewayRouter.recordUsage(gpayAccount.id, txnAmount);
           }
         }
       }
@@ -195,7 +256,7 @@ export class MatchingEngine {
       // ── SaaS: Trigger Notifications ──────────────────────────────────
       NotificationService.notifyTransactionSuccess(
         intent.merchantId,
-        txn.amount,
+        txnAmount,
         intent.referenceId,
         newTxn.utr || undefined
       ).catch(e => console.error("[NOTIFY_ERR]", e.message));
@@ -206,7 +267,7 @@ export class MatchingEngine {
           event: "payment.success",
           status: "SUCCESS",
           order_id: intent.referenceId,
-          amount: txn.amount,
+          amount: txnAmount,
           utr: newTxn.utr,
           payer_name: txn.payerName,
           payer_upi: txn.payerUpiId || null,

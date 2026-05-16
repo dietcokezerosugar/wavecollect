@@ -157,6 +157,11 @@ app.post('/api/control/interact', async (req, res) => {
 });
 
 function normalizeFromXHR(trx) {
+    // Ensure note is always a clean string (parser now handles array/nested extraction)
+    let note = trx.note;
+    if (typeof note === 'string') note = note.trim();
+    if (note === '' || note === 'null' || note === 'undefined') note = null;
+    
     return {
         externalId: trx.merchantTransactionId || '',
         utr: trx.utr || null,
@@ -164,14 +169,14 @@ function normalizeFromXHR(trx) {
         amount: parseFloat(trx.amount) || 0,
         payerUpiId: trx.payerUpiId || null,
         timestamp: trx.timestamp || new Date().toISOString(),
-        note: trx.note || null
+        note: note
     };
 }
 
 async function syncToHub(rows, engine) {
     if (!rows || rows.length === 0) return;
     try {
-        await axios.post(`${HUB_URL}/api/v1/report`, {
+        const res = await axios.post(`${HUB_URL}/api/v1/report`, {
             account: ACCOUNT_NAME,
             timestamp: new Date().toISOString(),
             transactions: rows
@@ -182,7 +187,8 @@ async function syncToHub(rows, engine) {
                 'x-bot-secret': BOT_SECRET
             }
         });
-        log(`[${engine}] Synced ${rows.length} rows → Hub`);
+        const newCount = res.data?.newCount || 0;
+        log(`[${engine}] Synced ${rows.length} rows → Hub (${newCount} new matches)`);
         webhookStats.success++;
         return true;
     } catch (e) {
@@ -214,19 +220,16 @@ async function processEngineA(payload) {
     if (newOnes.length > 0) {
         const exportRows = newOnes.map(trx => normalizeFromXHR(trx));
         
+        // DIAGNOSTIC: Log every new transaction with full details
+        for (const trx of exportRows) {
+            log(`[ENGINE-A] 📦 DETECTED: ₹${trx.amount} | payer="${trx.payerName}" | note="${trx.note || 'NULL'}" | utr=${trx.utr || 'NONE'} | id=${trx.externalId}`);
+        }
+        
         const success = await syncToHub(exportRows, 'ENGINE-A');
         if (success) {
             trackTransactions(newOnes); // Mark as known only after successful sync
             statsEngineA.captured += newOnes.length;
             statsEngineA.lastCapture = new Date().toISOString();
-            
-            if (newOnes.length < 5) {
-                for (const trx of newOnes) {
-                    log(`[ENGINE-A] ⚡ NEW: ₹${trx.amount} | ${trx.payerName} | ${trx.note}`);
-                }
-            } else {
-                log(`[ENGINE-A] ⚡ Captured ${newOnes.length} new transactions in this sweep.`);
-            }
         }
     } else if (isInitialLoad) {
         trackTransactions(payload);
