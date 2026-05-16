@@ -364,13 +364,8 @@ async function runDualPollingLoop() {
 
         log('[ENGINE-A] ⚡ XHR sweep complete');
         
-        // Engine-B: Run CSV download every 12 sweeps (~2 minutes at 10s intervals)
-        // This gives full coverage of ALL today's transactions as a completeness layer
-        const ENGINE_B_EVERY_N_SWEEPS = 12;
-        if (totalSweeps % ENGINE_B_EVERY_N_SWEEPS === 0) {
-            log('[ENGINE-B] 📄 Scheduled CSV reconciliation cycle...');
-            await runEngineB();
-        }
+        // Engine-B: Run CSV download every sweep for full transaction coverage
+        await runEngineB();
         
         setTimeout(runDualPollingLoop, (accountConfig.download_interval_sec || 10) * 1000);
     } catch(e) {
