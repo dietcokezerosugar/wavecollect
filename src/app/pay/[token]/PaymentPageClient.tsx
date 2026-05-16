@@ -235,29 +235,27 @@ export default function PaymentPageClient({
         {/* Dynamic Payment Options based on OS */}
         <div style={styles.paymentSection}>
           
-          {/* iOS OR Desktop -> Show QR Code and UPI Details */}
-          {(isIOS || isDesktop) && (
-            <div style={styles.qrSection}>
-              <p style={styles.instruction}>Scan QR with any UPI app</p>
-              <div style={styles.qrContainer}>
-                {qrData ? <img src={qrData} style={styles.qrImage} alt="QR Code" /> : <div style={styles.qrPlaceholder} />}
-              </div>
-              <div style={styles.upiContainer}>
-                <div style={styles.upiTextContainer}>
-                  <p style={styles.upiLabel}>UPI ID</p>
-                  <p style={styles.upiValue}>{merchantUpi}</p>
-                </div>
-                <button onClick={() => handleCopy(merchantUpi)} style={styles.copyButton}>
-                  {copied ? "Copied" : "Copy"}
-                </button>
-              </div>
+          {/* Always Show QR Code and UPI Details */}
+          <div style={styles.qrSection}>
+            <p style={styles.instruction}>Scan QR with any UPI app</p>
+            <div style={styles.qrContainer}>
+              {qrData ? <img src={qrData} style={styles.qrImage} alt="QR Code" /> : <div style={styles.qrPlaceholder} />}
             </div>
-          )}
+            <div style={styles.upiContainer}>
+              <div style={styles.upiTextContainer}>
+                <p style={styles.upiLabel}>UPI ID</p>
+                <p style={styles.upiValue}>{merchantUpi}</p>
+              </div>
+              <button onClick={() => handleCopy(merchantUpi)} style={styles.copyButton}>
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
+          </div>
 
-          {/* Android -> Show Deep Links (No GPay per request) */}
+          {/* Android -> Show Deep Links below QR (No GPay per request, No Other Apps) */}
           {isAndroid && (
-            <div style={styles.deepLinkSection}>
-              <p style={styles.instruction}>Select an app to pay</p>
+            <div style={{ ...styles.deepLinkSection, marginTop: 24, paddingTop: 24, borderTop: "1px solid #e2e8f0" }}>
+              <p style={styles.instruction}>Or pay directly using</p>
               <div style={styles.appGrid}>
                 <a href={phonepeIntent} style={styles.appButton}>
                   <PhonePeIcon />
@@ -267,18 +265,6 @@ export default function PaymentPageClient({
                   <PaytmIcon />
                   <span style={styles.appName}>Paytm</span>
                 </a>
-              </div>
-              <a href={upiDeepLink} style={styles.otherAppButton}>
-                <UpiIcon />
-                <span>Other UPI Apps</span>
-              </a>
-              
-              {/* Optional: Add a 'Show QR' toggle if they want to scan from another device */}
-              <div style={{ marginTop: 24, padding: "20px 0", borderTop: "1px solid #e2e8f0" }}>
-                 <p style={{...styles.instruction, fontSize: 13, marginBottom: 12}}>Or scan from another device</p>
-                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                   {qrData && <img src={qrData} style={{ width: 140, height: 140, borderRadius: 8, border: '1px solid #e2e8f0' }} alt="QR Code" />}
-                 </div>
               </div>
             </div>
           )}
