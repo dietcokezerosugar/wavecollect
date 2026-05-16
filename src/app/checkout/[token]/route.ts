@@ -38,7 +38,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
 
   // BloomxHub intents
   const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${referenceId}&tr=${referenceId}&mc=4722&&sign=AAuN7izDWN5cb8A5scnUiNME%2BLkZqI2DWgkXlN1McoP6WZABa%2FKkFTiLvuPRP6%2FnWK8BPg%2FrPhb%2Bu4QMrUEX10UsANTDbJaALcSM9b8Wk218X%2B55T%2FzOzb7xoiB%2BBcX8yYuYayELImXJHIgL%2Fc7nkAnHrwUCmbM97nRbCVVRvU0ku3Tr&featuretype=money_transfer`;
-  const gpayIntent = `tez://upi/pay?pa=${encodeURIComponent(merchantUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amount.toFixed(2)}&tid=${encodeURIComponent(referenceId)}&tr=${encodeURIComponent(referenceId)}&tn=${encodeURIComponent(referenceId)}&cu=INR`;
+  const gpayIntent = `tez://upi/pay?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&tid=${referenceId}&tr=${referenceId}&tn=${referenceId}&cu=INR`;
 
   // PhonePe intent — BloomxHub-exact: Base64-encoded JSON payload
   const phonepePayload = JSON.stringify({

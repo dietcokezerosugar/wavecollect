@@ -153,7 +153,7 @@ export default function PaymentPageClient({
   const phonepeBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(phonepeData))));
   const phonepeIntent = `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
 
-  const gpayIntent = `tez://upi/pay?pa=${encodeURIComponent(merchantUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amount.toFixed(2)}&tid=${encodeURIComponent(referenceId)}&tr=${encodeURIComponent(referenceId)}&tn=${encodeURIComponent("Pay " + referenceId)}&cu=INR`;
+  const gpayIntent = `tez://upi/pay?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&tid=${referenceId}&tr=${referenceId}&tn=${referenceId}&cu=INR`;
 
   const progressPct = (timeLeft / (expireAt ? Math.max(getInitialTimeLeft(), 1) : 600)) * 100;
 
