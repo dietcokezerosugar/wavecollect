@@ -55,6 +55,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Pay ₹${amount} | ${merchantName}</title>
+<script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background-color:#f4f4f5;display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:20px;color:#18181b}
@@ -156,8 +157,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 </div>
 
 <div id="successView" class="status-card">
-  <div class="status-icon success">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  <div class="status-icon success" style="background:transparent; width:120px; height:120px;">
+    <dotlottie-player src="/Success.lottie" background="transparent" speed="1" style="width: 120px; height: 120px;" autoplay></dotlottie-player>
   </div>
   <h2 class="status-heading">Payment Successful</h2>
   <p class="status-subtext">Your payment of <strong>₹${amount.toLocaleString()}</strong> to ${merchantName} was successful.</p>
