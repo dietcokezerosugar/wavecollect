@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   
   const intent = await prisma.paymentIntent.findUnique({
     where: { paymentToken: token },
-    include: { merchant: true },
+    include: { merchant: true, transaction: true },
   });
 
   if (!intent) {
@@ -26,6 +26,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   
   const status = intent.status;
   const expireAt = intent.expireAt ? intent.expireAt.toISOString() : "";
+  const payerName = intent.payerName || intent.transaction?.payerName || "";
+  const utr = intent.transaction?.utr || "";
+
+  // Build redirect URL if successful
+  const redirectUrl = intent.status === "SUCCESS" ? (intent.redirectUrl || intent.merchant.redirectUrl || "") : "";
 
   // Extract UPI ID
   const upiMatch = upiDeepLink.match(/pa=([^&]+)/);
@@ -94,6 +99,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
 .status-title{font-size:28px;font-weight:700;margin-bottom:12px;color:var(--slate-900)}
 .status-desc{font-size:16px;color:var(--slate-500);max-width:400px;line-height:1.6}
 
+/* Details Box for Success */
+.details-box { background: var(--slate-50); border: 1px solid var(--slate-100); border-radius: 12px; padding: 20px; width: 100%; max-width: 320px; margin: 24px 0; }
+.detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; }
+.detail-row:last-child { margin-bottom: 0; }
+.detail-label { color: var(--slate-500); font-weight: 500; }
+.detail-value { color: var(--slate-900); font-weight: 700; }
+
 /* Animated Success Checkmark */
 .checkmark-wrap{width:120px;height:120px;position:relative}
 .checkmark-circle{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);position:relative;animation:popIn .5s cubic-bezier(.17,.67,.34,1.3) forwards;transform:scale(0)}
@@ -129,7 +141,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
 </head>
 <body>
 
-<div id="mainView" class="checkout-container">
+<div id="mainView" class="checkout-container" style="${status !== 'PENDING' ? 'display:none' : ''}">
   <!-- Desktop Summary -->
   <div class="summary-panel">
     <div class="panel-content">
@@ -194,7 +206,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
   </div>
 </div>
 
-<div id="successView">
+<div id="successView" style="${status === 'SUCCESS' ? 'display:flex' : ''}">
   <div class="status-icon">
     <div class="checkmark-wrap">
       <div class="checkmark-circle">
@@ -204,10 +216,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
     </div>
   </div>
   <h2 class="status-title">Payment successful</h2>
-  <p class="status-desc">Your payment of <strong>₹${amount.toLocaleString()}</strong> has been verified. You will be redirected back shortly.</p>
+  <p class="status-desc">Your payment of <strong>₹${amount.toLocaleString()}</strong> to ${merchantName} has been verified.</p>
+  
+  <div class="details-box">
+    <div class="detail-row">
+      <span class="detail-label">Paid by</span>
+      <span class="detail-value" id="payerName">${payerName || 'Verified User'}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Reference (UTR)</span>
+      <span class="detail-value" id="utrVal">${utr || 'Verified'}</span>
+    </div>
+  </div>
+  
+  <p style="font-size:14px;color:var(--slate-500);margin-top:24px">Redirecting back to merchant...</p>
 </div>
 
-<div id="expiredView">
+<div id="expiredView" style="${status === 'EXPIRED' ? 'display:flex' : ''}">
   <div class="status-icon">
     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
   </div>
@@ -220,9 +245,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
 var TOKEN = "${token}";
 var STATUS = "${status}";
 var EXPIRE_AT = "${expireAt}";
+var REDIRECT_URL = "${redirectUrl}";
 var TOTAL_SECS = 600;
 var timeLeft = TOTAL_SECS;
-var isResolved = false;
+var isResolved = STATUS !== "PENDING"; 
 var timerInterval = null;
 var pollInterval = null;
 
@@ -234,7 +260,7 @@ if (isAndroid) {
 }
 
 // Timer setup
-if (EXPIRE_AT) {
+if (EXPIRE_AT && !isResolved) {
   var diff = new Date(EXPIRE_AT).getTime() - Date.now();
   timeLeft = diff > 0 ? Math.floor(diff / 1000) : 0;
 }
@@ -254,9 +280,18 @@ function updateTimer() {
   el.textContent = m + ":" + (s < 10 ? "0" + s : s);
 }
 
+function copyUpi(btn) {
+  var text = document.getElementById("upiValue").innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.innerText = "Copied";
+    setTimeout(function(){ btn.innerText = "Copy"; }, 2000);
+  });
+}
+
 function showSuccess(data) {
-  if (isResolved) return;
+  if (isResolved && STATUS !== "SUCCESS") { /* Already resolved to something else */ }
   isResolved = true;
+  
   if (timerInterval) clearInterval(timerInterval);
   if (pollInterval) clearInterval(pollInterval);
   
@@ -264,8 +299,14 @@ function showSuccess(data) {
   document.getElementById("expiredView").style.display = "none";
   document.getElementById("successView").style.display = "flex";
   
-  if (data && data.redirect_url) {
-    setTimeout(function(){ window.location.href = data.redirect_url; }, 5000);
+  if (data) {
+    if (data.payer_name) document.getElementById("payerName").innerText = data.payer_name;
+    if (data.utr) document.getElementById("utrVal").innerText = data.utr;
+    if (data.redirect_url) REDIRECT_URL = data.redirect_url;
+  }
+
+  if (REDIRECT_URL) {
+    setTimeout(function(){ window.location.href = REDIRECT_URL; }, 5000);
   }
 }
 

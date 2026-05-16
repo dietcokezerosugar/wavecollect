@@ -15,6 +15,7 @@ export interface PaymentIntentOptions {
   apiKey: string;
   redirectUrl?: string;
   ip?: string;         // IP for whitelisting check
+  metadata?: any;
 }
 
 export class PaymentEngine {
@@ -22,7 +23,7 @@ export class PaymentEngine {
    * Create a payment intent — ported from BloomXHub create_order.php
    */
   static async createIntent(options: PaymentIntentOptions) {
-    const { amount, orderId, customerMobile, customerEmail, apiKey, redirectUrl, ip } = options;
+    const { amount, orderId, customerMobile, customerEmail, apiKey, redirectUrl, ip, metadata } = options;
 
     // ── 1. Validate API Key ──────────────────────────────────────────
     const keyData = await prisma.apiKey.findUnique({
@@ -131,6 +132,7 @@ export class PaymentEngine {
           upiDeepLink,
           paymentToken,
           expireAt,
+          metadata: metadata || {},
         },
       });
 

@@ -26,13 +26,17 @@ export class MatchingEngine {
     const txnAmount = Number(txn.amount);
     console.log(`[MatchingEngine] Processing txn: ${txn.externalId} amount=₹${txnAmount} note="${txn.note || 'NULL'}" utr=${txn.utr || 'NULL'}`);
 
+    // Normalize IDs to prevent casing/whitespace issues
+    const cleanExternalId = txn.externalId.trim().toUpperCase();
+    const cleanUtr = txn.utr?.trim().toUpperCase() || null;
+
     // ── 1. Save the transaction (Idempotent) ─────────────────────────
     let newTxn;
     try {
       newTxn = await prisma.transaction.create({
         data: {
-          externalId: txn.externalId,
-          utr: txn.utr || null,
+          externalId: cleanExternalId,
+          utr: cleanUtr,
           amount: txnAmount,
           payerName: txn.payerName || null,
           payerUpiId: txn.payerUpiId || null,
@@ -294,6 +298,7 @@ export class MatchingEngine {
           utr: newTxn.utr,
           payer_name: txn.payerName,
           payer_upi: txn.payerUpiId || null,
+          metadata: (intent as any).metadata || {},
           timestamp: new Date().toISOString(),
         }).catch(e => console.error("[WEBHOOK_QUEUE_ERR]", e.message));
       }

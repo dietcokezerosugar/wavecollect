@@ -161,10 +161,28 @@ model PaymentIntent {
   isManualApproval Boolean     @default(false)
   approvalIp       String?     
   
+  // SaaS: Stripe-Level Features
+  metadata         Json?       // Custom merchant data
+  errorCode        String?     // Standardized error code
+  errorMessage     String?     // Human readable error
+  
   isRecharge       Boolean     @default(false)
   createdAt        DateTime    @default(now())
   expireAt         DateTime?
   updatedAt        DateTime    @updatedAt
+}
+
+model IdempotencyKey {
+  id             String   @id @default(cuid())
+  key            String   @unique
+  merchantId     String
+  requestPath    String
+  responseStatus Int
+  responseBody   String   // JSON string
+  createdAt      DateTime @default(now())
+  expiresAt      DateTime
+
+  @@unique([merchantId, key])
 }
 
 model Transaction {
@@ -245,6 +263,8 @@ model GooglePayAccount {
   allocationStatus      String     @default("UNASSIGNED")         // UNASSIGNED, ASSIGNED, PAUSED, EXHAUSTED
   allocatedAt           DateTime?
   allocatedBy           String?    // Staff/Admin user ID who allocated
+  
+  lastResetDate         String?    // YYYY-MM-DD format for lazy daily reset
   
   createdAt      DateTime  @default(now())
 }

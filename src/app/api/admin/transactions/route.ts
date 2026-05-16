@@ -44,22 +44,37 @@ export async function POST(req: NextRequest) {
 
     // 2. If marking SUCCESS, ensure a Transaction record exists and link it
     if (status === "SUCCESS" && utr) {
-      const txn = await prisma.transaction.upsert({
-        where: { externalId: `MANUAL-${id}` },
-        update: { utr, amount: updatedIntent.amount, note: note || "Manual Admin Override" },
-        create: { 
-          externalId: `MANUAL-${id}`, 
-          utr, 
-          amount: updatedIntent.amount,
-          note: note || "Manual Admin Override"
-        }
+      const cleanUtr = utr.trim().toUpperCase();
+      
+      // Check for existing transaction with this UTR (e.g. from CSV engine)
+      let txn = await prisma.transaction.findFirst({
+        where: { utr: cleanUtr }
       });
 
-      // Link back and debit fee
-      await prisma.paymentIntent.update({
-        where: { id },
-        data: { transactionId: txn.id }
-      });
+      if (txn) {
+        // Link existing
+        await prisma.paymentIntent.update({
+          where: { id },
+          data: { transactionId: txn.id }
+        });
+      } else {
+        // Create manual
+        txn = await prisma.transaction.create({
+          data: { 
+            externalId: `ADMIN-MANUAL-${cleanUtr}-${id}`, 
+            utr: cleanUtr, 
+            amount: updatedIntent.amount,
+            note: note || "Manual Admin Override"
+          }
+        });
+
+        await prisma.paymentIntent.update({
+          where: { id },
+          data: { transactionId: txn.id }
+        });
+      }
+
+      const finalUtr = cleanUtr;
 
       // SaaS Billing: Deduct fee for manual success
       const fee = (Number(updatedIntent.amount) * (Number(updatedIntent.merchant.commissionRate) || 0)) / 100;
@@ -83,7 +98,7 @@ export async function POST(req: NextRequest) {
           amount: Number(updatedIntent.amount),
           txn_id: updatedIntent.id,
           reference_id: updatedIntent.referenceId,
-          utr: utr,
+          utr: finalUtr,
           timestamp: new Date().toISOString()
         }).catch((err: any) => console.error("[ManualWebhook] Failed:", err.message));
       }

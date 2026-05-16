@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const statusFilter = searchParams.get("status");
-    const search = searchParams.get("search");
+    const search = searchParams.get("search")?.trim();
 
     const where: any = { merchantId };
     if (statusFilter && statusFilter !== "ALL") {
@@ -27,9 +27,9 @@ export async function GET(req: NextRequest) {
     }
     if (search) {
       where.OR = [
-        { referenceId: { contains: search } },
-        { payerName: { contains: search } },
-        { transaction: { utr: { contains: search } } },
+        { referenceId: { contains: search, mode: 'insensitive' } },
+        { payerName: { contains: search, mode: 'insensitive' } },
+        { transaction: { utr: { contains: search, mode: 'insensitive' } } },
       ];
     }
 
@@ -68,7 +68,8 @@ export async function POST(req: NextRequest) {
     const merchant = await prisma.merchant.findUnique({ where: { id: merchantId } });
     if (!merchant) return NextResponse.json({ error: "No merchant found" }, { status: 404 });
 
-    const { id, status, utr, note } = await req.json();
+    const { id, status, utr: rawUtr, note } = await req.json();
+    const utr = rawUtr?.trim().toUpperCase();
 
     if (!id || !status) {
       return NextResponse.json({ error: "id and status are required" }, { status: 400 });
@@ -93,22 +94,31 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // If marking SUCCESS, create/update Transaction record
+    // If marking SUCCESS, create/link Transaction record
     if (status === "SUCCESS" && utr) {
-      await prisma.transaction.upsert({
-        where: { externalId: `MERCHANT-MANUAL-${id}` },
-        update: { utr, amount: updatedIntent.amount, note: note || "Merchant Manual Approval" },
-        create: {
-          externalId: `MERCHANT-MANUAL-${id}`,
-          utr,
-          amount: updatedIntent.amount,
-          note: note || "Merchant Manual Approval",
-        },
+      // 1. Check if a transaction with this UTR already exists (e.g. from CSV)
+      let txn = await prisma.transaction.findFirst({
+        where: { utr }
       });
 
-      // Link transaction to intent
-      const txn = await prisma.transaction.findUnique({ where: { externalId: `MERCHANT-MANUAL-${id}` } });
       if (txn) {
+        // Link existing txn
+        await prisma.paymentIntent.update({
+          where: { id },
+          data: { transactionId: txn.id }
+        });
+      } else {
+        // 2. Create new transaction with a predictable ID that CSV engine can respect
+        // We use MANUAL-{utr} to ensure that if someone uploads a CSV with the same UTR, we don't duplicate
+        txn = await prisma.transaction.create({
+          data: {
+            externalId: `MANUAL-${utr}-${id}`,
+            utr,
+            amount: updatedIntent.amount,
+            note: note || "Merchant Manual Approval",
+          }
+        });
+
         await prisma.paymentIntent.update({
           where: { id },
           data: { transactionId: txn.id },
@@ -120,8 +130,8 @@ export async function POST(req: NextRequest) {
     if (status === "SUCCESS") {
       // 1. Webhook
       if (merchant.webhookUrl) {
-        const { WebhookService } = await import("@/services/notifications/WebhookService");
-        WebhookService.dispatch(merchantId, merchant.webhookUrl, {
+        const { WebhookService } = await import("@/services/webhook/WebhookService");
+        WebhookService.queueEvent(merchantId, "payment.success", {
           event: "payment.success",
           status: "SUCCESS",
           amount: Number(intent.amount),

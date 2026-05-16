@@ -2,18 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { PaymentEngine } from "@/services/payment-engine/PaymentEngine";
 import { logApi } from "@/lib/log";
 import { prisma } from "@/lib/prisma";
+import { IdempotencyService } from "@/services/routing/IdempotencyService";
 
 // Simple in-memory rate limiter
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
 const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 30; // 30 requests per minute per IP
+const MAX_REQUESTS_PER_WINDOW = 60; // 60 requests per minute per merchant
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") || "unknown";
   
-  // --- RATE LIMITING ---
+  // --- RATE LIMITING (Per Merchant/API Key) ---
+  const authHeader = req.headers.get("Authorization");
+  const apiKey = authHeader?.replace("Bearer ", "") || ip;
+  
   const currentTime = Date.now();
-  const rateLimitData = rateLimitMap.get(ip) || { count: 0, timestamp: currentTime };
+  const rateLimitData = rateLimitMap.get(apiKey) || { count: 0, timestamp: currentTime };
 
   if (currentTime - rateLimitData.timestamp > RATE_LIMIT_WINDOW_MS) {
     rateLimitData.count = 1;
@@ -21,98 +25,77 @@ export async function POST(req: NextRequest) {
   } else {
     rateLimitData.count++;
   }
-  rateLimitMap.set(ip, rateLimitData);
+  rateLimitMap.set(apiKey, rateLimitData);
 
   if (rateLimitData.count > MAX_REQUESTS_PER_WINDOW) {
-    await logApi("WARNING", "Rate Limit Exceeded", undefined, { ip });
+    await logApi("WARNING", "Rate Limit Exceeded", undefined, { apiKey: apiKey.substring(0, 8), ip });
     return NextResponse.json({ 
       status: "failure", 
       error: "RATE_LIMIT_EXCEEDED",
-      message: "Too many requests. Please try again later." 
+      message: "Too many requests from this merchant. Limit is 60/min." 
     }, { status: 429 });
   }
-  // -----------------------
+  // ---------------------------------------------
 
   try {
     const authHeader = req.headers.get("Authorization");
+    const idempotencyKey = req.headers.get("Idempotency-Key");
+
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      await logApi("WARNING", "Handshake Denied: Missing Authorization Header", undefined, { ip });
       return NextResponse.json({ 
-        status: "failure", 
-        error: "AUTHENTICATION_FAILED",
-        message: "Missing or invalid API key in Authorization header." 
+        error: {
+          type: "invalid_request_error",
+          code: "authentication_failed",
+          message: "Missing or invalid API key in Authorization header."
+        }
       }, { status: 401 });
     }
 
     const apiKey = authHeader.replace("Bearer ", "");
+    const apiKeyRecord = await prisma.apiKey.findUnique({ where: { key: apiKey } });
     
+    if (!apiKeyRecord) {
+      return NextResponse.json({ 
+        error: {
+          type: "invalid_request_error",
+          code: "api_key_invalid",
+          message: "The provided API key is invalid."
+        }
+      }, { status: 401 });
+    }
+
+    // --- IDEMPOTENCY CHECK ---
+    if (idempotencyKey) {
+      const cached = await IdempotencyService.getCachedResponse(apiKeyRecord.merchantId, idempotencyKey, "/api/v1/create-intent");
+      if (cached) return cached;
+    }
+
     // Parse and validate body
     let body;
     try {
       body = await req.json();
     } catch (e) {
-      await logApi("ERROR", "Protocol Violation: Invalid JSON Payload", undefined, { ip });
       return NextResponse.json({ 
-        status: "failure", 
-        error: "INVALID_JSON",
-        message: "Request body must be valid JSON." 
+        error: {
+          type: "invalid_request_error",
+          code: "invalid_json",
+          message: "Request body must be valid JSON."
+        }
       }, { status: 400 });
     }
 
-    const { amount, order_id, customer_mobile, customer_email, customer_ip, customer_device_id, redirect_url } = body;
+    const { amount, order_id, customer_mobile, customer_email, customer_ip, customer_device_id, redirect_url, metadata } = body;
 
     // Strict validation
     if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
       return NextResponse.json({ 
-        status: "failure", 
-        error: "INVALID_AMOUNT",
-        message: "Amount is required and must be a positive number greater than zero." 
+        error: {
+          type: "invalid_request_error",
+          code: "parameter_missing",
+          message: "Amount is required and must be a positive number.",
+          param: "amount"
+        }
       }, { status: 400 });
-    }
-
-    const MAX_TRANSACTION_LIMIT = 1000000; // ₹10,00,000
-    if (parseFloat(amount) > MAX_TRANSACTION_LIMIT) {
-      return NextResponse.json({ 
-        status: "failure", 
-        error: "AMOUNT_EXCEEDS_LIMIT",
-        message: `Amount cannot exceed ₹${MAX_TRANSACTION_LIMIT.toLocaleString()}.` 
-      }, { status: 400 });
-    }
-
-    if (!order_id || String(order_id).length < 3) {
-      return NextResponse.json({ 
-        status: "failure", 
-        error: "INVALID_ORDER_ID",
-        message: "order_id is required and must be at least 3 characters." 
-      }, { status: 400 });
-    }
-
-    // --- IDEMPOTENCY CHECK ---
-    // Prevent duplicate intents for the same order_id from the same merchant
-    const existingIntent = await prisma.paymentIntent.findFirst({
-      where: {
-        referenceId: String(order_id),
-        merchant: { apiKeys: { some: { key: apiKey } } }
-      }
-    });
-
-    if (existingIntent) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-      return NextResponse.json({
-        status: "success",
-        data: {
-          id: existingIntent.id,
-          amount: Number(existingIntent.amount),
-          order_id: existingIntent.referenceId,
-          status: existingIntent.status,
-          checkout_url: `${appUrl}/pay/${existingIntent.paymentToken}`,
-          payment_token: existingIntent.paymentToken,
-          upi_link: existingIntent.upiDeepLink,
-          qr_data: existingIntent.qrData,
-          expire_at: existingIntent.expireAt,
-        },
-        message: "Returned existing payment intent."
-      });
     }
 
     const intent = await PaymentEngine.createIntent({
@@ -125,59 +108,44 @@ export async function POST(req: NextRequest) {
       apiKey,
       redirectUrl: redirect_url,
       ip: ip,
+      metadata: metadata || {},
     });
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-
-    await logApi("SUCCESS", "Protocol Handshake: Intent Created", intent.merchantId, {
-      intentId: intent.id,
-      orderId: intent.referenceId,
+    const responseData = {
+      id: intent.id,
+      object: "payment_intent",
       amount: intent.amount,
-      ip
-    });
-
-    return NextResponse.json({
-      status: "success",
-      data: {
-        id: intent.id,
-        amount: intent.amount,
-        order_id: intent.referenceId,
-        status: intent.status,
-        checkout_url: `${appUrl}/pay/${intent.paymentToken}`,
-        payment_token: intent.paymentToken,
-        upi_link: intent.upiDeepLink,
-        qr_data: intent.qrData,
-        expire_at: intent.expireAt,
-      },
-    });
-
-  } catch (error: any) {
-    await logApi("ERROR", "Protocol Exception: Request Failed", undefined, { 
-      error: error.message,
-      ip
-    });
-    
-    // Map internal errors to HTTP statuses
-    const errorMap: Record<string, number> = {
-      "Invalid API Key": 401,
-      "Order ID already exists": 409,
-      "Insufficient merchant wallet balance": 402,
-      "API Key monthly limit reached": 403,
-      "ROUTING_ERROR": 503
+      currency: "INR",
+      status: intent.status,
+      order_id: intent.referenceId,
+      checkout_url: `${appUrl}/pay/${intent.paymentToken}`,
+      payment_token: intent.paymentToken,
+      upi_link: intent.upiDeepLink,
+      qr_data: intent.qrData,
+      metadata: (intent as any).metadata,
+      created: Math.floor(intent.createdAt.getTime() / 1000),
     };
 
-    let statusCode = 400;
-    for (const [key, code] of Object.entries(errorMap)) {
-      if (error.message.includes(key)) {
-        statusCode = code;
-        break;
-      }
+    // Save to idempotency cache if key was provided
+    if (idempotencyKey) {
+      await IdempotencyService.saveResponse(apiKeyRecord.merchantId, idempotencyKey, "/api/v1/create-intent", 200, responseData);
     }
 
-    return NextResponse.json({ 
-      status: "failure", 
-      error: statusCode === 503 ? "SERVICE_UNAVAILABLE" : "REQUEST_FAILED",
-      message: error.message 
-    }, { status: statusCode });
+    return NextResponse.json(responseData);
+
+  } catch (error: any) {
+    console.error("[CreateIntent] Error:", error.message);
+    
+    const statusCode = error.message.includes("ROUTING_ERROR") ? 503 : 400;
+    const errorResponse = { 
+      error: {
+        type: statusCode === 503 ? "api_error" : "invalid_request_error",
+        code: statusCode === 503 ? "service_unavailable" : "request_failed",
+        message: error.message 
+      }
+    };
+
+    return NextResponse.json(errorResponse, { status: statusCode });
   }
 }

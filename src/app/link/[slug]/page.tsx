@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { PaymentEngine } from "@/services/payment-engine/PaymentEngine";
 import { Zap } from "lucide-react";
 import Image from "next/image";
@@ -13,6 +14,22 @@ export default async function PaymentLinkPage({ params }: { params: Promise<{ sl
 
   if (!link || !link.isActive) {
     notFound();
+  }
+
+  // Check if this user has already paid for this link recently (via cookie)
+  const cookieStore = await cookies();
+  const lastToken = cookieStore.get(`last_intent_${link.slug}`)?.value;
+  
+  if (lastToken) {
+    const lastIntent = await prisma.paymentIntent.findUnique({
+      where: { paymentToken: lastToken },
+      select: { status: true, paymentToken: true }
+    });
+    
+    // If they already paid, don't ask for money again, just show success
+    if (lastIntent?.status === "SUCCESS") {
+      redirect(`/checkout/${lastIntent.paymentToken}`);
+    }
   }
 
   // Create a payment intent for this link
@@ -37,6 +54,16 @@ export default async function PaymentLinkPage({ params }: { params: Promise<{ sl
       orderId,
       apiKey: apiKey.key,
     });
+    
+    // Store this intent token in a cookie so we can track success persistence
+    if (intent.paymentToken) {
+      cookieStore.set(`last_intent_${link.slug}`, intent.paymentToken, {
+        maxAge: 60 * 60 * 24, // 24 hours
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax"
+      });
+    }
   } catch (error: any) {
     console.error("DEBUG: Payment Link Failed:", error.message || error);
     return (

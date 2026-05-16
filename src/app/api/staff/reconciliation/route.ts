@@ -102,8 +102,8 @@ function extractTxnFromRow(row: Record<string, string>) {
   return {
     amount,
     note: note.trim(),
-    utr: utr.trim(),
-    externalId: externalId.trim(),
+    utr: utr.trim().toUpperCase(),
+    externalId: externalId.trim().toUpperCase(),
     payerName: payerName.trim(),
     payerUpiId: payerUpiId.trim(),
     timestamp: timestamp.trim(),

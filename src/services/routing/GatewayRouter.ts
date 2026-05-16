@@ -44,11 +44,30 @@ export class GatewayRouter {
       baseWhere.accountType = "MERCHANT_OWNED";
     }
 
+    const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
     const allAccounts = await prisma.googlePayAccount.findMany({
       where: baseWhere,
     });
 
     if (allAccounts.length === 0) return null;
+
+    // 2b. Lazy Daily Reset: if today's date != lastResetDate, reset account on-the-fly
+    for (const acc of allAccounts) {
+      if (acc.lastResetDate !== todayStr) {
+        await prisma.googlePayAccount.update({
+          where: { id: acc.id },
+          data: {
+            currentDaily: 0,
+            lastResetDate: todayStr,
+            // We keep weekly/monthly as they are reset on their own cycle or manually for now
+          }
+        });
+        // Update local object to reflect the reset for the filtering below
+        (acc as any).currentDaily = 0;
+        acc.lastResetDate = todayStr;
+      }
+    }
 
     // 3. Filter by Hard Limits (100 txns OR daily/weekly/monthly limits)
     const validAccounts = allAccounts.filter((acc) => {

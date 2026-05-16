@@ -37,7 +37,33 @@ curl -X POST https://wavecollect.com/api/v1/create-intent \
 
 ---
 
-## 3. Webhook Integration
+## 3. Advanced Features (Stripe-Level)
+
+### Idempotency Keys
+To safely retry requests without creating duplicate payments, include the `Idempotency-Key` header.
+*   **Header:** `Idempotency-Key: <unique_string>`
+*   **Retention:** Responses are cached for 24 hours.
+
+### Metadata
+You can store custom key-value pairs (up to 20 keys) on any payment intent. These are returned in status checks and webhooks.
+```json
+{
+  "amount": 500,
+  "order_id": "ORD-99",
+  "metadata": {
+    "customer_loyalty_id": "VIP-123",
+    "internal_dept": "Marketing"
+  }
+}
+```
+
+### Events API
+Audit your notification history or replay missed webhooks.
+**Endpoint:** `GET /api/v1/events?limit=10`
+
+---
+
+## 4. Webhook Integration
 When a payment is successful, WaveCollect will send a POST request to your configured Webhook URL.
 
 ### Security (HMAC Verification)
@@ -50,12 +76,33 @@ Every webhook includes a signature to prevent spoofing. You must verify this usi
 ### Sample Webhook Payload
 ```json
 {
-  "event": "payment.success",
-  "status": "SUCCESS",
-  "order_id": "ORDER_12345",
-  "amount": 250.00,
-  "utr": "412345678901",
-  "timestamp": "2026-05-16T14:30:00Z"
+  "id": "evt_123",
+  "object": "event",
+  "type": "payment.success",
+  "data": {
+    "id": "pi_123",
+    "status": "SUCCESS",
+    "order_id": "ORDER_12345",
+    "amount": 250.00,
+    "metadata": { "dept": "sales" },
+    "utr": "412345678901"
+  }
+}
+```
+
+---
+
+## 5. Standardized Error Objects
+Our API uses standardized error codes and types for easier debugging.
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "parameter_missing",
+    "message": "amount is required.",
+    "param": "amount"
+  }
 }
 ```
 

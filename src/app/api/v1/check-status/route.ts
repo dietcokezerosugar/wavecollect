@@ -8,9 +8,11 @@ async function getStatus(req: NextRequest) {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ 
-        status: "failure", 
-        error: "AUTHENTICATION_FAILED",
-        message: "Missing API key" 
+        error: {
+          type: "invalid_request_error",
+          code: "authentication_failed",
+          message: "Missing or invalid API key"
+        }
       }, { status: 401 });
     }
 
@@ -29,9 +31,12 @@ async function getStatus(req: NextRequest) {
 
     if (!order_id) {
       return NextResponse.json({ 
-        status: "failure", 
-        error: "MISSING_PARAMETER",
-        message: "order_id is required." 
+        error: {
+          type: "invalid_request_error",
+          code: "parameter_missing",
+          message: "order_id is required.",
+          param: "order_id"
+        }
       }, { status: 400 });
     }
 
@@ -39,9 +44,11 @@ async function getStatus(req: NextRequest) {
     const keyData = await prisma.apiKey.findUnique({ where: { key: apiKey } });
     if (!keyData) {
       return NextResponse.json({ 
-        status: "failure", 
-        error: "INVALID_API_KEY",
-        message: "The provided API key is invalid." 
+        error: {
+          type: "invalid_request_error",
+          code: "api_key_invalid",
+          message: "The provided API key is invalid."
+        }
       }, { status: 401 });
     }
 
@@ -49,9 +56,11 @@ async function getStatus(req: NextRequest) {
     const ip = req.headers.get("x-forwarded-for") || "unknown";
     if (!(await validateIpWhitelist(keyData.merchantId, ip))) {
        return NextResponse.json({ 
-         status: "failure", 
-         error: "SECURITY_ERROR",
-         message: `IP Address ${ip} is not authorized for this merchant.` 
+         error: {
+           type: "invalid_request_error",
+           code: "security_error",
+           message: `IP Address ${ip} is not authorized for this merchant.`
+         }
        }, { status: 403 });
     }
 
@@ -62,41 +71,41 @@ async function getStatus(req: NextRequest) {
 
     if (!intent || intent.merchantId !== keyData.merchantId) {
       return NextResponse.json({ 
-        status: "failure", 
-        error: "NOT_FOUND",
-        message: "Payment intent not found for this order_id." 
+        error: {
+          type: "invalid_request_error",
+          code: "resource_missing",
+          message: "No such payment intent exists for this order_id."
+        }
       }, { status: 404 });
     }
 
-    await logApi("INFO", "External API: Check Status", keyData.merchantId, { orderId: order_id, status: intent.status });
-
     return NextResponse.json({
-      status: "success",
-      data: {
-        order_id: intent.referenceId,
-        amount: intent.amount,
-        status: intent.status,
-        payer: {
-          name: intent.payerName || intent.transaction?.payerName || null,
-          upi: intent.payerUpiId || intent.transaction?.payerUpiId || null,
-        },
-        settlement: {
-          utr: intent.transaction?.utr || null,
-          txn_id: intent.transaction?.externalId || null,
-          timestamp: intent.transaction?.timestamp || null,
-        },
-        meta: {
-          created_at: intent.createdAt,
-          expire_at: intent.expireAt,
-        }
+      id: intent.id,
+      object: "payment_intent",
+      amount: Number(intent.amount),
+      currency: "INR",
+      status: intent.status,
+      order_id: intent.referenceId,
+      metadata: (intent as any).metadata || {},
+      payer: {
+        name: intent.payerName || intent.transaction?.payerName || null,
+        upi: intent.payerUpiId || intent.transaction?.payerUpiId || null,
       },
+      settlement: {
+        utr: intent.transaction?.utr || null,
+        txn_id: intent.transaction?.externalId || null,
+        timestamp: intent.transaction?.timestamp || null,
+      },
+      created: Math.floor(intent.createdAt.getTime() / 1000),
+      expire_at: intent.expireAt ? Math.floor(intent.expireAt.getTime() / 1000) : null,
     });
   } catch (error: any) {
-    await logApi("ERROR", "External API: Check Status Failure", undefined, { error: error.message });
     return NextResponse.json({ 
-      status: "failure", 
-      error: "INTERNAL_ERROR",
-      message: "An unexpected error occurred." 
+      error: {
+        type: "api_error",
+        code: "internal_error",
+        message: "An unexpected error occurred."
+      }
     }, { status: 500 });
   }
 }

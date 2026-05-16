@@ -3,667 +3,378 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
-  Book, 
   Terminal, 
-  Settings, 
-  CreditCard, 
-  Webhook as WebhookIcon, 
   Copy, 
   Check, 
-  Info, 
-  AlertCircle, 
   ChevronRight, 
   Search,
   Code,
-  Smartphone,
   Globe,
-  Database,
-  ExternalLink,
-  ShieldCheck,
   Zap,
-  ArrowRight,
   Activity,
   Menu,
   X,
   Shield,
-  FileText
+  FileText,
+  Key,
+  Database,
+  Webhook as WebhookIcon,
+  Server,
+  Lock,
+  ArrowRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// --- Components ---
+// --- Types ---
+type Language = 'CURL' | 'NODE' | 'PYTHON' | 'PHP';
 
-const SidebarLink = ({ id, label, icon: Icon, active, onClick }: any) => (
+// --- UI Components ---
+
+const SidebarLink = ({ id, label, active, onClick }: any) => (
   <button
     onClick={() => onClick(id)}
-    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ${
+    className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] transition-all ${
       active 
-        ? "bg-blue-50 text-blue-600 font-bold" 
-        : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-medium"
+        ? "bg-blue-600/10 text-blue-600 font-bold" 
+        : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 font-medium"
     }`}
   >
-    <Icon size={18} strokeWidth={active ? 2.5 : 2} />
     {label}
   </button>
 );
 
-const SectionHeading = ({ children, id }: any) => (
-  <h2 id={id} className="text-2xl font-bold text-slate-900 mt-12 mb-6 group flex items-center gap-2">
-    {children}
-    <a href={`#${id}`} className="opacity-0 group-hover:opacity-100 text-slate-400 transition-opacity">#</a>
-  </h2>
-);
-
-const SubHeading = ({ children, id }: any) => (
-  <h3 id={id} className="text-lg font-bold text-slate-800 mt-8 mb-4 group flex items-center gap-2">
-    {children}
-    <a href={`#${id}`} className="opacity-0 group-hover:opacity-100 text-slate-400 transition-opacity">#</a>
-  </h3>
-);
-
-const Callout = ({ type = "info", title, children }: any) => {
-  const styles: any = {
-    info: { bg: "bg-blue-50/50", border: "border-blue-100", text: "text-blue-900", icon: <Info className="text-blue-500" size={18} /> },
-    warning: { bg: "bg-amber-50/50", border: "border-amber-100", text: "text-amber-900", icon: <AlertCircle className="text-amber-500" size={18} /> },
-    success: { bg: "bg-emerald-50/50", border: "border-emerald-100", text: "text-emerald-900", icon: <Check className="text-emerald-500" size={18} /> }
-  };
-  const s = styles[type];
-  return (
-    <div className={`${s.bg} border ${s.border} rounded-md p-4 my-6 flex gap-3 shadow-sm`}>
-      <div className="mt-0.5">{s.icon}</div>
-      <div>
-        {title && <div className={`text-sm font-bold ${s.text} mb-1`}>{title}</div>}
-        <div className="text-sm leading-relaxed text-slate-600 font-medium">{children}</div>
-      </div>
-    </div>
-  );
-};
-
-const CodeBlock = ({ snippets }: any) => {
-  const [lang, setLang] = useState(Object.keys(snippets)[0] || "NODE");
+const CodeBlock = ({ snippets, activeLang, onLangChange }: { snippets: any, activeLang: Language, onLangChange: (l: Language) => void }) => {
   const [copied, setCopied] = useState(false);
 
   const copy = () => {
-    navigator.clipboard.writeText(snippets[lang]);
+    navigator.clipboard.writeText(snippets[activeLang]);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="rounded-md border border-slate-200 overflow-hidden my-6 bg-slate-950 shadow-xl">
-      <div className="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-white/10 backdrop-blur-md">
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide">
-          {Object.keys(snippets).map(l => (
+    <div className="rounded-xl overflow-hidden bg-[#0A0D14] border border-white/10 shadow-2xl">
+      <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/5">
+        <div className="flex gap-4">
+          {(Object.keys(snippets) as Language[]).map(l => (
             <button 
               key={l}
-              onClick={() => setLang(l)}
-              className={`text-[11px] font-black uppercase tracking-wider transition-all whitespace-nowrap py-1 ${
-                lang === l ? "text-blue-400" : "text-slate-500 hover:text-slate-300"
+              onClick={() => onLangChange(l)}
+              className={`text-[10px] font-bold uppercase tracking-widest transition-all py-1 ${
+                activeLang === l ? "text-blue-400 border-b border-blue-400" : "text-slate-500 hover:text-slate-300"
               }`}
             >
               {l}
             </button>
           ))}
         </div>
-        <button onClick={copy} className="text-slate-400 hover:text-white transition-colors p-1.5 bg-white/5 rounded-md active:scale-95">
+        <button onClick={copy} className="text-slate-500 hover:text-white transition-colors">
           {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
         </button>
       </div>
-      <div className="p-5 overflow-x-auto">
-        <pre className="text-[13px] font-mono leading-relaxed text-slate-300">
-          {snippets[lang]}
+      <div className="p-5 overflow-x-auto min-h-[200px]">
+        <pre className="text-[12px] font-mono leading-relaxed text-slate-300">
+          {snippets[activeLang]}
         </pre>
       </div>
     </div>
   );
 };
 
-const Table = ({ headers, rows }: any) => (
-  <div className="my-6 border border-slate-200 rounded-md overflow-x-auto shadow-sm">
-    <table className="w-full text-left border-collapse bg-white whitespace-nowrap md:whitespace-normal">
-      <thead className="bg-slate-50">
-        <tr>
-          {headers.map((h: any, i: number) => (
-            <th key={i} className="px-4 py-3.5 text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">{h}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-slate-100">
-        {rows.map((row: any, i: number) => (
-          <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-            {row.map((cell: any, j: number) => (
-              <td key={j} className="px-4 py-4 text-sm text-slate-600 align-top">
-                {cell}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+const ParameterTable = ({ params }: { params: any[] }) => (
+  <div className="my-8 border-t border-slate-100">
+    {params.map((p, i) => (
+      <div key={i} className="py-4 border-b border-slate-100 flex flex-col md:flex-row gap-2 md:gap-24">
+        <div className="w-48 shrink-0">
+          <code className="text-blue-600 font-bold text-[13px]">{p.name}</code>
+          <p className="text-[11px] text-slate-400 font-bold uppercase mt-1">{p.type} {p.required && <span className="text-rose-500">Required</span>}</p>
+        </div>
+        <div className="text-[13px] text-slate-600 leading-relaxed">
+          {p.desc}
+        </div>
+      </div>
+    ))}
   </div>
 );
 
-// --- Main Page ---
+// --- Content Data ---
+
+const API_DOCS = {
+  authentication: {
+    title: "Authentication",
+    desc: "Authenticate your requests by including your secret API key in the Authorization header.",
+    text: "The WaveCollect API uses API keys to authenticate requests. You can view and manage your API keys in the dashboard. Your API keys carry many privileges, so be sure to keep them secure! Do not share your secret API keys in publicly accessible areas such as GitHub, client-side code, and so forth.",
+    params: [
+      { name: "Authorization", type: "header", required: true, desc: "Bearer <your_api_key>" }
+    ],
+    snippets: {
+      CURL: `curl https://api.wavecollect.com/v1/create-intent \\
+  -H "Authorization: Bearer sk_live_xxx"`,
+      NODE: `const axios = require('axios');\n\nconst response = await axios.get('https://api.wavecollect.com/v1/me', {\n  headers: { 'Authorization': 'Bearer sk_live_xxx' }\n});`,
+      PYTHON: `import requests\n\nresponse = requests.get(\n  "https://api.wavecollect.com/v1/me",\n  headers={"Authorization": "Bearer sk_live_xxx"}\n)`,
+      PHP: `<?php\n$curl = curl_init();\ncurl_setopt($curl, CURLOPT_HTTPHEADER, [\n  'Authorization: Bearer sk_live_xxx'\n]);`
+    }
+  },
+  createIntent: {
+    title: "Create a Payment Intent",
+    desc: "Create a PaymentIntent object to initiate a new UPI collection.",
+    text: "This is the primary endpoint for starting a payment. It will return a checkout URL, a UPI deep link, and a raw QR data string. If you provide an order_id that has already been used, the API will return the existing intent (idempotency by order_id).",
+    params: [
+      { name: "amount", type: "number", required: true, desc: "The amount to collect in INR (e.g. 500.00)." },
+      { name: "order_id", type: "string", required: true, desc: "Your unique reference for this order." },
+      { name: "metadata", type: "object", required: false, desc: "Set of key-value pairs that you can attach to an object." },
+      { name: "Idempotency-Key", type: "header", required: false, desc: "Optional header to safely retry requests." }
+    ],
+    snippets: {
+      CURL: `curl https://api.wavecollect.com/v1/create-intent \\
+  -H "Authorization: Bearer sk_live_xxx" \\
+  -d amount=500.00 \\
+  -d order_id="ORD-12345" \\
+  -d metadata[dept]="sales"`,
+      NODE: `const intent = await wavecollect.paymentIntents.create({\n  amount: 50000,\n  order_id: 'ORD-12345',\n  metadata: { dept: 'sales' }\n});`,
+      PYTHON: `intent = wavecollect.PaymentIntent.create(\n  amount=50000,\n  order_id="ORD-12345",\n  metadata={"dept": "sales"}\n)`,
+      PHP: `<?php\n$intent = $wavecollect->paymentIntents->create([\n  'amount' => 50000,\n  'order_id' => 'ORD-12345'\n]);`
+    }
+  },
+  webhooks: {
+    title: "Webhooks",
+    desc: "Handle real-time payment notifications.",
+    text: "Webhooks are used by WaveCollect to notify your application when an event occurs in your account. Webhooks are particularly useful for asynchronous events like successful UPI settlements. We sign every payload to ensure security.",
+    params: [
+      { name: "X-PayxMint-Signature", type: "header", required: true, desc: "HMAC-SHA256 signature of the payload." }
+    ],
+    snippets: {
+      CURL: `# WaveCollect POSTs this to your server:\n{\n  "id": "evt_123",\n  "type": "payment.success",\n  "data": { "status": "SUCCESS", "utr": "41234..." }\n}`,
+      NODE: `// Verify signature in Node.js\nconst signature = req.headers['x-payxmint-signature'];\nconst isValid = WaveCollect.webhooks.constructEvent(payload, signature, endpointSecret);`,
+      PYTHON: `event = wavecollect.Webhook.construct_event(\n    payload, sig_header, endpoint_secret\n)`,
+      PHP: `<?php\n$event = \\WaveCollect\\Webhook::constructEvent(\n    $payload, $sigHeader, $endpointSecret\n);`
+    }
+  }
+};
 
 export default function DocsPage() {
-  const [activeSection, setActiveSection] = useState("overview");
+  const [activeLang, setActiveLang] = useState<Language>('CURL');
+  const [activeSection, setActiveSection] = useState('authentication');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Close mobile menu when section changes
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [activeSection]);
+    const handleScroll = () => {
+      const sections = Object.keys(API_DOCS);
+      for (const section of sections) {
+        const el = document.getElementById(section);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top >= 0 && rect.top <= 300) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  // Navigation Data
-  const navigation = [
-    { 
-      group: "Foundation", 
-      items: [
-        { id: "overview", label: "Introduction", icon: Globe },
-        { id: "setup", label: "Quick Setup", icon: Zap },
-        { id: "auth", label: "Authentication", icon: Shield },
-      ]
-    },
-    { 
-      group: "API Reference", 
-      items: [
-        { id: "intent", label: "Create Intent", icon: Code },
-        { id: "checkout", label: "Custom Checkout", icon: Terminal },
-        { id: "webhooks", label: "Webhooks", icon: FileText },
-      ]
-    },
-    { 
-      group: "Resources", 
-      items: [
-        { id: "testing", label: "Testing & Sandbox", icon: Activity },
-        { id: "errors", label: "Error Codes", icon: AlertCircle },
-      ]
-    }
-  ];
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const offset = 80;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = el.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
 
-  // Code Snippets
-  const snippets: any = {
-    intent: {
-      NODE: `const axios = require('axios');
-
-const response = await axios.post('https://payxmint.com/api/v1/create-intent', {
-  amount: 500.00,
-  order_id: "ORD_12345",
-  customer_mobile: "9988776655",
-  redirect_url: "https://yoursite.com/done"
-}, {
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY'
-  }
-});`,
-      PHP: `<?php
-$curl = curl_init();
-curl_setopt_array($curl, [
-  CURLOPT_URL => "https://payxmint.com/api/v1/create-intent",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_POST => true,
-  CURLOPT_POSTFIELDS => json_encode([
-    "amount" => 500.00,
-    "order_id" => "ORD_12345"
-  ]),
-  CURLOPT_HTTPHEADER => [
-    "Authorization: Bearer YOUR_API_KEY",
-    "Content-Type: application/json"
-  ],
-]);`,
-      PYTHON: `import requests
-
-url = "https://payxmint.com/api/v1/create-intent"
-payload = {
-    "amount": 500.00,
-    "order_id": "ORD_12345"
-}
-response = requests.post(url, json=payload, headers={
-    "Authorization": "Bearer YOUR_API_KEY"
-})`
-    },
-    webhookVerify: {
-      NODE: `const crypto = require('crypto');
-
-function verifyWebhook(payload, signature, secret) {
-  const hash = crypto
-    .createHmac('sha256', secret)
-    .update(JSON.stringify(payload))
-    .digest('hex');
-    
-  return hash === signature;
-}`,
-      PHP: `<?php
-function verifyWebhook($payload, $signature, $secret) {
-  $hash = hash_hmac('sha256', json_encode($payload), $secret);
-  return hash_equals($hash, $signature);
-}`,
-      PYTHON: `import hmac
-import hashlib
-import json
-
-def verify_webhook(payload, signature, secret):
-    payload_str = json.dumps(payload, separators=(',', ':'))
-    expected_hash = hmac.new(
-        secret.encode('utf-8'),
-        payload_str.encode('utf-8'),
-        hashlib.sha256
-    ).hexdigest()
-    
-    return hmac.compare_digest(expected_hash, signature)`
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+      setActiveSection(id);
+      setIsMobileMenuOpen(false);
     }
   };
 
-  const SidebarContent = () => (
-    <div className="p-6 space-y-8">
-      <div className="relative group">
-        <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
-        <input 
-          placeholder="Search docs... (⌘K)" 
-          className="w-full bg-slate-100 border-none rounded-md py-2.5 pl-10 pr-4 text-xs font-bold text-slate-900 focus:bg-blue-50 focus:ring-2 focus:ring-blue-600/20 transition-all outline-none placeholder:font-medium placeholder:text-slate-500"
-        />
-      </div>
+  return (
+    <div className="flex flex-col min-h-screen bg-white font-sans selection:bg-blue-100 selection:text-blue-900">
+      {/* --- Sticky Header --- */}
+      <header className="h-14 bg-white border-b border-slate-100 sticky top-0 z-[100] px-4 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-2 group">
+             <div className="w-7 h-7 bg-slate-900 rounded-md flex items-center justify-center text-white font-black text-sm group-hover:bg-blue-600 transition-all">W</div>
+             <span className="font-bold text-slate-900 tracking-tight text-sm">WaveCollect <span className="text-slate-400 font-medium">API</span></span>
+          </Link>
+          <div className="hidden md:flex items-center gap-1 bg-slate-100 rounded-md p-1">
+             <button className="px-3 py-1 text-[11px] font-bold text-slate-900 bg-white shadow-sm rounded-md">Reference</button>
+             <button className="px-3 py-1 text-[11px] font-bold text-slate-500 hover:text-slate-900 transition-all">Guides</button>
+          </div>
+        </div>
 
-      <nav className="space-y-8">
-        {navigation.map((group, idx) => (
-          <div key={idx} className="space-y-3">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3">{group.group}</p>
-            <div className="space-y-1">
-              {group.items.map(item => (
-                <SidebarLink 
-                  key={item.id}
-                  {...item}
-                  active={activeSection === item.id}
-                  onClick={setActiveSection}
-                />
-              ))}
+        <div className="flex items-center gap-4">
+           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-md border border-slate-100 text-slate-400 group cursor-pointer">
+              <Search size={14} />
+              <span className="text-xs font-medium group-hover:text-slate-600">Search...</span>
+              <kbd className="text-[10px] bg-white border border-slate-200 px-1.5 rounded ml-4 font-sans font-bold">⌘K</kbd>
+           </div>
+           <Link href="/login" className="text-xs font-bold text-slate-600 hover:text-slate-900">Sign In</Link>
+           <button className="lg:hidden p-2 text-slate-500" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+             {isMobileMenuOpen ? <X size={20}/> : <Menu size={20}/>}
+           </button>
+        </div>
+      </header>
+
+      <div className="flex-1 flex relative">
+        {/* --- Sidebar --- */}
+        <aside className={`
+          fixed lg:sticky top-14 left-0 bottom-0 w-64 bg-slate-50 border-r border-slate-100 z-[90] p-6 overflow-y-auto transition-transform
+          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}>
+          <div className="space-y-8">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Introduction</p>
+              <div className="space-y-1">
+                <SidebarLink id="authentication" label="Authentication" active={activeSection === "authentication"} onClick={scrollTo} />
+                <SidebarLink id="errors" label="Errors" active={activeSection === "errors"} onClick={scrollTo} />
+                <SidebarLink id="idempotency" label="Idempotency" active={activeSection === "idempotency"} onClick={scrollTo} />
+              </div>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Payment Intents</p>
+              <div className="space-y-1">
+                <SidebarLink id="createIntent" label="Create an Intent" active={activeSection === "createIntent"} onClick={scrollTo} />
+                <SidebarLink id="retrieveIntent" label="Retrieve an Intent" active={activeSection === "retrieveIntent"} onClick={scrollTo} />
+                <SidebarLink id="listIntents" label="List all Intents" active={activeSection === "listIntents"} onClick={scrollTo} />
+              </div>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Webhooks</p>
+              <div className="space-y-1">
+                <SidebarLink id="webhooks" label="The Webhook Object" active={activeSection === "webhooks"} onClick={scrollTo} />
+                <SidebarLink id="signatures" label="Verify Signatures" active={activeSection === "signatures"} onClick={scrollTo} />
+              </div>
             </div>
           </div>
-        ))}
-      </nav>
-    </div>
-  );
-
-  return (
-    <div className="flex flex-col min-h-screen bg-white">
-      {/* Top Navigation */}
-      <nav className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-4 md:gap-8">
-          <button 
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg active:scale-95 transition-all"
-          >
-            <Menu size={20} />
-          </button>
-          
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-slate-900 group-hover:bg-blue-600 transition-colors rounded-lg flex items-center justify-center text-white font-black shadow-md">W</div>
-            <span className="font-black text-slate-900 tracking-tight hidden md:block text-lg">PayxMint <span className="text-blue-600">Docs</span></span>
-          </Link>
-          
-          <div className="hidden md:flex items-center gap-6 ml-4">
-            <Link href="/" className="text-[11px] font-black text-slate-500 hover:text-blue-600 transition-all uppercase tracking-widest">Home</Link>
-            <Link href="/login" className="text-[11px] font-black text-slate-500 hover:text-blue-600 transition-all uppercase tracking-widest">Dashboard</Link>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <Link href="/login" className="px-5 py-2.5 bg-blue-600 text-white rounded-md text-[11px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all active:scale-95">
-            Log In
-          </Link>
-        </div>
-      </nav>
-
-      <div className="flex-1 flex w-full relative">
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-slate-900/60 z-[60] lg:hidden backdrop-blur-sm"
-              />
-              <motion.aside
-                initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="fixed top-0 left-0 bottom-0 w-72 bg-white z-[70] lg:hidden border-r border-slate-200 overflow-y-auto flex flex-col shadow-2xl"
-              >
-                <div className="p-4 flex items-center justify-between border-b border-slate-100 shrink-0">
-                  <div className="flex items-center gap-2 text-slate-900 font-bold">
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-                      <Code size={18} />
-                    </div>
-                    <span className="font-black tracking-tight">Documentation</span>
-                  </div>
-                  <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg transition-colors">
-                    <X size={20} />
-                  </button>
-                </div>
-                <div className="flex-1 overflow-y-auto">
-                  <SidebarContent />
-                </div>
-              </motion.aside>
-            </>
-          )}
-        </AnimatePresence>
-
-        <aside className="w-72 border-r border-slate-200 hidden lg:block sticky top-16 h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50/50">
-          <SidebarContent />
         </aside>
 
-        <main className="flex-1 max-w-4xl px-4 py-8 md:px-12 md:py-16 mx-auto min-w-0 w-full">
-          <AnimatePresence mode="wait">
-            
-            {activeSection === "overview" && (
-              <motion.div 
-                key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                className="prose prose-slate max-w-none"
-              >
-                <div className="mb-12">
-                   <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full w-fit border border-blue-100 mb-6">
-                     <Zap size={14} className="fill-blue-600" />
-                     <span className="text-[10px] font-black uppercase tracking-widest">Version 2.4 Live</span>
-                   </div>
-                   <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">API Overview</h1>
-                   <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium">
-                     Build real-time UPI settlement into your applications with our high-fidelity dual-engine gateway.
-                   </p>
-                </div>
+        {/* --- Content Area (Main + Code) --- */}
+        <div className="flex-1 flex flex-col lg:flex-row">
+          {/* Guide Section */}
+          <div className="flex-1 max-w-3xl lg:max-w-none lg:w-1/2 p-6 md:p-12 lg:p-16 border-r border-slate-50">
+             <div className="max-w-2xl mx-auto lg:mx-0">
+                {/* --- Authentication --- */}
+                <section id="authentication" className="mb-24 scroll-mt-24">
+                  <h1 className="text-3xl font-bold text-slate-900 mb-4 tracking-tight">{API_DOCS.authentication.title}</h1>
+                  <p className="text-[15px] text-slate-600 leading-relaxed mb-8">{API_DOCS.authentication.text}</p>
+                  <Callout text="Keep your secret keys safe! Never commit them to version control." />
+                  <ParameterTable params={API_DOCS.authentication.params} />
+                </section>
 
-                <SectionHeading id="architecture">Gateway Architecture</SectionHeading>
-                <p className="text-slate-600 leading-7 text-sm md:text-base">
-                  PayxMint operates as a layer-2 settlement protocol over GPay. Unlike traditional gateways that rely on slow bank reconciliations, our bot nodes match UTRs (Unique Transaction References) in real-time, providing immediate settlement feedback via signed webhooks.
-                </p>
-
-                <div className="grid md:grid-cols-2 gap-6 my-10">
-                  <div className="p-6 md:p-8 border border-slate-200 rounded-lg bg-slate-50 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-600/5 transition-all cursor-pointer group">
-                    <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center border border-slate-200 mb-6 shadow-sm">
-                      <Globe className="text-blue-600" size={24} />
-                    </div>
-                    <h4 className="font-black text-slate-900 mb-2 flex items-center gap-2 text-lg">Hosted Checkout <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform text-blue-600"/></h4>
-                    <p className="text-sm text-slate-500 font-medium leading-relaxed">Zero-code UI for merchants. Perfect for web stores and SaaS billing.</p>
+                {/* --- Create Intent --- */}
+                <section id="createIntent" className="mb-24 scroll-mt-24">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="px-2 py-1 bg-blue-50 text-blue-600 rounded font-mono text-xs font-bold uppercase">Post</div>
+                    <code className="text-slate-500 text-sm font-medium">/v1/create-intent</code>
                   </div>
-                  <div className="p-6 md:p-8 border border-slate-200 rounded-lg bg-slate-50 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-600/5 transition-all cursor-pointer group">
-                    <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center border border-slate-200 mb-6 shadow-sm">
-                      <Smartphone className="text-emerald-600" size={24} />
-                    </div>
-                    <h4 className="font-black text-slate-900 mb-2 flex items-center gap-2 text-lg">Native Integration <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform text-emerald-600"/></h4>
-                    <p className="text-sm text-slate-500 font-medium leading-relaxed">Use raw UPI deep-links natively inside your iOS, Android, or React Native app.</p>
+                  <h2 className="text-2xl font-bold text-slate-900 mb-4">{API_DOCS.createIntent.title}</h2>
+                  <p className="text-[15px] text-slate-600 leading-relaxed mb-8">{API_DOCS.createIntent.text}</p>
+                  <ParameterTable params={API_DOCS.createIntent.params} />
+                  
+                  <div className="mt-12 bg-slate-50 p-6 rounded-xl border border-slate-100">
+                     <h4 className="text-sm font-bold text-slate-900 mb-2">Returns</h4>
+                     <p className="text-[13px] text-slate-500 leading-relaxed">Returns a <code className="text-blue-600 font-bold">payment_intent</code> object if successful. If an intent for the given <code>order_id</code> already exists, that existing intent is returned.</p>
                   </div>
-                </div>
-              </motion.div>
-            )}
+                </section>
 
-            {activeSection === "setup" && (
-              <motion.div key="setup" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Quick Setup</h1>
-                <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
-                  Follow these three steps to activate your settlement nodes and start processing live traffic.
-                </p>
-                <div className="space-y-12">
-                  <SetupStep num={1} title="Global Configuration">
-                    Navigate to <span className="font-bold text-slate-900 italic bg-slate-100 px-2 py-0.5 rounded">Quick Setup</span> in your dashboard. Set your <strong>Success Redirect URL</strong> and <strong>Webhook Endpoint</strong>.
-                  </SetupStep>
-                  <SetupStep num={2} title="IP Infrastructure Whitelisting">
-                    Submit your server IPs for auto-detection. Requests from unauthorized infrastructure will be rejected.
-                  </SetupStep>
-                  <SetupStep num={3} title="Node Deployment">
-                    Link at least one GPay Business account. The system routes payment intents based on node availability.
-                  </SetupStep>
-                </div>
-              </motion.div>
-            )}
-
-            {activeSection === "checkout" && (
-              <motion.div key="checkout" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Custom Checkout</h1>
-                <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
-                  Learn how to leverage our raw protocol data to build a fully white-labeled checkout experience.
-                </p>
-
-                <div className="space-y-20">
-                  {/* ⚡ Live Previews Section */}
-                  <section>
-                    <SectionHeading id="previews">Visual Previews</SectionHeading>
-                    <p className="text-slate-600 mb-8 text-sm md:text-base font-medium">Compare the hosted vs. custom integration styles across devices.</p>
-                    
-                    <div className="grid gap-8">
-                      {/* Hosted Preview */}
-                      <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50 shadow-sm">
-                        <div className="px-6 py-4 border-b border-slate-200 bg-white flex items-center justify-between">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Hosted Checkout (Desktop View)</span>
-                          <Globe size={14} className="text-slate-400" />
-                        </div>
-                        <div className="p-8 md:p-12">
-                          <div className="flex bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-100 max-w-4xl mx-auto min-h-[300px]">
-                            <div className="flex-1 bg-slate-50 p-8 border-r border-slate-100 hidden md:block">
-                              <div className="w-8 h-8 bg-slate-900 rounded-lg mb-6 flex items-center justify-center text-white text-[10px] font-bold">W</div>
-                              <h4 className="text-3xl font-black mb-2 text-slate-900">₹500.00</h4>
-                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Reference: #ORD_12345</p>
-                            </div>
-                            <div className="flex-1 p-8 flex flex-col items-center justify-center text-center">
-                              <div className="w-24 h-24 bg-slate-50 border-2 border-slate-100 rounded-md mb-4 flex items-center justify-center text-slate-300 font-black text-[10px]">QR CODE</div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Scan to Pay</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Custom Preview */}
-                      <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50 shadow-sm">
-                        <div className="px-6 py-4 border-b border-slate-200 bg-white flex items-center justify-between">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Custom Integration (Mobile Card)</span>
-                          <Smartphone size={14} className="text-slate-400" />
-                        </div>
-                        <div className="p-8 flex justify-center">
-                          <div className="w-full max-w-[320px] bg-white rounded-lg shadow-2xl p-6 border border-slate-100 text-center">
-                             <div className="flex items-center gap-3 mb-6 text-left">
-                               <div className="w-10 h-10 bg-blue-600 rounded-md flex items-center justify-center text-white font-black text-sm">P</div>
-                               <div>
-                                 <p className="text-[10px] font-black text-slate-900 uppercase tracking-wider">Pay Merchant</p>
-                                 <p className="text-[10px] text-slate-500 font-bold">₹500.00</p>
-                               </div>
-                             </div>
-                             <div className="w-24 h-24 bg-slate-50 border border-slate-100 rounded-md mx-auto mb-6 flex items-center justify-center text-slate-200 text-[10px] font-bold">QR</div>
-                             <div className="space-y-3">
-                               <div className="w-full py-3 bg-slate-900 text-white rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer">Open PhonePe</div>
-                               <div className="w-full py-3 border border-slate-200 rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer">Open GPay</div>
-                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section>
-                    <SectionHeading id="code-template">Functional Code Template</SectionHeading>
-                    <p className="text-slate-600 mb-6 text-sm md:text-base font-medium">
-                      Copy this complete React implementation. It includes built-in polling, copy-to-clipboard logic, and a responsive Stripe-style UI.
-                    </p>
-                    <Callout type="success" title="Copy-Paste Ready">
-                      This component requires <code>qrcode.react</code> and <code>lucide-react</code>. Pass the <code>intent</code> object from your backend to initiate.
-                    </Callout>
-                    <CodeBlock snippets={{
-                      REACT: `"use client";
-import React, { useState, useEffect } from 'react';
-import { QRCodeSVG } from 'qrcode.react'; // npm install qrcode.react
-import { Copy, Check, ShieldCheck, Smartphone } from 'lucide-react';
-
-/**
- * PayxMint Custom Checkout Component
- * @param {object} intent - The data from /api/v1/create-intent
- */
-export default function Checkout({ intent }) {
-  const [status, setStatus] = useState('PENDING');
-  const [copied, setCopied] = useState(false);
-
-  // Status Polling (8s interval)
-  useEffect(() => {
-    if (status !== 'PENDING') return;
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(\`https://api.payxmint.com/api/v1/check-status?token=\${intent.payment_token}\`);
-        const data = await res.json();
-        if (data.status === 'success' && data.data.payment_status === 'SUCCESS') {
-          setStatus('SUCCESS');
-          clearInterval(interval);
-        }
-      } catch (e) { console.error(e); }
-    }, 8000);
-    return () => clearInterval(interval);
-  }, [status, intent.payment_token]);
-
-  const copyUpi = () => {
-    navigator.clipboard.writeText(intent.upi_link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  if (status === 'SUCCESS') return <SuccessView />;
-
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans text-slate-900">
-      {/* 📦 Desktop Summary (Left Side) */}
-      <div className="flex-1 p-8 md:p-16 border-r border-slate-200 hidden md:flex flex-col items-end">
-        <div className="w-full max-w-sm">
-          <div className="w-10 h-10 bg-slate-900 rounded-md mb-8 flex items-center justify-center text-white font-black italic">W</div>
-          <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-2">Merchant Name</p>
-          <h1 className="text-5xl font-black mb-12">₹{intent.amount.toFixed(2)}</h1>
-          <div className="space-y-4 border-t border-slate-200 pt-8 text-sm">
-             <div className="flex justify-between"><span className="text-slate-400">Order ID</span><span>{intent.order_id}</span></div>
-          </div>
-        </div>
-      </div>
-
-      {/* 💳 Payment Section (PC + Mobile) */}
-      <div className="flex-1 bg-white p-6 md:p-16 flex flex-col items-start justify-center">
-        <div className="w-full max-w-sm mx-auto md:mx-0">
-          <h2 className="text-2xl font-black mb-8">Pay with UPI</h2>
-          
-          <div className="p-4 border border-slate-100 rounded-lg shadow-2xl mb-8 inline-block bg-white">
-            <QRCodeSVG value={intent.upi_link} size={200} />
-          </div>
-
-          <div className="w-full space-y-4">
-            <button onClick={copyUpi} className="w-full flex items-center justify-between p-4 bg-slate-50 rounded-md border border-slate-100">
-               <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">UPI Link</span>
-               <span className="text-xs font-bold text-blue-600">{copied ? <Check size={14}/> : 'COPY LINK'}</span>
-            </button>
-            <a href={intent.upi_link} className="block w-full py-5 bg-blue-600 text-white rounded-md text-center font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-600/20 active:scale-95 transition-all">
-              Open UPI Apps
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const SuccessView = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center bg-white">
-    <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6">✓</div>
-    <h2 className="text-3xl font-black mb-2">Payment Received</h2>
-    <p className="text-slate-500 font-medium">Your transaction has been verified successfully.</p>
-  </div>
-);`
-                    }} />
-                  </section>
-
-                  <section>
-                    <SectionHeading id="design-logic">Hybrid Design Philosophy</SectionHeading>
-                    <p className="text-slate-600 mb-8 leading-7 text-sm md:text-base">
-                      PayxMint checkouts automatically switch between two distinct UI behaviors based on the device detected.
-                    </p>
-                    <div className="grid md:grid-cols-2 gap-8">
-                       <div className="p-8 border border-slate-200 rounded-lg bg-white shadow-sm">
-                          <Smartphone className="text-blue-600 mb-4" />
-                          <h4 className="font-black mb-2">The Mobile Card</h4>
-                          <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">
-                            On Android and iOS, the UI collapses into a centralized card. This is optimized for thumb-reach and triggers the OS Intent Picker.
-                          </p>
-                          <span className="text-[10px] font-black text-blue-600 uppercase bg-blue-50 px-2 py-1 rounded">Best for Conversion</span>
-                       </div>
-                       <div className="p-8 border border-slate-200 rounded-lg bg-white shadow-sm">
-                          <Globe className="text-emerald-600 mb-4" />
-                          <h4 className="font-black mb-2">The Desktop Split</h4>
-                          <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">
-                            On browsers, the UI splits into a dual-column "Stripe-style" layout. This uses the extra space to display rich order details.
-                          </p>
-                          <span className="text-[10px] font-black text-emerald-600 uppercase bg-emerald-50 px-2 py-1 rounded">Premium Aesthetic</span>
-                       </div>
-                    </div>
-                  </section>
-                </div>
-              </motion.div>
-            )}
-
-            {activeSection === "webhooks" && (
-              <motion.div key="webhooks" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Webhooks</h1>
-                <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
-                  Receive real-time settlement notifications confirmed by our GPay bot engine.
-                </p>
-                <SectionHeading id="payload">Success Payload</SectionHeading>
-                <div className="bg-slate-950 p-6 rounded-md border border-slate-800 font-mono text-sm text-emerald-400 overflow-x-auto shadow-xl">
-                  {`{
-  "event": "payment.success",
-  "order_id": "ORD_12345",
-  "amount": 500.00,
-  "utr": "412239102931",
-  "timestamp": "2026-05-16T12:00:00Z"
-}`}
-                </div>
-                <SectionHeading id="signature">Verifying Signatures</SectionHeading>
-                <p className="text-slate-600 mb-6 text-sm md:text-base">
-                  We sign all payloads using HMAC-SHA256. The signature is in the <code>X-PayxMint-Signature</code> header.
-                </p>
-                <CodeBlock snippets={snippets.webhookVerify} />
-              </motion.div>
-            )}
-
-            {activeSection === "errors" && (
-              <motion.div key="errors" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Error Codes</h1>
-                <Table 
-                  headers={["Status", "Meaning", "Action"]}
-                  rows={[
-                    [<span className="font-bold text-rose-600">401</span>, "Invalid API Key", "Check Dashboard"],
-                    [<span className="font-bold text-amber-600">403</span>, "IP Restricted", "Whitelist your IP"],
-                    [<span className="font-bold text-rose-600">503</span>, "No Active Node", "Check GPay Bot Status"]
-                  ]}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <footer className="mt-24 pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-400">
-             <p className="text-[11px] font-bold uppercase tracking-widest">© 2026 PayxMint Developers</p>
-             <div className="flex gap-6">
-                <Link href="/dashboard" className="text-[11px] font-black hover:text-blue-600 transition-colors uppercase tracking-widest">Dashboard</Link>
-                <a href="mailto:support@payxmint.com" className="text-[11px] font-black hover:text-blue-600 transition-colors uppercase tracking-widest">Support</a>
+                {/* --- Webhooks --- */}
+                <section id="webhooks" className="mb-24 scroll-mt-24">
+                  <h2 className="text-2xl font-bold text-slate-900 mb-4">{API_DOCS.webhooks.title}</h2>
+                  <p className="text-[15px] text-slate-600 leading-relaxed mb-8">{API_DOCS.webhooks.text}</p>
+                  <Callout text="Webhook endpoints must be accessible via HTTPS and respond with a 200 OK." />
+                  <ParameterTable params={API_DOCS.webhooks.params} />
+                </section>
              </div>
-          </footer>
-        </main>
+          </div>
+
+          {/* Code Section (Fixed or Scrollable) */}
+          <div className="lg:w-1/2 bg-[#0C1017] p-4 md:p-8 lg:p-12 lg:sticky lg:top-14 lg:h-[calc(100vh-56px)] overflow-y-auto">
+             <div className="max-w-xl mx-auto lg:mx-0 sticky top-0">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeSection}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="mb-8">
+                       <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Sample Request</p>
+                       {(API_DOCS as any)[activeSection]?.snippets && (
+                         <CodeBlock 
+                           snippets={(API_DOCS as any)[activeSection].snippets} 
+                           activeLang={activeLang} 
+                           onLangChange={setActiveLang} 
+                         />
+                       )}
+                    </div>
+
+                    <div className="mt-12">
+                       <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">Sample Response</p>
+                       <div className="rounded-xl bg-[#161B22] border border-white/5 p-5">
+                          <pre className="text-[12px] font-mono leading-relaxed text-blue-300">
+                             {JSON.stringify(RESPONSE_SAMPLES[activeSection] || { status: "success" }, null, 2)}
+                          </pre>
+                       </div>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+             </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-const SetupStep = ({ num, title, children }: any) => (
-  <div className="flex gap-6">
-    <div className="w-12 h-12 bg-blue-600 text-white rounded-md flex items-center justify-center font-black shrink-0 shadow-lg shadow-blue-600/20">{num}</div>
-    <div className="space-y-2 pt-2">
-      <h4 className="text-xl font-bold text-slate-900">{title}</h4>
-      <div className="text-sm text-slate-500 font-medium leading-relaxed">{children}</div>
+// --- Helper Components ---
+
+const Callout = ({ text }: { text: string }) => (
+  <div className="bg-amber-50 border-l-4 border-amber-400 p-4 my-8 rounded-r-md">
+    <div className="flex gap-3">
+      <Zap size={18} className="text-amber-500 shrink-0" />
+      <p className="text-[13px] text-amber-900 font-medium leading-relaxed">{text}</p>
     </div>
   </div>
 );
 
-const PhaseCard = ({ num, title, desc }: any) => (
-  <div className="p-6 border border-slate-200 rounded-lg bg-white space-y-4 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all group">
-    <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center font-black text-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">{num}</div>
-    <div className="space-y-2">
-      <h4 className="text-base font-bold text-slate-900">{title}</h4>
-      <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{desc}</p>
-    </div>
-  </div>
-);
+const RESPONSE_SAMPLES: any = {
+  authentication: {
+    id: "acct_12345",
+    object: "account",
+    name: "Onyx Merchants",
+    email: "admin@onyx.com",
+    status: "active"
+  },
+  createIntent: {
+    id: "pi_123456789",
+    object: "payment_intent",
+    amount: 500.00,
+    currency: "INR",
+    status: "pending",
+    order_id: "ORD-12345",
+    checkout_url: "https://wavecollect.com/pay/tok_...",
+    payment_token: "tok_65c3b...",
+    metadata: { dept: "sales" },
+    created: 1684245600
+  },
+  webhooks: {
+    id: "evt_123456789",
+    object: "event",
+    type: "payment.success",
+    data: {
+      id: "pi_123456789",
+      amount: 500.00,
+      status: "SUCCESS",
+      utr: "412345678901",
+      metadata: { dept: "sales" }
+    },
+    created: 1684245605
+  }
+};

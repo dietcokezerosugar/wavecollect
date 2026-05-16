@@ -45,20 +45,18 @@ export class WebhookService {
 
     try {
       const payloadString = event.payload;
-      const secret = event.merchant.webhookSecret || "";
+      const secret = event.merchant.webhookSecret || "sk_live_default_secret_placeholder";
 
-      // Calculate HMAC-SHA256 signature
-      const crypto = require("crypto");
-      const signature = crypto
-        .createHmac("sha256", secret)
-        .update(payloadString)
-        .digest("hex");
+      // Calculate HMAC-SHA256 signature using our new utility
+      const { WebhookSigner } = await import("@/lib/webhook-signer");
+      const signature = WebhookSigner.sign(payloadString, secret);
 
       const response = await axios.post(event.url, JSON.parse(payloadString), {
         headers: {
           "Content-Type": "application/json",
-          "X-Wave-Event": event.event,
-          "X-Wave-Signature": signature,
+          "X-PayxMint-Event": event.event,
+          "X-PayxMint-Signature": signature,
+          "User-Agent": "PayxMint-Webhook-Dispatcher/2.0",
         },
         timeout: 10000,
       });
