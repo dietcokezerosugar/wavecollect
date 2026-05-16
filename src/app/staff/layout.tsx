@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  Monitor
+  Monitor,
+  FileSpreadsheet
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -32,6 +33,7 @@ export default function StaffLayout({
     { label: "Overview", icon: LayoutDashboard, href: "/staff" },
     { label: "Merchant Reviews", icon: ShieldCheck, href: "/staff/accounts" },
     { label: "Pool Management", icon: Users, href: "/staff/pool" },
+    { label: "Reconciliation", icon: FileSpreadsheet, href: "/staff/reconciliation" },
   ];
 
   return (
