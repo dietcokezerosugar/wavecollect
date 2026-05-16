@@ -113,12 +113,12 @@ function extractTxnFromRow(row: Record<string, string>) {
 
 // ── POST: Upload + Parse + Reconcile ───────────────────────
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || !["STAFF", "ADMIN"].includes(session.user.role)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || !["STAFF", "ADMIN"].includes(session.user?.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     if (!file) {
@@ -246,8 +246,8 @@ export async function POST(req: NextRequest) {
     // 4. Save Reconciliation History
     await prisma.reconciliationUpload.create({
       data: {
-        staffEmail: session.user.email,
-        fileName: file.name,
+        staffEmail: session.user?.email || "unknown@staff.com",
+        fileName: file.name || "unknown.csv",
         totalRows: rows.length,
         matched: matchedCount,
         alreadyExists: existsCount,

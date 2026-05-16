@@ -60,9 +60,17 @@ export default function ReconciliationPage() {
       const res = await fetch("/api/staff/reconciliation", {
         method: "POST",
         body: formData,
+        credentials: "include",
       });
 
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(`Server error: Expected JSON but got ${contentType || "unknown format"}. Status: ${res.status}`);
+      }
 
       if (!res.ok) {
         setError(data.error || "Upload failed");
