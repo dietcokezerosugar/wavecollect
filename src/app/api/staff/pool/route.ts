@@ -62,26 +62,48 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields for account creation" }, { status: 400 });
     }
     
-    // Create the account. Admin uses their own merchant ID as the owner of the platform pool.
-    const account = await prisma.googlePayAccount.create({
-      data: {
-        merchantId: session.user.merchantId!, // Admin's merchant account
-        name,
-        email,
-        botPassword: password,
-        upiId,
-        accountType: "PLATFORM_POOL",
-        status: "ACTIVE",
-        reviewStatus: "APPROVED", // Pre-approved since staff creates it
-        sessionStatus: "OFFLINE",
-        minTicket: 0,
-        maxTicket: 1000000,
-        allocationStatus: "UNASSIGNED",
-        totalQuota: 0,
-        usedQuota: 0
+    try {
+      // Find a platform admin merchant to own these pool accounts.
+      // If one doesn't exist, create it automatically.
+      let platformMerchant = await prisma.merchant.findFirst({
+        where: { name: "Platform Pool Admin" }
+      });
+
+      if (!platformMerchant) {
+        platformMerchant = await prisma.merchant.create({
+          data: {
+            name: "Platform Pool Admin",
+            email: "pool-admin@wavecollect.com",
+            status: "ACTIVE",
+            processingMode: "OWN_ACCOUNT"
+          }
+        });
       }
-    });
-    return NextResponse.json({ status: "success", data: account });
+
+      // Create the account owned by the platform merchant.
+      const account = await prisma.googlePayAccount.create({
+        data: {
+          merchantId: platformMerchant.id,
+          name,
+          email,
+          botPassword: password,
+          upiId,
+          accountType: "PLATFORM_POOL",
+          status: "ACTIVE",
+          reviewStatus: "APPROVED", // Pre-approved since staff creates it
+          sessionStatus: "OFFLINE",
+          minTicket: 0,
+          maxTicket: 1000000,
+          allocationStatus: "UNASSIGNED",
+          totalQuota: 0,
+          usedQuota: 0
+        }
+      });
+      return NextResponse.json({ status: "success", data: account });
+    } catch (e: any) {
+      console.error("[POOL_CREATE_ERROR]", e);
+      return NextResponse.json({ error: e.message || "Database error creating pool account" }, { status: 500 });
+    }
   }
 
   // -- ACTION: ALLOCATE --
