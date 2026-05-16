@@ -67,7 +67,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
 .merchant-header{display:flex;align-items:center;gap:12px;margin-bottom:32px;opacity:0.8}
 .merchant-logo{width:32px;height:32px;background:var(--slate-900);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px}
 .merchant-name-top{font-size:15px;font-weight:600;color:var(--slate-600)}
-.back-link{font-size:14px;color:var(--slate-500);text-decoration:none;display:flex;align-items:center;gap:6px;margin-bottom:32px}
 .amount-display{margin-bottom:48px}
 .amount-label{font-size:16px;color:var(--slate-500);font-weight:500;margin-bottom:8px}
 .amount-value{font-size:48px;font-weight:700;letter-spacing:-1.5px;color:var(--slate-900)}
@@ -98,20 +97,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
 .status-title{font-size:24px;font-weight:700;margin-bottom:12px}
 .status-desc{font-size:16px;color:var(--slate-500);max-width:400px;line-height:1.6}
 
+/* Mobile: Revert to Centralized Card Style */
 @media (max-width: 850px) {
-  .checkout-container{flex-direction:column}
-  .summary-panel{align-items:flex-start;padding:32px 24px;border-right:none;border-bottom:1px solid var(--slate-100)}
-  .payment-panel{padding:48px 24px}
-  .panel-content{max-width:100%}
-  .amount-display{margin-bottom:24px}
-  .amount-value{font-size:32px}
-  .app-buttons{display:flex}
+  body { background-color: #f4f4f5; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .checkout-container { display: block; min-height: auto; width: 100%; max-width: 420px; }
+  .summary-panel { display: none; }
+  .payment-panel { 
+    background: #fff; 
+    border-radius: 20px; 
+    padding: 32px 24px; 
+    align-items: center; 
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+  }
+  .panel-content { align-items: center; text-align: center; }
+  .mobile-header { display: block !important; width: 100%; margin-bottom: 32px; text-align: left; }
+  .payment-title { text-align: center; width: 100%; }
+  .qr-box { margin-bottom: 24px; }
+  .app-buttons { display: flex; }
+  .footer-trust { justify-content: center; padding-top: 32px; }
 }
+.mobile-header { display: none; }
 </style>
 </head>
 <body>
 
 <div id="mainView" class="checkout-container">
+  <!-- Desktop Only Summary -->
   <div class="summary-panel">
     <div class="panel-content">
       <div class="merchant-header">
@@ -137,24 +148,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans
 
   <div class="payment-panel">
     <div class="panel-content">
+      <!-- Mobile Only Header (Integrated into Card) -->
+      <div class="mobile-header">
+        <div class="merchant-header" style="margin-bottom: 16px;">
+          <div class="merchant-logo">${merchantName.charAt(0).toUpperCase()}</div>
+          <span class="merchant-name-top">${merchantName}</span>
+        </div>
+        <div class="amount-display" style="margin-bottom: 0;">
+          <h1 class="amount-value" style="font-size: 32px;">₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</h1>
+          <p class="order-label" style="margin-top: 4px;">Order ID: ${referenceId}</p>
+        </div>
+      </div>
+
       <h2 class="payment-title">Pay with UPI</h2>
       <div class="loader-bar"><div class="loader-progress"></div></div>
       <div class="qr-box">
         <img src="${qrData}" class="qr-img" alt="QR Code">
       </div>
-      <p style="font-size:14px;color:var(--slate-500);margin-bottom:16px;font-weight:500">Scan this QR with any UPI app to pay</p>
+      <p style="font-size:14px;color:var(--slate-500);margin-bottom:16px;font-weight:500">Scan QR with any UPI app</p>
       
       <div class="upi-field">
-        <div>
-          <p class="upi-label">Merchant UPI ID</p>
+        <div style="text-align: left;">
+          <p class="upi-label">UPI ID</p>
           <p class="upi-id" id="upiValue">${merchantUpi}</p>
         </div>
         <button class="copy-btn" onclick="copyUpi(this)">Copy</button>
       </div>
 
       <div class="app-buttons" id="deepLinks">
-        <a href="#" onclick="event.preventDefault();window.location.href='${esc(phonepeIntent)}'" class="btn-pay btn-phonepe">Pay with PhonePe</a>
-        <a href="${paytmIntent}" class="btn-pay btn-paytm">Pay with Paytm</a>
+        <a href="#" onclick="event.preventDefault();window.location.href='${esc(phonepeIntent)}'" class="btn-pay btn-phonepe">PhonePe</a>
+        <a href="${paytmIntent}" class="btn-pay btn-paytm">Paytm</a>
       </div>
 
       <div class="footer-trust">
@@ -261,7 +284,7 @@ else {
           showExpired();
         }
       }).catch(function(e){});
-  }, 1500);
+  }, 8000);
 }
 </script>
 </body>

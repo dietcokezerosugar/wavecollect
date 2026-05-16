@@ -142,10 +142,6 @@ const Table = ({ headers, rows }: any) => (
   </div>
 );
 
-const SearchIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-);
-
 // --- Main Page ---
 
 export default function DocsPage() {
@@ -293,7 +289,6 @@ def verify_webhook(payload, signature, secret):
       {/* Top Navigation */}
       <nav className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-4 md:gap-8">
-          {/* Mobile Hamburger */}
           <button 
             onClick={() => setIsMobileMenuOpen(true)}
             className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg active:scale-95 transition-all"
@@ -320,7 +315,6 @@ def verify_webhook(payload, signature, secret):
       </nav>
 
       <div className="flex-1 flex w-full relative">
-        {/* Mobile Menu Overlay */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <>
@@ -352,12 +346,10 @@ def verify_webhook(payload, signature, secret):
           )}
         </AnimatePresence>
 
-        {/* Desktop Sidebar */}
         <aside className="w-72 border-r border-slate-200 hidden lg:block sticky top-16 h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50/50">
           <SidebarContent />
         </aside>
 
-        {/* Main Content */}
         <main className="flex-1 max-w-4xl px-4 py-8 md:px-12 md:py-16 mx-auto min-w-0 w-full">
           <AnimatePresence mode="wait">
             
@@ -398,473 +390,270 @@ def verify_webhook(payload, signature, secret):
                     <p className="text-sm text-slate-500 font-medium leading-relaxed">Use raw UPI deep-links natively inside your iOS, Android, or React Native app.</p>
                   </div>
                 </div>
-
-                <Callout type="info" title="3-Day Free Trial">
-                  New accounts automatically receive a 3-day free period with no wallet recharge required. Settlement fees will be waived during this time.
-                </Callout>
               </motion.div>
             )}
 
             {activeSection === "setup" && (
-              <motion.div 
-                key="setup" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="setup" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Quick Setup</h1>
                 <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
                   Follow these three steps to activate your settlement nodes and start processing live traffic.
                 </p>
-
                 <div className="space-y-12">
                   <SetupStep num={1} title="Global Configuration">
-                    Navigate to <span className="font-bold text-slate-900 italic bg-slate-100 px-2 py-0.5 rounded">Quick Setup</span> in your dashboard. Set your <strong>Success Redirect URL</strong> and <strong>Webhook Endpoint</strong>. These are the backbones of your integration.
+                    Navigate to <span className="font-bold text-slate-900 italic bg-slate-100 px-2 py-0.5 rounded">Quick Setup</span> in your dashboard. Set your <strong>Success Redirect URL</strong> and <strong>Webhook Endpoint</strong>.
                   </SetupStep>
                   <SetupStep num={2} title="IP Infrastructure Whitelisting">
-                    Submit your server IPs for auto-detection. Our engine uses a <strong>Strict Firewall Policy</strong>—requests from unauthorized infrastructure will be rejected with a 403 response.
+                    Submit your server IPs for auto-detection. Requests from unauthorized infrastructure will be rejected.
                   </SetupStep>
                   <SetupStep num={3} title="Node Deployment">
-                    Link at least one GPay Business account. The system routes payment intents based on node availability and remaining account limits.
+                    Link at least one GPay Business account. The system routes payment intents based on node availability.
                   </SetupStep>
                 </div>
-
-                <Callout type="warning" title="Security Requirement">
-                  Do not attempt to add Google Pay accounts before whitelisting your server IPs. The bot nodes require verified network handshakes to initialize correctly.
-                </Callout>
-              </motion.div>
-            )}
-
-            {activeSection === "auth" && (
-              <motion.div 
-                key="auth" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              >
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Authentication</h1>
-                <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
-                  Secure your API requests using high-entropy Bearer tokens.
-                </p>
-
-                <SectionHeading id="api-keys">API Keys</SectionHeading>
-                <p className="text-slate-600 leading-7 text-sm md:text-base mb-6">
-                  You authenticate to the PayxMint API by providing your secret API key in the request header. You can manage your API keys from the Dashboard under <strong>API Access Control</strong>.
-                </p>
-
-                <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 font-mono text-sm text-slate-300 overflow-x-auto shadow-xl">
-                  Authorization: Bearer <span className="text-blue-400">YOUR_API_KEY</span>
-                </div>
-
-                <Callout type="warning" title="Keep it secret">
-                  Your API keys carry many privileges, so be sure to keep them secure! Do not share your secret API keys in publicly accessible areas such as GitHub, client-side code, and so forth.
-                </Callout>
-
-                <SectionHeading id="postman">Postman Collection</SectionHeading>
-                <p className="text-slate-600 leading-7 text-sm md:text-base mb-6">
-                  To test our API instantly, you can import our Postman Collection.
-                </p>
-                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center font-black text-xl shadow-inner border border-orange-200">P</div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-lg">PayxMint API v2.4</h4>
-                      <p className="text-sm text-slate-500 font-medium mt-1">Includes Create Intent, Check Status, and Environment Variables.</p>
-                    </div>
-                  </div>
-                  <div className="mt-6 flex flex-wrap gap-4">
-                    <button className="px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/20">Download Collection</button>
-                    <button className="px-6 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm">Environment File</button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {activeSection === "intent" && (
-              <motion.div 
-                key="intent" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              >
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Create Intent</h1>
-                <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-10">
-                  Create a payment intent to initiate a transaction. This returns a hosted checkout URL and raw UPI deep-links.
-                </p>
-
-                <div className="flex items-center gap-3 bg-blue-50 px-4 py-2.5 rounded-xl w-fit mb-8 border border-blue-100 shadow-sm">
-                  <span className="text-[11px] font-black text-blue-600 uppercase tracking-widest bg-white px-2 py-1 rounded shadow-sm">POST</span>
-                  <code className="text-sm font-bold text-slate-700">/api/v1/create-intent</code>
-                </div>
-
-                <CodeBlock snippets={snippets.intent} />
-
-                <SectionHeading id="params">Request Body Parameters</SectionHeading>
-                <Table 
-                  headers={["Field", "Type", "Required", "Description"]}
-                  rows={[
-                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">amount</code>, "float", "YES", "Transaction value (e.g. 10.00)"],
-                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">order_id</code>, "string", "YES", "Unique ID from your system (3-64 chars)"],
-                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">customer_mobile</code>, "string", "NO", "10-digit mobile for SMS tracking"],
-                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">redirect_url</code>, "string", "NO", "Optional success override"]
-                  ]}
-                />
-
-                <SectionHeading id="response">Response Schema</SectionHeading>
-                <Table 
-                  headers={["Field", "Type", "Description"]}
-                  rows={[
-                    [<code className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">checkout_url</code>, "string", "URL for the hosted payment page"],
-                    [<code className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">upi_link</code>, "string", "Raw deep-link for Mobile Intent Picker"],
-                    [<code className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">qr_data</code>, "string", "String for custom QR generation"]
-                  ]}
-                />
               </motion.div>
             )}
 
             {activeSection === "checkout" && (
-              <motion.div 
-                key="checkout" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="checkout" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Custom Checkout</h1>
                 <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
-                  Learn how to leverage our raw protocol data to build a fully white-labeled checkout experience within your own platform.
+                  Learn how to leverage our raw protocol data to build a fully white-labeled checkout experience.
                 </p>
 
-                <div className="space-y-16">
+                <div className="space-y-20">
+                  {/* ⚡ Live Previews Section */}
                   <section>
-                    <SectionHeading id="integration-phases">Integration Workflow</SectionHeading>
-                    <p className="text-slate-600 mb-8 leading-7 text-sm md:text-base">
-                      A custom checkout implementation follows a three-phase lifecycle. This ensures that sensitive logic remains server-side while providing a low-latency UI for the customer.
-                    </p>
+                    <SectionHeading id="previews">Visual Previews</SectionHeading>
+                    <p className="text-slate-600 mb-8 text-sm md:text-base font-medium">Compare the hosted vs. custom integration styles across devices.</p>
+                    
+                    <div className="grid gap-8">
+                      {/* Hosted Preview */}
+                      <div className="border border-slate-200 rounded-[32px] overflow-hidden bg-slate-50 shadow-sm">
+                        <div className="px-6 py-4 border-b border-slate-200 bg-white flex items-center justify-between">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Hosted Checkout (Desktop View)</span>
+                          <Globe size={14} className="text-slate-400" />
+                        </div>
+                        <div className="p-8 md:p-12">
+                          <div className="flex bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-w-4xl mx-auto min-h-[300px]">
+                            <div className="flex-1 bg-slate-50 p-8 border-r border-slate-100 hidden md:block">
+                              <div className="w-8 h-8 bg-slate-900 rounded-lg mb-6 flex items-center justify-center text-white text-[10px] font-bold">W</div>
+                              <h4 className="text-3xl font-black mb-2 text-slate-900">₹500.00</h4>
+                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Reference: #ORD_12345</p>
+                            </div>
+                            <div className="flex-1 p-8 flex flex-col items-center justify-center text-center">
+                              <div className="w-24 h-24 bg-slate-50 border-2 border-slate-100 rounded-2xl mb-4 flex items-center justify-center text-slate-300 font-black text-[10px]">QR CODE</div>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Scan to Pay</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-                    <div className="grid gap-6 md:grid-cols-3">
-                      <PhaseCard 
-                        num="1" 
-                        title="Server Handshake" 
-                        desc="Your backend calls /create-intent using your API Key to secure a payment token." 
-                      />
-                      <PhaseCard 
-                        num="2" 
-                        title="Dynamic Rendering" 
-                        desc="Pass the upi_link and qr_data to your frontend to render the payment UI." 
-                      />
-                      <PhaseCard 
-                        num="3" 
-                        title="Status Sync" 
-                        desc="Your frontend polls our status API while your backend listens for webhooks." 
-                      />
+                      {/* Custom Preview */}
+                      <div className="border border-slate-200 rounded-[32px] overflow-hidden bg-slate-50 shadow-sm">
+                        <div className="px-6 py-4 border-b border-slate-200 bg-white flex items-center justify-between">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Custom Integration (Mobile Card)</span>
+                          <Smartphone size={14} className="text-slate-400" />
+                        </div>
+                        <div className="p-8 flex justify-center">
+                          <div className="w-full max-w-[320px] bg-white rounded-[28px] shadow-2xl p-6 border border-slate-100 text-center">
+                             <div className="flex items-center gap-3 mb-6 text-left">
+                               <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-sm">P</div>
+                               <div>
+                                 <p className="text-[10px] font-black text-slate-900 uppercase tracking-wider">Pay Merchant</p>
+                                 <p className="text-[10px] text-slate-500 font-bold">₹500.00</p>
+                               </div>
+                             </div>
+                             <div className="w-24 h-24 bg-slate-50 border border-slate-100 rounded-2xl mx-auto mb-6 flex items-center justify-center text-slate-200 text-[10px] font-bold">QR</div>
+                             <div className="space-y-3">
+                               <div className="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer">Open PhonePe</div>
+                               <div className="w-full py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer">Open GPay</div>
+                             </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </section>
 
                   <section>
-                    <SectionHeading id="code-template">Stripe-style Code Template</SectionHeading>
-                    <p className="text-slate-600 mb-6 text-sm md:text-base">
-                      Use this production-ready React component as a base for your checkout page. It is optimized for mobile screens and features a minimal, premium aesthetic.
+                    <SectionHeading id="code-template">Functional Code Template</SectionHeading>
+                    <p className="text-slate-600 mb-6 text-sm md:text-base font-medium">
+                      Copy this complete React implementation. It includes built-in polling, copy-to-clipboard logic, and a responsive Stripe-style UI.
                     </p>
+                    <Callout type="success" title="Copy-Paste Ready">
+                      This component requires <code>qrcode.react</code> and <code>lucide-react</code>. Pass the <code>intent</code> object from your backend to initiate.
+                    </Callout>
                     <CodeBlock snippets={{
                       REACT: `"use client";
 import React, { useState, useEffect } from 'react';
-import QRCode from 'react-qr-code';
+import { QRCodeSVG } from 'qrcode.react'; // npm install qrcode.react
+import { Copy, Check, ShieldCheck, Smartphone } from 'lucide-react';
 
-export default function CustomCheckout({ intent }) {
+/**
+ * PayxMint Custom Checkout Component
+ * @param {object} intent - The data from /api/v1/create-intent
+ */
+export default function Checkout({ intent }) {
   const [status, setStatus] = useState('PENDING');
+  const [copied, setCopied] = useState(false);
 
-  // 🔄 Poll for payment status
+  // Status Polling (8s interval)
   useEffect(() => {
     if (status !== 'PENDING') return;
     const interval = setInterval(async () => {
-      const res = await fetch(\`/api/v1/check-status?token=\${intent.payment_token}\`);
-      const data = await res.json();
-      if (data.status === 'SUCCESS') setStatus('SUCCESS');
-    }, 8000); // 8s polling
+      try {
+        const res = await fetch(\`https://api.payxmint.com/api/v1/check-status?token=\${intent.payment_token}\`);
+        const data = await res.json();
+        if (data.status === 'success' && data.data.payment_status === 'SUCCESS') {
+          setStatus('SUCCESS');
+          clearInterval(interval);
+        }
+      } catch (e) { console.error(e); }
+    }, 8000);
     return () => clearInterval(interval);
-  }, [status]);
+  }, [status, intent.payment_token]);
+
+  const copyUpi = () => {
+    navigator.clipboard.writeText(intent.upi_link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   if (status === 'SUCCESS') return <SuccessView />;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
-      {/* 📦 Order Summary (Left/Top) */}
-      <div className="flex-1 p-8 md:p-16 border-r border-slate-200">
-        <h3 className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-4">Merchant Name</h3>
-        <h1 className="text-4xl font-black text-slate-900 mb-8">₹{intent.amount}</h1>
-        <div className="space-y-4 border-t border-slate-200 pt-6">
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Order ID</span>
-            <span className="font-bold text-slate-900">{intent.order_id}</span>
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans text-slate-900">
+      {/* 📦 Desktop Summary (Left Side) */}
+      <div className="flex-1 p-8 md:p-16 border-r border-slate-200 hidden md:flex flex-col items-end">
+        <div className="w-full max-w-sm">
+          <div className="w-10 h-10 bg-slate-900 rounded-xl mb-8 flex items-center justify-center text-white font-black italic">W</div>
+          <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-2">Merchant Name</p>
+          <h1 className="text-5xl font-black mb-12">₹{intent.amount.toFixed(2)}</h1>
+          <div className="space-y-4 border-t border-slate-200 pt-8 text-sm">
+             <div className="flex justify-between"><span className="text-slate-400">Order ID</span><span>{intent.order_id}</span></div>
           </div>
         </div>
       </div>
 
-      {/* 💳 Payment Section (Right/Bottom) */}
-      <div className="flex-1 bg-white p-8 md:p-16 flex flex-col items-center">
-        <h2 className="text-xl font-bold mb-8 self-start">Pay with UPI</h2>
-        <div className="p-4 border border-slate-100 rounded-3xl shadow-xl mb-8">
-          <QRCode value={intent.upi_link} size={200} />
-        </div>
-        <p className="text-sm text-slate-500 font-medium mb-8">Scan QR or use a UPI app below</p>
-        
-        {/* Mobile Intent Buttons */}
-        <div className="w-full flex gap-3">
-          <a href={intent.upi_link} className="flex-1 bg-slate-900 text-white py-4 rounded-2xl text-center font-black text-xs uppercase tracking-widest">
-            Open UPI Apps
-          </a>
+      {/* 💳 Payment Section (PC + Mobile) */}
+      <div className="flex-1 bg-white p-6 md:p-16 flex flex-col items-start justify-center">
+        <div className="w-full max-w-sm mx-auto md:mx-0">
+          <h2 className="text-2xl font-black mb-8">Pay with UPI</h2>
+          
+          <div className="p-4 border border-slate-100 rounded-[32px] shadow-2xl mb-8 inline-block bg-white">
+            <QRCodeSVG value={intent.upi_link} size={200} />
+          </div>
+
+          <div className="w-full space-y-4">
+            <button onClick={copyUpi} className="w-full flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+               <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">UPI Link</span>
+               <span className="text-xs font-bold text-blue-600">{copied ? <Check size={14}/> : 'COPY LINK'}</span>
+            </button>
+            <a href={intent.upi_link} className="block w-full py-5 bg-blue-600 text-white rounded-2xl text-center font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-600/20 active:scale-95 transition-all">
+              Open UPI Apps
+            </a>
+          </div>
         </div>
       </div>
     </div>
   );
-}`,
-                      HTML: `<!-- Native Mobile Script -->
-<script>
-  function openUPI() {
-    window.location.href = intent.upi_link;
-  }
-  
-  // High-performance status polling
-  setInterval(async () => {
-    const r = await fetch('/api/v1/check-status?token=' + intent.token);
-    const d = await r.json();
-    if(d.status === 'SUCCESS') window.location.href = '/success';
-  }, 8000);
-</script>`
+}
+
+const SuccessView = () => (
+  <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center bg-white">
+    <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6">✓</div>
+    <h2 className="text-3xl font-black mb-2">Payment Received</h2>
+    <p className="text-slate-500 font-medium">Your transaction has been verified successfully.</p>
+  </div>
+);`
                     }} />
                   </section>
 
                   <section>
-                    <SubHeading id="response-data">Intent Response Data</SubHeading>
-                    <p className="text-slate-600 mb-6 text-sm md:text-base">When you create an intent, our engine returns a payload rich with metadata for your custom UI.</p>
-                    <Table 
-                      headers={["Key", "Description", "Usage"]}
-                      rows={[
-                        [<code className="text-blue-600 font-bold">payment_token</code>, "Unique session token", "Poll transaction status"],
-                        [<code className="text-blue-600 font-bold">upi_link</code>, "Raw RFC-compliant URI", "Intent trigger for apps"],
-                        [<code className="text-blue-600 font-bold">qr_data</code>, "QR generation string", "Input for QR libraries"],
-                        [<code className="text-blue-600 font-bold">checkout_url</code>, "Hosted page URL", "Fallback for non-technical users"]
-                      ]}
-                    />
-                  </section>
-
-                  <section>
-                    <SubHeading id="native">Mobile App Implementation</SubHeading>
-                    <p className="text-slate-600 mb-4 text-sm md:text-base">For the best conversion rates on mobile, trigger the system Intent Picker. This allows users to pay via their preferred UPI app (GPay, PhonePe, etc.) without leaving your environment.</p>
-                    <div className="p-5 md:p-6 bg-slate-950 rounded-2xl font-mono text-[13px] text-blue-300 shadow-xl border border-slate-800 overflow-x-auto">
-                      {`// Example for React Native / Expo
-import { Linking } from 'react-native';
-
-const handlePay = async (upiLink) => {
-  const supported = await Linking.canOpenURL(upiLink);
-  if (supported) {
-    await Linking.openURL(upiLink);
-  }
-};`}
+                    <SectionHeading id="design-logic">Hybrid Design Philosophy</SectionHeading>
+                    <p className="text-slate-600 mb-8 leading-7 text-sm md:text-base">
+                      PayxMint checkouts automatically switch between two distinct UI behaviors based on the device detected.
+                    </p>
+                    <div className="grid md:grid-cols-2 gap-8">
+                       <div className="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm">
+                          <Smartphone className="text-blue-600 mb-4" />
+                          <h4 className="font-black mb-2">The Mobile Card</h4>
+                          <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">
+                            On Android and iOS, the UI collapses into a centralized card. This is optimized for thumb-reach and triggers the OS Intent Picker.
+                          </p>
+                          <span className="text-[10px] font-black text-blue-600 uppercase bg-blue-50 px-2 py-1 rounded">Best for Conversion</span>
+                       </div>
+                       <div className="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm">
+                          <Globe className="text-emerald-600 mb-4" />
+                          <h4 className="font-black mb-2">The Desktop Split</h4>
+                          <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">
+                            On browsers, the UI splits into a dual-column "Stripe-style" layout. This uses the extra space to display rich order details.
+                          </p>
+                          <span className="text-[10px] font-black text-emerald-600 uppercase bg-emerald-50 px-2 py-1 rounded">Premium Aesthetic</span>
+                       </div>
                     </div>
                   </section>
-
-                  <section>
-                    <SectionHeading id="limits">API Limits & Routing</SectionHeading>
-                    <p className="text-slate-600 mb-6 text-sm md:text-base">
-                      Each Google Pay account has individual limits enforced by our Gateway Router. If an account hits its daily or monthly limit, it is automatically rotated out of the active pool.
-                    </p>
-                    <Table 
-                      headers={["Limit Type", "Behavior", "Recovery"]}
-                      rows={[
-                        ["Daily Limit", "Max volume per 24 hours per VPA", "Resets at 12:00 AM IST"],
-                        ["Monthly Limit", "Max aggregate volume per month", "Resets on the 1st of every month"],
-                        ["Ticket Range", "Min/Max allowed transaction size", "Adjustable in Account Settings"]
-                      ]}
-                    />
-                    <Callout type="info" title="Routing Logic">
-                      Our engine automatically selects the healthiest node with the lowest current daily usage to ensure high success rates and balance the load across your VPAs.
-                    </Callout>
-                  </section>
-
-                  <Callout type="warning" title="Protocol Safety">
-                    Always ensure your server-side API Key is <strong>NEVER</strong> exposed to the frontend. Custom checkouts must only interact with the public <code>check-status</code> API using the session token.
-                  </Callout>
                 </div>
               </motion.div>
             )}
 
             {activeSection === "webhooks" && (
-              <motion.div 
-                key="webhooks" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="webhooks" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Webhooks</h1>
                 <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
-                  Receive real-time settlement notifications as soon as UTR matching is confirmed.
+                  Receive real-time settlement notifications confirmed by our GPay bot engine.
                 </p>
-
                 <SectionHeading id="payload">Success Payload</SectionHeading>
                 <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 font-mono text-sm text-emerald-400 overflow-x-auto shadow-xl">
-                  {'{'}<br/>
-                  &nbsp;&nbsp;"event": "payment.success",<br/>
-                  &nbsp;&nbsp;"order_id": "YOUR_REF_123",<br/>
-                  &nbsp;&nbsp;"amount": 500.00,<br/>
-                  &nbsp;&nbsp;"utr": "412239102931",<br/>
-                  &nbsp;&nbsp;"timestamp": "2024-05-04T12:00:00Z"<br/>
-                  {'}'}
+                  {`{
+  "event": "payment.success",
+  "order_id": "ORD_12345",
+  "amount": 500.00,
+  "utr": "412239102931",
+  "timestamp": "2026-05-16T12:00:00Z"
+}`}
                 </div>
-
-                <SectionHeading id="retries">Retry Strategy</SectionHeading>
-                <p className="text-slate-600 mb-6 text-sm md:text-base">
-                  If your endpoint does not return a <code>200 OK</code> status, we will retry the notification 5 times over 1 hour with exponential backoff.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12 pt-8 border-t border-slate-100">
-                  <div className="flex items-center gap-3 text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                     <ShieldCheck className="text-blue-500" size={20} />
-                     <span className="font-bold text-sm">Secure Signed Traffic</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                     <Activity className="text-emerald-500" size={20} />
-                     <span className="font-bold text-sm">99.9% Delivery Guarantee</span>
-                  </div>
-                </div>
-
                 <SectionHeading id="signature">Verifying Signatures</SectionHeading>
-                <p className="text-slate-600 leading-7 text-sm md:text-base mb-6">
-                  We use HMAC-SHA256 to sign all webhook payloads. The signature is sent in the <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-800">X-PayxMint-Signature</code> header.
-                  You should compute the HMAC hash of the raw request body using your <strong>Webhook Secret</strong> and compare it to the signature.
+                <p className="text-slate-600 mb-6 text-sm md:text-base">
+                  We sign all payloads using HMAC-SHA256. The signature is in the <code>X-PayxMint-Signature</code> header.
                 </p>
-
                 <CodeBlock snippets={snippets.webhookVerify} />
-              </motion.div>
-            )}
-            {activeSection === "testing" && (
-              <motion.div 
-                key="testing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              >
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Testing & Sandbox</h1>
-                <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
-                  Learn how to safely test your integration without moving real money.
-                </p>
-
-                <SectionHeading id="test-mode">Sandbox Mode</SectionHeading>
-                <p className="text-slate-600 leading-7 text-sm md:text-base mb-6">
-                  Every PayxMint account includes a Sandbox mode. While in Sandbox mode, you can use our test UPI numbers to simulate successful payments, failed payments, and webhooks.
-                </p>
-
-                <Table 
-                  headers={["Scenario", "Test UTR Number", "Expected Outcome"]}
-                  rows={[
-                    [<code className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">SUCCESS_123</code>, "Simulate successful payment", "Fires SUCCESS webhook"],
-                    [<code className="text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded">FAIL_456</code>, "Simulate failed payment", "Fires FAILED webhook"],
-                    [<code className="text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded">DELAY_789</code>, "Simulate delayed bank network", "Fires SUCCESS after 60 seconds"]
-                  ]}
-                />
-
-                <Callout type="warning" title="Test Environment Restrictions">
-                  Sandbox intents cannot be accessed from the live network. Only API keys generated in the Sandbox environment can trigger these test UTRs.
-                </Callout>
               </motion.div>
             )}
 
             {activeSection === "errors" && (
-              <motion.div 
-                key="errors" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="errors" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight mb-4 leading-tight">Error Codes</h1>
-                <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12">
-                  A comprehensive list of HTTP status codes and PayxMint custom error codes.
-                </p>
-
-                <SectionHeading id="http-status">HTTP Status Codes</SectionHeading>
                 <Table 
-                  headers={["Status Code", "Description"]}
+                  headers={["Status", "Meaning", "Action"]}
                   rows={[
-                    [<span className="font-bold text-emerald-600">200 - OK</span>, "Everything worked as expected."],
-                    [<span className="font-bold text-amber-600">400 - Bad Request</span>, "The request was unacceptable, often due to missing a required parameter."],
-                    [<span className="font-bold text-rose-600">401 - Unauthorized</span>, "No valid API key provided."],
-                    [<span className="font-bold text-rose-600">403 - Forbidden</span>, "The API key doesn't have permissions to perform the request (e.g., IP not whitelisted)."],
-                    [<span className="font-bold text-amber-600">429 - Too Many Requests</span>, "Too many requests hit the API too quickly. We recommend an exponential backoff of your requests."],
-                    [<span className="font-bold text-rose-600">500, 502, 503, 504 - Server Errors</span>, "Something went wrong on PayxMint's end."]
-                  ]}
-                />
-
-                <SectionHeading id="custom-errors">Custom Error Codes</SectionHeading>
-                <Table 
-                  headers={["Error Code", "Meaning"]}
-                  rows={[
-                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">invalid_api_key</code>, "The API key provided is invalid or disabled."],
-                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">ip_not_whitelisted</code>, "Your server's IP address is not whitelisted in the dashboard."],
-                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">insufficient_wallet_balance</code>, "Your wallet balance is too low to cover the settlement fee for this transaction."],
-                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">duplicate_order_id</code>, "An intent with this order_id has already been created."],
-                    [<code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">node_unavailable</code>, "No verified GPay nodes are currently active for your account."]
+                    [<span className="font-bold text-rose-600">401</span>, "Invalid API Key", "Check Dashboard"],
+                    [<span className="font-bold text-amber-600">403</span>, "IP Restricted", "Whitelist your IP"],
+                    [<span className="font-bold text-rose-600">503</span>, "No Active Node", "Check GPay Bot Status"]
                   ]}
                 />
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Footer inside content area */}
-          <div className="mt-24 pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-400">
+          <footer className="mt-24 pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-400">
              <p className="text-[11px] font-bold uppercase tracking-widest">© 2026 PayxMint Developers</p>
              <div className="flex gap-6">
                 <Link href="/dashboard" className="text-[11px] font-black hover:text-blue-600 transition-colors uppercase tracking-widest">Dashboard</Link>
                 <a href="mailto:support@payxmint.com" className="text-[11px] font-black hover:text-blue-600 transition-colors uppercase tracking-widest">Support</a>
              </div>
-          </div>
+          </footer>
         </main>
-
-        {/* Right TOC Sidebar (Desktop Only) */}
-        <aside className="w-64 p-8 hidden xl:block sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
-          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">On this page</h4>
-          <ul className="space-y-4 border-l-2 border-slate-100 pl-4">
-            {activeSection === "overview" && (
-               <>
-                 <li><a href="#architecture" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Architecture</a></li>
-               </>
-             )}
-             {activeSection === "setup" && (
-               <>
-                 <li><a href="#setup" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">3-Step Setup</a></li>
-               </>
-             )}
-             {activeSection === "auth" && (
-               <>
-                 <li><a href="#api-keys" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">API Keys</a></li>
-                 <li><a href="#postman" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Postman Collection</a></li>
-               </>
-             )}
-             {activeSection === "intent" && (
-               <>
-                 <li><a href="#params" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Request Params</a></li>
-                 <li><a href="#response" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Response Schema</a></li>
-               </>
-             )}
-             {activeSection === "checkout" && (
-               <>
-                 <li><a href="#integration-phases" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Workflow</a></li>
-                 <li><a href="#native" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Mobile Integration</a></li>
-               </>
-             )}
-             {activeSection === "webhooks" && (
-               <>
-                 <li><a href="#payload" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Payload Structure</a></li>
-                 <li><a href="#retries" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Retry Strategy</a></li>
-                 <li><a href="#signature" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Verifying Signatures</a></li>
-               </>
-             )}
-             {activeSection === "testing" && (
-               <>
-                 <li><a href="#test-mode" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Sandbox Mode</a></li>
-               </>
-             )}
-             {activeSection === "errors" && (
-               <>
-                 <li><a href="#http-status" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">HTTP Status Codes</a></li>
-                 <li><a href="#custom-errors" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-all">Custom Errors</a></li>
-               </>
-             )}
-          </ul>
-        </aside>
       </div>
     </div>
   );
 }
 
 const SetupStep = ({ num, title, children }: any) => (
-  <div className="flex gap-4 md:gap-6">
-    <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-600 text-white rounded-xl md:rounded-2xl flex items-center justify-center font-black text-sm md:text-base shrink-0 shadow-lg shadow-blue-600/20">
-      {num}
-    </div>
-    <div className="space-y-2 pt-1 md:pt-2">
-      <h4 className="text-lg md:text-xl font-bold text-slate-900">{title}</h4>
-      <div className="text-sm md:text-base text-slate-500 leading-relaxed font-medium">
-        {children}
-      </div>
+  <div className="flex gap-6">
+    <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black shrink-0 shadow-lg shadow-blue-600/20">{num}</div>
+    <div className="space-y-2 pt-2">
+      <h4 className="text-xl font-bold text-slate-900">{title}</h4>
+      <div className="text-sm text-slate-500 font-medium leading-relaxed">{children}</div>
     </div>
   </div>
 );
@@ -874,7 +663,7 @@ const PhaseCard = ({ num, title, desc }: any) => (
     <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-black text-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">{num}</div>
     <div className="space-y-2">
       <h4 className="text-base font-bold text-slate-900">{title}</h4>
-      <p className="text-xs text-slate-500 font-medium leading-relaxed">{desc}</p>
+      <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{desc}</p>
     </div>
   </div>
 );
