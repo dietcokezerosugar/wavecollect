@@ -48,9 +48,16 @@ export default function MerchantAccountsPage() {
 
   const [otpInputs, setOtpInputs] = useState<Record<string, string>>({});
 
+  // Pool State
+  const [poolState, setPoolState] = useState<any>(null);
+
   useEffect(() => {
     fetchAccounts();
-    const interval = setInterval(fetchAccounts, 10000); // Poll PM2 status
+    fetchPoolStatus();
+    const interval = setInterval(() => {
+      fetchAccounts();
+      fetchPoolStatus();
+    }, 10000); // Poll PM2 status and pool status
     return () => clearInterval(interval);
   }, []);
 
@@ -125,6 +132,47 @@ export default function MerchantAccountsPage() {
     fetchAccounts();
   }
 
+  async function fetchPoolStatus() {
+    try {
+      const res = await fetch("/api/merchant/pool-request");
+      const json = await res.json();
+      if (json.status === "success") {
+        setPoolState(json.data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch pool status", e);
+    }
+  }
+
+  async function toggleProcessingMode(mode: string) {
+    try {
+      await fetch("/api/merchant/pool-request", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode })
+      });
+      fetchPoolStatus();
+    } catch (e) {
+      console.error("Failed to toggle mode", e);
+    }
+  }
+
+  async function applyForPool() {
+    try {
+      const res = await fetch("/api/merchant/pool-request", {
+        method: "POST",
+      });
+      const json = await res.json();
+      if (json.status === "success") {
+        fetchPoolStatus();
+      } else {
+        alert(json.error || "Failed to request pool account");
+      }
+    } catch (e) {
+      console.error("Failed to apply for pool", e);
+    }
+  }
+
   const submitForReview = async () => {
     if (newPassword !== confirmPassword) {
       alert("Passwords do not match");
@@ -195,6 +243,93 @@ export default function MerchantAccountsPage() {
           </button>
         )}
       </div>
+
+      {/* Processing Mode Toggle */}
+      {poolState && (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+          <div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4">Payment Processing Mode</h2>
+            <div className="flex bg-slate-50 p-1.5 rounded-xl border border-slate-200 max-w-sm">
+              <button 
+                onClick={() => toggleProcessingMode("OWN_ACCOUNT")}
+                className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${
+                  poolState.processingMode === "OWN_ACCOUNT" ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                Self Account
+              </button>
+              <button 
+                onClick={() => toggleProcessingMode("PLATFORM_POOL")}
+                className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${
+                  poolState.processingMode === "PLATFORM_POOL" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                Platform Pool
+              </button>
+            </div>
+          </div>
+
+          {poolState.processingMode === "PLATFORM_POOL" && (
+            <div className="pt-2 border-t border-slate-100">
+              {poolState.poolRequestStatus === "APPROVED" && poolState.allocation ? (
+                <div className="flex flex-col md:flex-row items-center gap-6 p-6 bg-emerald-50 rounded-xl border border-emerald-100">
+                  <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-emerald-900">Platform Account Active</h3>
+                      <span className="px-2 py-0.5 bg-emerald-200 text-emerald-800 text-[9px] font-black uppercase rounded-full">
+                        {poolState.allocation.sessionStatus}
+                      </span>
+                    </div>
+                    <p className="text-xs font-bold text-emerald-700 font-mono">UPI ID: {poolState.allocation.upiId}</p>
+                    
+                    <div className="pt-2">
+                      <div className="flex justify-between text-[10px] font-black text-emerald-700 uppercase mb-1">
+                        <span>Quota Used: ₹{(Number(poolState.allocation.usedQuota)).toLocaleString()}</span>
+                        <span>₹{(Number(poolState.allocation.totalQuota)).toLocaleString()}</span>
+                      </div>
+                      <div className="h-1.5 bg-emerald-200/50 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${poolState.allocation.allocationStatus === "EXHAUSTED" ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                          style={{ width: `${Math.min((Number(poolState.allocation.usedQuota) / Number(poolState.allocation.totalQuota)) * 100, 100)}%` }}
+                        />
+                      </div>
+                      {poolState.allocation.allocationStatus === "EXHAUSTED" && (
+                         <p className="text-[10px] text-rose-600 font-bold mt-1 uppercase tracking-widest">Quota Exhausted. API Paused.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : poolState.poolRequestStatus === "PENDING" ? (
+                <div className="flex items-center gap-4 p-6 bg-amber-50 rounded-xl border border-amber-100">
+                  <Loader2 className="w-6 h-6 text-amber-500 animate-spin shrink-0" />
+                  <div>
+                    <h3 className="text-sm font-black text-amber-900">Request Pending</h3>
+                    <p className="text-xs font-medium text-amber-700">Admin will allocate a platform account to you shortly.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 bg-slate-50 rounded-xl border border-slate-200">
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900">Use Platform Accounts</h3>
+                    <p className="text-xs font-medium text-slate-500 max-w-lg mt-1">
+                      Let the platform handle Google Pay nodes and transaction routing. Simply request access and start processing payments through our shared infrastructure.
+                    </p>
+                  </div>
+                  <button 
+                    onClick={applyForPool}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shrink-0"
+                  >
+                    Apply for Platform Account
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {showWizard && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mx-2 md:mx-0">
@@ -322,7 +457,12 @@ export default function MerchantAccountsPage() {
 
       {/* Account List */}
       {!showWizard && (
-        <div className="grid gap-3 md:gap-6 px-2 md:px-0 pb-12">
+        <div className={`grid gap-3 md:gap-6 px-2 md:px-0 pb-12 transition-all duration-300 ${poolState?.processingMode === "PLATFORM_POOL" ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+          {poolState?.processingMode === "PLATFORM_POOL" && (
+             <div className="col-span-full mb-2 flex items-center gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl text-amber-800 text-xs font-bold">
+               <AlertTriangle className="w-4 h-4" /> Self-managed accounts are disabled while using Platform Pool mode.
+             </div>
+          )}
           {accounts.map(acc => {
             const isApproved = acc.reviewStatus === "APPROVED";
             const isOnline = acc.sessionStatus === "ONLINE";

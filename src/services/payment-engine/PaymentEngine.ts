@@ -96,6 +96,14 @@ export class PaymentEngine {
 
     const { account, fallbackUsed } = routingResult;
 
+    // ── 4b. Platform Pool Quota Check ────────────────────────────────
+    if (account.accountType === "PLATFORM_POOL" && Number(account.totalQuota) > 0) {
+      const remaining = Number(account.totalQuota) - Number(account.usedQuota);
+      if (remaining < amount) {
+        throw new Error("QUOTA_EXHAUSTED: Platform account limit reached. Contact admin to increase quota.");
+      }
+    }
+
     // ── 5. Generate UPI Deep Link (exactly like BloomXHub) ───────────
     const merchantName = keyData.merchant.brandName || keyData.merchant.businessName || keyData.merchant.name;
     // Sanitize name for raw UPI URL — encode only chars that break URL structure

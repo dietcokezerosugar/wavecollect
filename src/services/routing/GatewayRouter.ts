@@ -34,8 +34,10 @@ export class GatewayRouter {
       // Recharge: use admin pool accounts
       baseWhere.isAdmin = true;
     } else if (isPoolMode) {
-      // Platform Pool: use shared pool accounts (not tied to this merchant)
+      // Platform Pool: use the specific pool account allocated to this merchant (1:1)
       baseWhere.accountType = "PLATFORM_POOL";
+      baseWhere.allocatedToMerchantId = merchantId;
+      baseWhere.allocationStatus = "ASSIGNED";
     } else {
       // Own Account: use only this merchant's accounts
       baseWhere.merchantId = merchantId;

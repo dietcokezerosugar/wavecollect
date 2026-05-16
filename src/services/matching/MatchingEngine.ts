@@ -244,11 +244,34 @@ export class MatchingEngine {
         const upiMatch = intent.upiDeepLink.match(/pa=([^&]+)/);
         if (upiMatch) {
           const usedUpi = decodeURIComponent(upiMatch[1]);
+          // Look up by merchantId (own account) OR allocatedToMerchantId (pool account)
           const gpayAccount = await prisma.googlePayAccount.findFirst({
-            where: { upiId: usedUpi, merchantId: intent.merchantId }
+            where: {
+              upiId: usedUpi,
+              OR: [
+                { merchantId: intent.merchantId },
+                { allocatedToMerchantId: intent.merchantId }
+              ]
+            }
           });
           if (gpayAccount) {
             await GatewayRouter.recordUsage(gpayAccount.id, txnAmount);
+            
+            // Pool quota tracking: increment usedQuota and check exhaustion
+            if (gpayAccount.accountType === "PLATFORM_POOL" && Number(gpayAccount.totalQuota) > 0) {
+              const updated = await prisma.googlePayAccount.update({
+                where: { id: gpayAccount.id },
+                data: { usedQuota: { increment: txnAmount } }
+              });
+              // Auto-pause when quota exhausted
+              if (Number(updated.usedQuota) >= Number(updated.totalQuota)) {
+                await prisma.googlePayAccount.update({
+                  where: { id: gpayAccount.id },
+                  data: { allocationStatus: "EXHAUSTED" }
+                });
+                await logApi("WARNING", `Pool account ${gpayAccount.name} quota exhausted (₹${updated.usedQuota}/${updated.totalQuota})`, intent.merchantId);
+              }
+            }
           }
         }
       }

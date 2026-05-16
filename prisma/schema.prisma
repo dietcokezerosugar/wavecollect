@@ -67,6 +67,11 @@ model Merchant {
   
   apiAccessStatus  String           @default("NOT_REQUESTED") // NOT_REQUESTED, PENDING, APPROVED
   processingMode   String           @default("OWN_ACCOUNT")    // OWN_ACCOUNT, PLATFORM_POOL
+  poolRequestStatus String          @default("NONE")           // NONE, PENDING, APPROVED, REJECTED
+  poolRequestedAt  DateTime?
+  
+  // Pool Allocation (reverse relation)
+  allocatedPoolAccounts GooglePayAccount[] @relation("PoolAllocation")
   
   // Custom Branding
   brandColor       String?          @default("#2563eb") // Primary brand color
@@ -231,6 +236,15 @@ model GooglePayAccount {
   currentDaily   Decimal   @default(0) @db.Decimal(14,2)
   currentWeekly  Decimal   @default(0) @db.Decimal(14,2)
   currentMonthly Decimal   @default(0) @db.Decimal(14,2)
+  
+  // === Platform Pool Allocation ===
+  allocatedToMerchantId String?
+  allocatedToMerchant   Merchant?  @relation("PoolAllocation", fields: [allocatedToMerchantId], references: [id])
+  totalQuota            Decimal    @default(0) @db.Decimal(14,2)  // Total amount quota set by admin
+  usedQuota             Decimal    @default(0) @db.Decimal(14,2)  // Amount consumed so far
+  allocationStatus      String     @default("UNASSIGNED")         // UNASSIGNED, ASSIGNED, PAUSED, EXHAUSTED
+  allocatedAt           DateTime?
+  allocatedBy           String?    // Staff/Admin user ID who allocated
   
   createdAt      DateTime  @default(now())
 }
