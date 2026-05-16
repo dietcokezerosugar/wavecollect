@@ -56,7 +56,7 @@ export default function CustomerManagement() {
           </h1>
           <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Customer Fingerprinting & Blacklisting</p>
         </div>
-        <button onClick={fetchData} className="p-3 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 transition-all shadow-sm">
+        <button onClick={fetchData} className="p-3 bg-white border border-slate-200 rounded-md text-slate-500 hover:text-slate-900 transition-all shadow-sm">
           <RefreshCcw size={18} className={loading ? "animate-spin" : ""} />
         </button>
       </div>
@@ -68,11 +68,11 @@ export default function CustomerManagement() {
           placeholder="Search by fingerprint or phone..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+          className="w-full bg-white border border-slate-200 rounded-md pl-12 pr-4 py-4 text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
         />
       </div>
 
-      <div className="bg-white rounded-[32px] border border-slate-200 overflow-hidden shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
@@ -87,7 +87,7 @@ export default function CustomerManagement() {
               <tr key={c.id} className="hover:bg-slate-50/50 transition-colors group">
                 <td className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 border border-slate-200 group-hover:bg-white group-hover:text-blue-600 transition-all">
+                    <div className="w-10 h-10 bg-slate-100 rounded-md flex items-center justify-center text-slate-400 border border-slate-200 group-hover:bg-white group-hover:text-blue-600 transition-all">
                        <Fingerprint size={20} />
                     </div>
                     <div>
@@ -118,7 +118,7 @@ export default function CustomerManagement() {
                   </div>
                 </td>
                 <td className="p-6 text-right">
-                   <button className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all">
+                   <button className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-all">
                       <UserX size={18} />
                    </button>
                 </td>

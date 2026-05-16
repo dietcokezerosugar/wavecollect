@@ -139,11 +139,11 @@ export default function SettingsPage() {
         <div className="lg:col-span-2 space-y-8">
           {/* API Access Approval Section */}
           {apiAccessStatus !== "APPROVED" && (
-            <section className="bg-blue-600 rounded-[32px] p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-600/20">
+            <section className="bg-blue-600 rounded-lg p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-600/20">
                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                <div className="relative z-10 space-y-6">
                   <div className="flex items-center gap-3">
-                     <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md">
+                     <div className="p-3 bg-white/20 rounded-md backdrop-blur-md">
                         <Lock className="w-6 h-6 text-white" />
                      </div>
                      <div>
@@ -157,7 +157,7 @@ export default function SettingsPage() {
                   <button 
                     onClick={applyForAccess}
                     disabled={apiAccessStatus === "PENDING"}
-                    className="px-8 py-4 bg-white text-blue-600 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-50 transition-all shadow-xl disabled:opacity-50 active:scale-95"
+                    className="px-8 py-4 bg-white text-blue-600 rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-blue-50 transition-all shadow-xl disabled:opacity-50 active:scale-95"
                   >
                     {apiAccessStatus === "PENDING" ? "Application Under Review" : "Apply for API Whitelisting"}
                   </button>
@@ -166,9 +166,9 @@ export default function SettingsPage() {
           )}
 
           {/* Core Integration Details */}
-          <section className="bg-white rounded-[32px] border border-slate-200 p-8 space-y-8 shadow-sm">
+          <section className="bg-white rounded-lg border border-slate-200 p-8 space-y-8 shadow-sm">
              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100">
+                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100">
                    <Server className="w-5 h-5" />
                 </div>
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Network Architecture</h3>
@@ -215,7 +215,7 @@ export default function SettingsPage() {
                           navigator.clipboard.writeText(webhookSecret);
                           alert("Secret copied to clipboard");
                         }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[9px] font-black uppercase text-slate-500 hover:text-blue-600 shadow-sm"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-white border border-slate-200 rounded-md text-[9px] font-black uppercase text-slate-500 hover:text-blue-600 shadow-sm"
                       >
                         Copy
                       </button>
@@ -237,7 +237,7 @@ export default function SettingsPage() {
                       </div>
                    </div>
                    
-                   <div className="p-6 bg-slate-50 border border-slate-100 rounded-[28px] flex items-center justify-between group hover:border-blue-200 transition-all shadow-inner">
+                   <div className="p-6 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-between group hover:border-blue-200 transition-all shadow-inner">
                       <div className="space-y-1">
                          <p className="text-[11px] font-black text-slate-900 leading-none">
                             {ipWhitelist || "Awaiting First Request"}
@@ -246,7 +246,7 @@ export default function SettingsPage() {
                             Active Traffic Origination Node
                          </p>
                       </div>
-                      <div className="p-3 bg-white rounded-2xl border border-slate-200 text-slate-300 shadow-sm">
+                      <div className="p-3 bg-white rounded-md border border-slate-200 text-slate-300 shadow-sm">
                          <Lock size={18} />
                       </div>
                    </div>
@@ -259,9 +259,9 @@ export default function SettingsPage() {
           </section>
           
           {/* Processing Mode Selection */}
-          <section className="bg-white rounded-[32px] border border-slate-200 p-8 space-y-8 shadow-sm">
+          <section className="bg-white rounded-lg border border-slate-200 p-8 space-y-8 shadow-sm">
              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100">
+                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-md flex items-center justify-center border border-emerald-100">
                    <Zap className="w-5 h-5" />
                 </div>
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Processing Infrastructure</h3>
@@ -270,12 +270,12 @@ export default function SettingsPage() {
              <div className="grid md:grid-cols-2 gap-4">
                 <button 
                   onClick={() => setProcessingMode("OWN_ACCOUNT")}
-                  className={`p-6 rounded-[28px] border text-left transition-all relative overflow-hidden group ${
+                  className={`p-6 rounded-lg border text-left transition-all relative overflow-hidden group ${
                     processingMode === "OWN_ACCOUNT" ? "bg-slate-900 border-slate-900 text-white shadow-xl shadow-slate-900/20" : "bg-slate-50 border-slate-100 text-slate-900 hover:border-slate-200"
                   }`}
                 >
                    <div className="relative z-10 space-y-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${processingMode === "OWN_ACCOUNT" ? "bg-white/10" : "bg-white shadow-sm text-slate-400"}`}>
+                      <div className={`w-10 h-10 rounded-md flex items-center justify-center ${processingMode === "OWN_ACCOUNT" ? "bg-white/10" : "bg-white shadow-sm text-slate-400"}`}>
                          <Smartphone className="w-5 h-5" />
                       </div>
                       <div>
@@ -290,12 +290,12 @@ export default function SettingsPage() {
 
                 <button 
                    onClick={() => setProcessingMode("PLATFORM_POOL")}
-                   className={`p-6 rounded-[28px] border text-left transition-all relative overflow-hidden group ${
+                   className={`p-6 rounded-lg border text-left transition-all relative overflow-hidden group ${
                      processingMode === "PLATFORM_POOL" ? "bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-600/20" : "bg-slate-50 border-slate-100 text-slate-900 hover:border-slate-200"
                    }`}
                 >
                    <div className="relative z-10 space-y-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${processingMode === "PLATFORM_POOL" ? "bg-white/10" : "bg-white shadow-sm text-blue-600"}`}>
+                      <div className={`w-10 h-10 rounded-md flex items-center justify-center ${processingMode === "PLATFORM_POOL" ? "bg-white/10" : "bg-white shadow-sm text-blue-600"}`}>
                          <Globe className="w-5 h-5" />
                       </div>
                       <div>
@@ -309,7 +309,7 @@ export default function SettingsPage() {
                 </button>
              </div>
              
-             <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-start gap-3">
+             <div className="p-4 bg-amber-50 border border-amber-100 rounded-md flex items-start gap-3">
                 <ShieldAlert className="w-4 h-4 text-amber-600 mt-0.5" />
                 <p className="text-[10px] text-amber-800 font-bold leading-relaxed uppercase tracking-tight">
                    Note: Switching modes affects routing immediately. Ensure your managed accounts are "ONLINE" before selecting "Own Managed Account".
@@ -318,9 +318,9 @@ export default function SettingsPage() {
           </section>
 
           {/* Referral Program */}
-          <section className="bg-white rounded-[32px] border border-slate-200 p-8 space-y-8 shadow-sm">
+          <section className="bg-white rounded-lg border border-slate-200 p-8 space-y-8 shadow-sm">
              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center border border-amber-100">
+                <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-md flex items-center justify-center border border-amber-100">
                    <Gift className="w-5 h-5" />
                 </div>
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Referral Network</h3>
@@ -368,9 +368,9 @@ export default function SettingsPage() {
            </section>
 
            {/* Branding & Appearance */}
-           <section className="bg-white rounded-[32px] border border-slate-200 p-8 space-y-8 shadow-sm">
+           <section className="bg-white rounded-lg border border-slate-200 p-8 space-y-8 shadow-sm">
               <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center border border-indigo-100">
+                 <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-md flex items-center justify-center border border-indigo-100">
                     <Palette className="w-5 h-5" />
                  </div>
                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Checkout Branding</h3>
@@ -393,7 +393,7 @@ export default function SettingsPage() {
                           type="color"
                           value={brandColor}
                           onChange={(e) => setBrandColor(e.target.value)}
-                          className="h-13 w-13 rounded-xl border-none cursor-pointer bg-transparent"
+                          className="h-13 w-13 rounded-md border-none cursor-pointer bg-transparent"
                        />
                        <input 
                           value={brandColor}
@@ -412,7 +412,7 @@ export default function SettingsPage() {
                     />
                  </div>
                  
-                 <div className="col-span-2 p-6 bg-slate-50 rounded-[28px] border border-slate-100 flex items-center justify-between">
+                 <div className="col-span-2 p-6 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between">
                     <div className="space-y-1">
                        <p className="text-[11px] font-black text-slate-900">Show Support Identity</p>
                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Display your email on the checkout page</p>
@@ -429,15 +429,15 @@ export default function SettingsPage() {
               {/* Live Preview */}
               <div className="pt-4 border-t border-slate-50">
                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 px-1">Live Checkout Preview</p>
-                 <div className="bg-slate-100 rounded-[32px] p-8 flex items-center justify-center">
-                    <div className="bg-white w-full max-w-xs rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+                 <div className="bg-slate-100 rounded-lg p-8 flex items-center justify-center">
+                    <div className="bg-white w-full max-w-xs rounded-md shadow-xl overflow-hidden border border-slate-200">
                        <div className="p-4 border-b border-slate-50 flex items-center justify-between" style={{ borderTop: `4px solid ${brandColor}` }}>
                           {brandLogo ? <img src={brandLogo} alt="Logo" className="h-6 object-contain" /> : <div className="w-6 h-6 bg-slate-100 rounded-full" />}
                           <span className="text-[10px] font-black text-slate-900">{brandName || "Merchant Name"}</span>
                        </div>
                        <div className="p-6 space-y-4">
-                          <div className="h-10 w-full bg-slate-50 rounded-xl" />
-                          <button className="w-full py-3 rounded-xl text-white text-[10px] font-black uppercase tracking-widest" style={{ backgroundColor: brandColor }}>
+                          <div className="h-10 w-full bg-slate-50 rounded-md" />
+                          <button className="w-full py-3 rounded-md text-white text-[10px] font-black uppercase tracking-widest" style={{ backgroundColor: brandColor }}>
                              Pay Securely
                           </button>
                        </div>
@@ -448,8 +448,8 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-8">
-          <div className="bg-slate-900 rounded-[32px] p-8 text-white space-y-6 shadow-xl shadow-slate-900/10">
-             <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
+          <div className="bg-slate-900 rounded-lg p-8 text-white space-y-6 shadow-xl shadow-slate-900/10">
+             <div className="w-12 h-12 bg-white/10 rounded-md flex items-center justify-center backdrop-blur-md">
                 <ShieldCheck className="w-6 h-6 text-emerald-400" />
              </div>
              <h3 className="text-xl font-black tracking-tight">Security Hardening</h3>
@@ -470,7 +470,7 @@ export default function SettingsPage() {
              </div>
           </div>
 
-          <div className="bg-white rounded-[32px] border border-slate-200 p-8 space-y-6">
+          <div className="bg-white rounded-lg border border-slate-200 p-8 space-y-6">
              <div className="flex items-center gap-3">
                 <Globe className="w-5 h-5 text-blue-600" />
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Environment Info</h3>

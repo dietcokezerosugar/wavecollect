@@ -86,13 +86,13 @@ function LoginForm() {
           <p className="text-slate-500 font-medium">Enter your credentials to access PayxMint</p>
         </div>
 
-        <div className="bg-white rounded-[32px] border border-slate-100 p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)]">
+        <div className="bg-white rounded-lg border border-slate-100 p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)]">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-xs font-bold flex items-center gap-3"
+                className="p-4 bg-rose-50 border border-rose-100 rounded-md text-rose-600 text-xs font-bold flex items-center gap-3"
               >
                 <div className="w-5 h-5 rounded-full bg-rose-100 flex items-center justify-center flex-shrink-0">!</div>
                 {error}
@@ -111,7 +111,7 @@ function LoginForm() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold text-slate-900"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-md outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold text-slate-900"
                     placeholder="name@company.com"
                   />
                 </div>
@@ -128,7 +128,7 @@ function LoginForm() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold text-slate-900"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-md outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold text-slate-900"
                     placeholder="••••••••"
                   />
                 </div>
@@ -145,7 +145,7 @@ function LoginForm() {
 
             <button 
               disabled={loading}
-              className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-slate-800 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-xl shadow-slate-900/10"
+              className="w-full h-14 bg-slate-900 text-white rounded-md font-black text-sm flex items-center justify-center gap-3 hover:bg-slate-800 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-xl shadow-slate-900/10"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

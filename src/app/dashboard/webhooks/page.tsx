@@ -68,10 +68,10 @@ export default function WebhooksPage() {
         <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Configure real-time POST delivery infrastructure</p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
         <div className="p-6 md:p-8 space-y-8">
           <div className="flex items-center gap-5">
-            <div className="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 border border-blue-100 shadow-sm">
+            <div className="w-14 h-14 bg-blue-50 rounded-md flex items-center justify-center text-blue-600 border border-blue-100 shadow-sm">
               <Webhook className="w-7 h-7" />
             </div>
             <div>
@@ -86,7 +86,7 @@ export default function WebhooksPage() {
               value={webhookUrl}
               onChange={(e) => setWebhookUrl(e.target.value)}
               placeholder="https://api.yourdomain.com/webhooks/wave"
-              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono font-black text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all placeholder:text-slate-200"
+              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-mono font-black text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all placeholder:text-slate-200"
             />
           </div>
 
@@ -94,14 +94,14 @@ export default function WebhooksPage() {
             <button
               onClick={saveWebhook}
               disabled={loading}
-              className="w-full md:w-auto px-8 py-3.5 bg-slate-900 text-white rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-all shadow-lg shadow-slate-900/10 active:scale-95 disabled:opacity-50"
+              className="w-full md:w-auto px-8 py-3.5 bg-slate-900 text-white rounded-md text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-all shadow-lg shadow-slate-900/10 active:scale-95 disabled:opacity-50"
             >
               {saved ? <><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Endpoint Synced</> : <><Save className="w-4 h-4" /> {loading ? "Syncing..." : "Commit Endpoint"}</>}
             </button>
             <button
               onClick={testWebhook}
               disabled={!webhookUrl || testing}
-              className="w-full md:w-auto px-8 py-3.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95 disabled:opacity-50 shadow-sm flex items-center justify-center gap-2"
+              className="w-full md:w-auto px-8 py-3.5 bg-white border border-slate-200 text-slate-600 rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95 disabled:opacity-50 shadow-sm flex items-center justify-center gap-2"
             >
               {testing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Activity className="w-4 h-4" />}
               Dispatch Test Packet
@@ -117,7 +117,7 @@ export default function WebhooksPage() {
           <button onClick={fetchLogs} className="text-blue-600 font-black text-[9px] uppercase tracking-widest hover:underline">Refresh</button>
         </div>
         
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm overflow-x-auto">
+        <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[600px]">
              <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
@@ -165,7 +165,7 @@ export default function WebhooksPage() {
       {/* Payload Example */}
       <div className="space-y-4">
         <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-4">Packet Schema (POST JSON)</h3>
-        <div className="bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
+        <div className="bg-slate-950 rounded-md overflow-hidden border border-slate-800 shadow-xl">
           <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-800">
             <div className="flex items-center gap-3">
                <div className="flex gap-1.5">

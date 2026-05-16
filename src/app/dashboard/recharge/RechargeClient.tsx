@@ -44,14 +44,14 @@ export default function RechargeClient() {
   return (
     <div className="max-w-2xl mx-auto space-y-8 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="text-center space-y-2">
-        <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+        <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center mx-auto mb-4 shadow-sm">
           <Wallet size={32} />
         </div>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">Recharge Wallet</h1>
         <p className="text-slate-500 font-medium">Add balance to cover your transaction fees</p>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl shadow-slate-200/50 space-y-8">
+      <div className="bg-white border border-slate-200 rounded-lg p-8 shadow-xl shadow-slate-200/50 space-y-8">
         {/* Amount Input */}
         <div className="space-y-4">
           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Amount</label>
@@ -60,7 +60,7 @@ export default function RechargeClient() {
               <button
                 key={p}
                 onClick={() => setAmount(p)}
-                className={`py-3 rounded-xl text-xs font-black transition-all border ${
+                className={`py-3 rounded-md text-xs font-black transition-all border ${
                   amount === p 
                     ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20" 
                     : "bg-slate-50 text-slate-600 border-slate-100 hover:border-blue-200"
@@ -78,13 +78,13 @@ export default function RechargeClient() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter custom amount"
-              className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-6 py-5 text-2xl font-black text-slate-900 outline-none focus:border-blue-500 transition-all placeholder:text-slate-300"
+              className="w-full bg-slate-50 border-2 border-slate-100 rounded-md pl-12 pr-6 py-5 text-2xl font-black text-slate-900 outline-none focus:border-blue-500 transition-all placeholder:text-slate-300"
             />
           </div>
         </div>
 
         {error && (
-          <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-xs font-bold flex items-center gap-3">
+          <div className="p-4 bg-red-50 border border-red-100 rounded-md text-red-600 text-xs font-bold flex items-center gap-3">
             <ShieldCheck size={16} className="shrink-0" /> {error}
           </div>
         )}
@@ -92,7 +92,7 @@ export default function RechargeClient() {
         <button
           onClick={handleRecharge}
           disabled={loading}
-          className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-800 active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-slate-900/10"
+          className="w-full py-5 bg-slate-900 text-white rounded-md font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-800 active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-slate-900/10"
         >
           {loading ? (
             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -96,7 +96,7 @@ export default function AdminStaffHub() {
           <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Manual Collection & UTR Management</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black border border-blue-100 flex items-center gap-2">
+          <div className="px-4 py-2 bg-blue-50 text-blue-600 rounded-md text-[10px] font-black border border-blue-100 flex items-center gap-2">
             <TrendingUp size={12} /> Live Collection: ₹{stats?.totalVolume?.toLocaleString() || "0"}
           </div>
         </div>
@@ -104,19 +104,19 @@ export default function AdminStaffHub() {
 
       {/* KPI Cards for Staff */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+         <div className="bg-white p-5 rounded-md border border-slate-200 shadow-sm">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Volume</p>
             <p className="text-xl font-black text-slate-900">₹{stats?.totalVolume?.toLocaleString() || "0"}</p>
          </div>
-         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+         <div className="bg-white p-5 rounded-md border border-slate-200 shadow-sm">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Verified Orders</p>
             <p className="text-xl font-black text-emerald-600">{stats?.totalSuccessfulTxns || "0"}</p>
          </div>
-         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+         <div className="bg-white p-5 rounded-md border border-slate-200 shadow-sm">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">System Float</p>
             <p className="text-xl font-black text-blue-600">₹{stats?.totalWalletFloat?.toLocaleString() || "0"}</p>
          </div>
-         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+         <div className="bg-white p-5 rounded-md border border-slate-200 shadow-sm">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pending Sync</p>
             <p className="text-xl font-black text-amber-600">{transactions.filter(t => t.status === 'PENDING').length}</p>
          </div>
@@ -130,12 +130,12 @@ export default function AdminStaffHub() {
           placeholder="Search by UTR, Order ID, or Merchant Name..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-600/5 transition-all shadow-sm"
+          className="w-full bg-white border border-slate-200 rounded-md py-4 pl-12 pr-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-600/5 transition-all shadow-sm"
         />
       </div>
 
       {/* Transaction Table */}
-      <div className="bg-white rounded-[32px] border border-slate-200 overflow-hidden shadow-sm overflow-x-auto min-h-[400px]">
+      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm overflow-x-auto min-h-[400px]">
         <table className="w-full text-left border-collapse min-w-[900px]">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-100">
@@ -173,7 +173,7 @@ export default function AdminStaffHub() {
                 <td className="p-4 px-6 text-right">
                    <button 
                      onClick={() => { setApprovalModal(t); setApprovalStatus(t.status); setApprovalUtr(t.transaction?.utr || ""); }}
-                     className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-all border border-blue-100 shadow-sm"
+                     className="p-2.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-all border border-blue-100 shadow-sm"
                    >
                      <Edit3 size={16} />
                    </button>
@@ -189,14 +189,14 @@ export default function AdminStaffHub() {
         {approvalModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setApprovalModal(null)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl border border-slate-200 overflow-hidden">
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-lg bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden">
               <div className="p-8 space-y-6">
                 <div>
                   <h3 className="text-xl font-black text-slate-900">Staff Status Override</h3>
                   <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">Manual UTR Entry & Billing</p>
                 </div>
 
-                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-inner space-y-3">
+                <div className="bg-slate-50 p-5 rounded-md border border-slate-200 shadow-inner space-y-3">
                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400">
                       <span>Order Reference</span>
                       <span className="text-slate-900">{approvalModal.referenceId}</span>
@@ -215,7 +215,7 @@ export default function AdminStaffHub() {
                           <button 
                             key={s} 
                             onClick={() => setApprovalStatus(s)}
-                            className={`py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border ${approvalStatus === s ? (s === 'SUCCESS' ? 'bg-emerald-600 text-white border-emerald-500 shadow-md' : 'bg-rose-600 text-white border-rose-500 shadow-md') : 'bg-white text-slate-400 border-slate-200'}`}
+                            className={`py-3 rounded-md text-[11px] font-black uppercase tracking-widest transition-all border ${approvalStatus === s ? (s === 'SUCCESS' ? 'bg-emerald-600 text-white border-emerald-500 shadow-md' : 'bg-rose-600 text-white border-rose-500 shadow-md') : 'bg-white text-slate-400 border-slate-200'}`}
                           >
                             {s}
                           </button>
@@ -233,7 +233,7 @@ export default function AdminStaffHub() {
                              placeholder="Enter 12-digit UTR"
                              value={approvalUtr}
                              onChange={(e) => setApprovalUtr(e.target.value)}
-                             className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-900 focus:outline-none focus:border-blue-500 transition-all"
+                             className="w-full bg-slate-50 border border-slate-200 rounded-md py-4 pl-12 pr-4 text-sm font-bold text-slate-900 focus:outline-none focus:border-blue-500 transition-all"
                            />
                         </div>
                         <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter ml-1">⚠️ Entering a UTR will manually credit the merchant and deduct SaaS fees.</p>
@@ -245,11 +245,11 @@ export default function AdminStaffHub() {
                   <button 
                     onClick={handleManualOverride}
                     disabled={submitting || (approvalStatus === 'SUCCESS' && !approvalUtr)}
-                    className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 py-4 bg-slate-900 text-white rounded-md font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {submitting ? <RefreshCw className="animate-spin" size={16} /> : "Update Status"}
                   </button>
-                  <button onClick={() => setApprovalModal(null)} className="px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">
+                  <button onClick={() => setApprovalModal(null)} className="px-6 py-4 bg-slate-100 text-slate-600 rounded-md font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">
                     Cancel
                   </button>
                 </div>

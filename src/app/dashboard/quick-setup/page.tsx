@@ -114,16 +114,16 @@ export default function QuickSetup() {
            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Configure your entire gateway in 60 seconds</p>
         </div>
         
-        <div className="flex p-1 bg-slate-100 rounded-2xl border border-slate-200 shadow-inner">
+        <div className="flex p-1 bg-slate-100 rounded-md border border-slate-200 shadow-inner">
            <button 
              onClick={() => setActiveTab("CONFIG")}
-             className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'CONFIG' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+             className={`px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'CONFIG' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
            >
              Configuration
            </button>
            <button 
              onClick={() => setActiveTab("DOCS")}
-             className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'DOCS' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+             className={`px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'DOCS' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
            >
              Documentation
            </button>
@@ -146,7 +146,7 @@ export default function QuickSetup() {
                   {/* Webhook & Redirect */}
                   <div className="space-y-6">
                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border border-blue-100">
+                        <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100">
                            <Globe size={20} />
                         </div>
                         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Global Endpoints</h3>
@@ -158,7 +158,7 @@ export default function QuickSetup() {
                              value={webhookUrl}
                              onChange={(e) => setWebhookUrl(e.target.value)}
                              placeholder="https://your-api.com/callback"
-                             className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                             className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
                            />
                         </div>
                         <div className="space-y-2">
@@ -167,7 +167,7 @@ export default function QuickSetup() {
                              value={redirectUrl}
                              onChange={(e) => setRedirectUrl(e.target.value)}
                              placeholder="https://yoursite.com/success"
-                             className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                             className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
                            />
                         </div>
                      </div>
@@ -179,27 +179,27 @@ export default function QuickSetup() {
                   <div className="grid md:grid-cols-2 gap-10">
                      <div className="space-y-6">
                         <div className="flex items-center gap-3">
-                           <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center border border-emerald-100">
+                           <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-md flex items-center justify-center border border-emerald-100">
                               <ShieldCheck size={20} />
                            </div>
                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Security Access</h3>
                         </div>
-                        <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 space-y-4">
+                        <div className="p-6 bg-slate-50 rounded-lg border border-slate-200 space-y-4">
                            <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
                               Enable automated transaction verification for your server IP.
                            </p>
                            {ipStatus === 'APPROVED' ? (
-                             <div className="py-3 px-4 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest text-center shadow-lg shadow-emerald-600/20">
+                             <div className="py-3 px-4 bg-emerald-600 text-white rounded-md text-[10px] font-black uppercase tracking-widest text-center shadow-lg shadow-emerald-600/20">
                                 Whitelist Active
                              </div>
                            ) : ipStatus === 'PENDING' ? (
-                             <div className="py-3 px-4 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest text-center animate-pulse">
+                             <div className="py-3 px-4 bg-amber-500 text-white rounded-md text-[10px] font-black uppercase tracking-widest text-center animate-pulse">
                                 Under Review
                              </div>
                            ) : (
                              <button 
                                onClick={applyWhitelist}
-                               className="w-full py-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10"
+                               className="w-full py-4 bg-slate-900 text-white rounded-md text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10"
                              >
                                Apply for IP Whitelist
                              </button>
@@ -209,14 +209,14 @@ export default function QuickSetup() {
 
                      <div className="space-y-6">
                         <div className="flex items-center gap-3">
-                           <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center border border-amber-100">
+                           <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-md flex items-center justify-center border border-amber-100">
                               <Gift size={20} />
                            </div>
                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Partnership</h3>
                         </div>
                         <div className="space-y-4">
                            {agentInfo ? (
-                             <div className="p-6 bg-blue-50 border border-blue-100 rounded-3xl flex flex-col items-center justify-center text-center space-y-2">
+                             <div className="p-6 bg-blue-50 border border-blue-100 rounded-lg flex flex-col items-center justify-center text-center space-y-2">
                                 <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Linked Agent</p>
                                 <p className="text-sm font-black text-blue-900">{agentInfo.name}</p>
                              </div>
@@ -227,7 +227,7 @@ export default function QuickSetup() {
                                   value={referralCode}
                                   onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                                   placeholder="WAVE-PARTNER-123"
-                                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
                                 />
                              </div>
                            )}
@@ -268,7 +268,7 @@ export default function QuickSetup() {
                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active API Endpoint</h3>
                      <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black">STABLE</span>
                   </div>
-                  <div className="p-5 bg-slate-50 rounded-2xl font-mono text-xs text-slate-600 border border-slate-200 break-all select-all cursor-pointer hover:bg-slate-100 transition-colors">
+                  <div className="p-5 bg-slate-50 rounded-md font-mono text-xs text-slate-600 border border-slate-200 break-all select-all cursor-pointer hover:bg-slate-100 transition-colors">
                      https://api.payxmint.com/v1/create-intent
                   </div>
                   <p className="mt-4 text-[10px] font-bold text-slate-400 text-center leading-relaxed">
@@ -305,12 +305,12 @@ export default function QuickSetup() {
                    </div>
 
                    <div className="space-y-6">
-                      <div className="p-8 bg-slate-50 rounded-3xl border border-slate-200 space-y-4">
+                      <div className="p-8 bg-slate-50 rounded-lg border border-slate-200 space-y-4">
                          <div className="flex items-center gap-3">
                             <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-lg shadow-blue-600/20">1</span>
                             <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Create Payment Intent</h4>
                          </div>
-                         <div className="bg-slate-900 rounded-xl p-6 font-mono text-[11px] text-blue-200 overflow-x-auto">
+                         <div className="bg-slate-900 rounded-md p-6 font-mono text-[11px] text-blue-200 overflow-x-auto">
                             <span className="text-emerald-400">POST</span> /v1/create-intent<br/>
                             {'{'} <br/>
                             &nbsp;&nbsp;"amount": 500.00,<br/>
@@ -320,7 +320,7 @@ export default function QuickSetup() {
                          </div>
                       </div>
 
-                      <div className="p-8 bg-slate-50 rounded-3xl border border-slate-200 space-y-4">
+                      <div className="p-8 bg-slate-50 rounded-lg border border-slate-200 space-y-4">
                          <div className="flex items-center gap-3">
                             <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-lg shadow-blue-600/20">2</span>
                             <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Receive Webhook</h4>
@@ -328,7 +328,7 @@ export default function QuickSetup() {
                          <p className="text-[11px] font-medium text-slate-500 leading-relaxed px-1">
                             We will POST to your configured Webhook URL once the transaction is verified on the GPay node.
                          </p>
-                         <div className="bg-slate-900 rounded-xl p-6 font-mono text-[11px] text-blue-200 overflow-x-auto">
+                         <div className="bg-slate-900 rounded-md p-6 font-mono text-[11px] text-blue-200 overflow-x-auto">
                             {'{'} <br/>
                             &nbsp;&nbsp;"status": "SUCCESS",<br/>
                             &nbsp;&nbsp;"order_id": "ORD_12345",<br/>
@@ -348,7 +348,7 @@ export default function QuickSetup() {
 
 function ProgressStep({ title, completed }: { title: string, completed: boolean }) {
   return (
-    <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+    <div className="flex items-center justify-between p-4 bg-white/5 rounded-md border border-white/5">
        <div className="flex items-center gap-3">
           {completed ? (
             <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
@@ -368,7 +368,7 @@ function ProgressStep({ title, completed }: { title: string, completed: boolean 
 
 function DocNav({ label, active = false }: { label: string, active?: boolean }) {
   return (
-    <button className={`w-full text-left px-4 py-3 rounded-xl text-[11px] font-bold transition-all ${active ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-400 hover:bg-slate-200/50 hover:text-slate-600'}`}>
+    <button className={`w-full text-left px-4 py-3 rounded-md text-[11px] font-bold transition-all ${active ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-400 hover:bg-slate-200/50 hover:text-slate-600'}`}>
        {label}
     </button>
   );

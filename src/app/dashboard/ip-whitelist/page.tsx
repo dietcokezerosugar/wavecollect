@@ -103,7 +103,7 @@ export default function MerchantIpWhitelistPage() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-xl bg-white rounded-[32px] shadow-2xl border border-slate-200 overflow-hidden"
+              className="relative w-full max-w-xl bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden"
             >
               <div className="p-8 space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div>
@@ -113,8 +113,8 @@ export default function MerchantIpWhitelistPage() {
 
                 <div className="space-y-4">
                   {/* IP Display (Auto-detect) */}
-                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-4">
-                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm">
+                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-md flex items-center gap-4">
+                    <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center text-blue-600 shadow-sm">
                       <Network size={20} />
                     </div>
                     <div>
@@ -133,13 +133,13 @@ export default function MerchantIpWhitelistPage() {
                         placeholder="https://your-site.com/api/webhook"
                         value={webhookUrl}
                         onChange={(e) => setWebhookUrl(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold outline-none focus:border-blue-500 transition-all"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-md py-4 pl-12 pr-4 text-sm font-bold outline-none focus:border-blue-500 transition-all"
                       />
                     </div>
                   </div>
 
                   {/* Legal Terms Scrollable Box */}
-                  <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                  <div className="p-5 bg-slate-50 rounded-md border border-slate-100 space-y-4">
                     <div className="flex items-center gap-2 text-amber-600">
                       <ShieldAlert size={14} />
                       <span className="text-[10px] font-black uppercase tracking-widest">Legal Disclosure</span>
@@ -151,7 +151,7 @@ export default function MerchantIpWhitelistPage() {
                       <p className="mb-2">4. You acknowledge that transaction data is processed in real-time and you are responsible for maintaining secure webhook endpoints.</p>
                       <p>5. PayxMint acts only as a technology facilitator and does not hold your funds.</p>
                     </div>
-                    <label className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all">
+                    <label className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-md cursor-pointer hover:bg-slate-50 transition-all">
                        <input 
                          type="checkbox" 
                          checked={acceptedTerms}
@@ -163,19 +163,19 @@ export default function MerchantIpWhitelistPage() {
                   </div>
                 </div>
 
-                {error && <div className="p-3 bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-bold rounded-xl flex items-center gap-2 animate-shake"><AlertTriangle size={14} /> {error}</div>}
+                {error && <div className="p-3 bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-bold rounded-md flex items-center gap-2 animate-shake"><AlertTriangle size={14} /> {error}</div>}
 
                 <div className="flex gap-3 pt-2">
                   <button 
                     onClick={submitRequest}
                     disabled={submitting}
-                    className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 py-4 bg-slate-900 text-white rounded-md font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {submitting ? "Processing..." : <>Submit for Approval <ArrowRight size={16} /></>}
                   </button>
                   <button 
                     onClick={() => setIsModalOpen(false)}
-                    className="px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
+                    className="px-6 py-4 bg-slate-100 text-slate-600 rounded-md font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
                   >
                     Cancel
                   </button>
@@ -190,7 +190,7 @@ export default function MerchantIpWhitelistPage() {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
           {/* History Section */}
-          <section className="bg-white rounded-[32px] border border-slate-200 p-6 md:p-8 space-y-6 shadow-sm">
+          <section className="bg-white rounded-lg border border-slate-200 p-6 md:p-8 space-y-6 shadow-sm">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Request History</h3>
               <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
@@ -201,7 +201,7 @@ export default function MerchantIpWhitelistPage() {
             <div className="space-y-4">
               {loading ? (
                 <div className="space-y-3">
-                  {[1,2,3].map(i => <div key={i} className="h-16 bg-slate-50 rounded-2xl animate-pulse" />)}
+                  {[1,2,3].map(i => <div key={i} className="h-16 bg-slate-50 rounded-md animate-pulse" />)}
                 </div>
               ) : requests.length === 0 ? (
                 <div className="text-center py-12 bg-slate-50 rounded-[24px] border border-dashed border-slate-200 space-y-3">
@@ -210,9 +210,9 @@ export default function MerchantIpWhitelistPage() {
                 </div>
               ) : (
                 requests.map(req => (
-                  <div key={req.id} className="flex items-center justify-between p-5 rounded-2xl border border-slate-100 bg-white hover:border-blue-200 transition-all group">
+                  <div key={req.id} className="flex items-center justify-between p-5 rounded-md border border-slate-100 bg-white hover:border-blue-200 transition-all group">
                     <div className="flex items-center gap-4">
-                      <div className={`p-2.5 rounded-xl ${req.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>
+                      <div className={`p-2.5 rounded-md ${req.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>
                         <Network size={18} />
                       </div>
                       <div>
@@ -241,10 +241,10 @@ export default function MerchantIpWhitelistPage() {
 
         {/* Sidebar Status */}
         <div className="space-y-6">
-          <div className="bg-slate-900 rounded-[32px] p-6 shadow-2xl text-white space-y-6 overflow-hidden relative">
+          <div className="bg-slate-900 rounded-lg p-6 shadow-2xl text-white space-y-6 overflow-hidden relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 blur-3xl -mr-16 -mt-16 rounded-full" />
             <div className="flex items-center gap-3 relative z-10">
-              <div className="p-2.5 bg-white/10 rounded-xl text-white border border-white/10">
+              <div className="p-2.5 bg-white/10 rounded-md text-white border border-white/10">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
@@ -257,14 +257,14 @@ export default function MerchantIpWhitelistPage() {
               {currentIps ? (
                 <div className="flex flex-col gap-2">
                   {currentIps.split(",").map(ip => (
-                    <div key={ip} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10 group hover:bg-white/10 transition-all">
+                    <div key={ip} className="flex items-center justify-between p-3 bg-white/5 rounded-md border border-white/10 group hover:bg-white/10 transition-all">
                       <span className="text-xs font-mono font-bold text-blue-300">{ip.trim()}</span>
                       <ShieldCheck size={14} className="text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-[10px] font-black uppercase tracking-widest text-center">
+                <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-md text-rose-400 text-[10px] font-black uppercase tracking-widest text-center">
                    Critical: IP Whitelist Empty
                 </div>
               )}

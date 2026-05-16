@@ -72,7 +72,7 @@ export default function AnalyticsPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-8">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
-             <div className="p-3 bg-blue-600 rounded-2xl shadow-xl shadow-blue-600/20">
+             <div className="p-3 bg-blue-600 rounded-md shadow-xl shadow-blue-600/20">
                 <BarChart3 className="w-6 h-6 text-white" />
              </div>
              <div>
@@ -95,7 +95,7 @@ export default function AnalyticsPage() {
         
         {/* Main Processing Volume Chart */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm relative overflow-hidden">
+          <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm relative overflow-hidden">
              <div className="absolute top-0 right-0 w-96 h-96 bg-blue-50/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
              
              <div className="relative z-10">
@@ -134,7 +134,7 @@ export default function AnalyticsPage() {
                         content={({ active, payload }) => {
                           if (active && payload && payload.length) {
                             return (
-                              <div className="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-2xl">
+                              <div className="bg-slate-900 text-white p-4 rounded-md border border-slate-800 shadow-2xl">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">{payload[0].payload.fullDate}</p>
                                 <p className="text-base font-black">₹{Number(payload[0].value || 0).toLocaleString()}</p>
                               </div>
@@ -159,8 +159,8 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-             <div className="bg-slate-900 rounded-[32px] p-8 text-white space-y-6">
-                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+             <div className="bg-slate-900 rounded-lg p-8 text-white space-y-6">
+                <div className="w-12 h-12 bg-white/10 rounded-md flex items-center justify-center">
                    <ShieldCheck className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div>
@@ -180,8 +180,8 @@ export default function AnalyticsPage() {
                 </div>
              </div>
 
-             <div className="bg-white rounded-[32px] border border-slate-200 p-8 space-y-6">
-                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border border-blue-100">
+             <div className="bg-white rounded-lg border border-slate-200 p-8 space-y-6">
+                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100">
                    <Activity className="w-6 h-6" />
                 </div>
                 <div>
@@ -203,7 +203,7 @@ export default function AnalyticsPage() {
 
         {/* Real-time Pulse Sidebar */}
         <div className="space-y-6">
-           <div className="bg-slate-950 rounded-[32px] p-8 text-white min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
+           <div className="bg-slate-950 rounded-lg p-8 text-white min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,#3b82f615,transparent)]" />
               
               <div className="relative z-10 flex flex-col h-full">
@@ -228,7 +228,7 @@ export default function AnalyticsPage() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, scale: 0.95 }}
-                          className="p-5 bg-white/5 border border-white/5 rounded-2xl backdrop-blur-md hover:bg-white/10 transition-all group"
+                          className="p-5 bg-white/5 border border-white/5 rounded-md backdrop-blur-md hover:bg-white/10 transition-all group"
                         >
                           <div className="flex items-center justify-between mb-3">
                              <div className="flex items-center gap-2">

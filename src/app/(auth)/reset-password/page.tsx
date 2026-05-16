@@ -71,11 +71,11 @@ function ResetPasswordForm() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/50"
+          className="bg-white p-8 rounded-lg border border-slate-100 shadow-xl shadow-slate-200/50"
         >
           {success ? (
             <div className="text-center space-y-8">
-              <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100">
+              <div className="w-16 h-16 bg-emerald-50 rounded-md flex items-center justify-center mx-auto border border-emerald-100">
                 <ShieldCheck className="w-8 h-8 text-emerald-600" />
               </div>
               <div className="space-y-2">
@@ -86,7 +86,7 @@ function ResetPasswordForm() {
               </div>
               <Link 
                 href="/login"
-                className="w-full py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/20 flex justify-center items-center gap-2"
+                className="w-full py-4 bg-slate-900 text-white rounded-md text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/20 flex justify-center items-center gap-2"
               >
                 Return to Login <ArrowRight size={14} />
               </Link>
@@ -99,13 +99,13 @@ function ResetPasswordForm() {
               </div>
 
               {!token && (
-                <div className="p-4 bg-amber-50 text-amber-600 text-xs font-bold rounded-2xl border border-amber-100 text-center">
+                <div className="p-4 bg-amber-50 text-amber-600 text-xs font-bold rounded-md border border-amber-100 text-center">
                   No reset token found in URL.
                 </div>
               )}
 
               {error && (
-                <div className="p-4 bg-rose-50 text-rose-600 text-xs font-bold rounded-2xl border border-rose-100 text-center">
+                <div className="p-4 bg-rose-50 text-rose-600 text-xs font-bold rounded-md border border-rose-100 text-center">
                   {error}
                 </div>
               )}
@@ -122,7 +122,7 @@ function ResetPasswordForm() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold text-slate-900"
+                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-md outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold text-slate-900"
                       placeholder="••••••••"
                     />
                   </div>
@@ -139,7 +139,7 @@ function ResetPasswordForm() {
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold text-slate-900"
+                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-md outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold text-slate-900"
                       placeholder="••••••••"
                     />
                   </div>
@@ -148,7 +148,7 @@ function ResetPasswordForm() {
                 <button 
                   type="submit" 
                   disabled={loading || !token}
-                  className="w-full py-4 bg-blue-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 active:scale-95 transition-all shadow-xl shadow-blue-600/20 disabled:opacity-50 disabled:pointer-events-none flex justify-center items-center gap-2"
+                  className="w-full py-4 bg-blue-600 text-white rounded-md text-xs font-black uppercase tracking-widest hover:bg-blue-700 active:scale-95 transition-all shadow-xl shadow-blue-600/20 disabled:opacity-50 disabled:pointer-events-none flex justify-center items-center gap-2"
                 >
                   {loading ? <Loader2 size={16} className="animate-spin" /> : "Secure Password"}
                 </button>

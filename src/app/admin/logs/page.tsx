@@ -50,16 +50,16 @@ export default function SystemLogs() {
           </h1>
           <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Audit Trails & Runtime Telemetry</p>
         </div>
-        <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl border border-slate-200">
+        <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-md border border-slate-200">
            <button 
              onClick={() => setLogType("api")}
-             className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${logType === 'api' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+             className={`px-4 py-2 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${logType === 'api' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
            >
              API Logs
            </button>
            <button 
              onClick={() => setLogType("audit")}
-             className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${logType === 'audit' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+             className={`px-4 py-2 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${logType === 'audit' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
            >
              Audit Trail
            </button>
@@ -74,15 +74,15 @@ export default function SystemLogs() {
             placeholder="Search logs, metadata, actions..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+            className="w-full bg-white border border-slate-200 rounded-md pl-12 pr-4 py-3.5 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <button onClick={fetchData} className="p-3.5 bg-white border border-slate-200 rounded-2xl text-slate-500 hover:text-slate-900 transition-all shadow-sm">
+        <button onClick={fetchData} className="p-3.5 bg-white border border-slate-200 rounded-md text-slate-500 hover:text-slate-900 transition-all shadow-sm">
           <RefreshCcw size={20} className={loading ? "animate-spin" : ""} />
         </button>
       </div>
 
-      <div className="bg-slate-900 rounded-[32px] p-6 md:p-10 shadow-2xl border border-white/5 relative overflow-hidden min-h-[600px]">
+      <div className="bg-slate-900 rounded-lg p-6 md:p-10 shadow-2xl border border-white/5 relative overflow-hidden min-h-[600px]">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-50" />
         
         <div className="space-y-4 font-mono text-[13px]">
@@ -98,7 +98,7 @@ export default function SystemLogs() {
                   <span className="text-slate-300 font-bold">{log.message || log.userId}</span>
                </div>
                {log.metadata && (
-                 <pre className="text-[11px] text-slate-500 bg-white/5 p-3 rounded-xl overflow-x-auto custom-scrollbar group-hover:bg-white/[0.08] transition-colors">
+                 <pre className="text-[11px] text-slate-500 bg-white/5 p-3 rounded-md overflow-x-auto custom-scrollbar group-hover:bg-white/[0.08] transition-colors">
                    {JSON.stringify(JSON.parse(log.metadata), null, 2)}
                  </pre>
                )}

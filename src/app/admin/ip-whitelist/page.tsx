@@ -53,10 +53,10 @@ export default function AdminIpWhitelistPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-md flex items-center justify-center">
               <Network className="w-5 h-5" />
             </div>
             <div>
@@ -123,14 +123,14 @@ export default function AdminIpWhitelistPage() {
                           <button
                             onClick={() => handleRequest(req.id, "APPROVE")}
                             disabled={processingId === req.id}
-                            className="px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors disabled:opacity-50"
+                            className="px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-md text-[10px] font-black uppercase tracking-widest transition-colors disabled:opacity-50"
                           >
                             Approve
                           </button>
                           <button
                             onClick={() => handleRequest(req.id, "REJECT")}
                             disabled={processingId === req.id}
-                            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors disabled:opacity-50"
+                            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-md text-[10px] font-black uppercase tracking-widest transition-colors disabled:opacity-50"
                           >
                             Reject
                           </button>

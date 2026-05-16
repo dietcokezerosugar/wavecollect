@@ -41,7 +41,7 @@ export default async function PaymentLinkPage({ params }: { params: Promise<{ sl
     console.error("DEBUG: Payment Link Failed:", error.message || error);
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFDFD] px-6 text-center">
-        <div className="w-20 h-20 bg-rose-50 rounded-[32px] flex items-center justify-center text-rose-500 mb-8 border border-rose-100">
+        <div className="w-20 h-20 bg-rose-50 rounded-lg flex items-center justify-center text-rose-500 mb-8 border border-rose-100">
            <Zap className="w-10 h-10 fill-current" />
         </div>
         <h1 className="text-2xl font-black text-slate-900 mb-2">Service Unavailable</h1>

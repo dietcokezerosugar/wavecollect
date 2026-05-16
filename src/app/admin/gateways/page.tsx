@@ -112,7 +112,7 @@ export default function GlobalFleetMonitor() {
           <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Global Fleet Monitor</h2>
           <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Cross-merchant gateway oversight</p>
         </div>
-        <button onClick={fetchGateways} className="p-3 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm w-fit">
+        <button onClick={fetchGateways} className="p-3 bg-white border border-slate-200 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm w-fit">
           <RefreshCcw size={18} className={loading ? "animate-spin" : ""} />
         </button>
       </div>
@@ -126,7 +126,7 @@ export default function GlobalFleetMonitor() {
       </div>
 
       {/* Fleet Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
@@ -241,8 +241,8 @@ function FleetStat({ label, value, icon, color }: any) {
   };
 
   return (
-    <div className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center gap-3 shadow-sm">
-      <div className={`p-2.5 rounded-xl border ${colors[color]}`}>{icon}</div>
+    <div className="bg-white p-5 rounded-md border border-slate-200 flex items-center gap-3 shadow-sm">
+      <div className={`p-2.5 rounded-md border ${colors[color]}`}>{icon}</div>
       <div>
         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">{label}</p>
         <p className="text-lg font-black text-slate-900 leading-none">{value}</p>

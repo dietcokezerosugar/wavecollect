@@ -236,7 +236,7 @@ export default function MerchantAccountsPage() {
         {!showWizard && (
           <button
             onClick={() => setShowWizard(true)}
-            className="w-full md:w-auto px-6 py-3.5 bg-blue-600 text-white rounded-xl text-[13px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+            className="w-full md:w-auto px-6 py-3.5 bg-blue-600 text-white rounded-md text-[13px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-95"
             disabled={accounts.length >= 10}
           >
             <Plus className="w-4 h-4" /> Add New Node
@@ -246,10 +246,10 @@ export default function MerchantAccountsPage() {
 
       {/* Processing Mode Toggle */}
       {poolState && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+        <div className="bg-white rounded-md border border-slate-200 shadow-sm p-6 space-y-6">
           <div>
             <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4">Payment Processing Mode</h2>
-            <div className="flex bg-slate-50 p-1.5 rounded-xl border border-slate-200 max-w-sm">
+            <div className="flex bg-slate-50 p-1.5 rounded-md border border-slate-200 max-w-sm">
               <button 
                 onClick={() => toggleProcessingMode("OWN_ACCOUNT")}
                 className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${
@@ -272,7 +272,7 @@ export default function MerchantAccountsPage() {
           {poolState.processingMode === "PLATFORM_POOL" && (
             <div className="pt-2 border-t border-slate-100">
               {poolState.poolRequestStatus === "APPROVED" && poolState.allocation ? (
-                <div className="flex flex-col md:flex-row items-center gap-6 p-6 bg-emerald-50 rounded-xl border border-emerald-100">
+                <div className="flex flex-col md:flex-row items-center gap-6 p-6 bg-emerald-50 rounded-md border border-emerald-100">
                   <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
@@ -303,7 +303,7 @@ export default function MerchantAccountsPage() {
                   </div>
                 </div>
               ) : poolState.poolRequestStatus === "PENDING" ? (
-                <div className="flex items-center gap-4 p-6 bg-amber-50 rounded-xl border border-amber-100">
+                <div className="flex items-center gap-4 p-6 bg-amber-50 rounded-md border border-amber-100">
                   <Loader2 className="w-6 h-6 text-amber-500 animate-spin shrink-0" />
                   <div>
                     <h3 className="text-sm font-black text-amber-900">Request Pending</h3>
@@ -311,7 +311,7 @@ export default function MerchantAccountsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 bg-slate-50 rounded-md border border-slate-200">
                   <div>
                     <h3 className="text-sm font-black text-slate-900">Use Platform Accounts</h3>
                     <p className="text-xs font-medium text-slate-500 max-w-lg mt-1">
@@ -320,7 +320,7 @@ export default function MerchantAccountsPage() {
                   </div>
                   <button 
                     onClick={applyForPool}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shrink-0"
+                    className="px-6 py-3 bg-blue-600 text-white rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shrink-0"
                   >
                     Apply for Platform Account
                   </button>
@@ -332,7 +332,7 @@ export default function MerchantAccountsPage() {
       )}
 
       {showWizard && (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mx-2 md:mx-0">
+        <div className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden mx-2 md:mx-0">
           <div className="px-6 md:px-8 py-5 md:py-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between bg-slate-50/30 gap-3">
             <h2 className="text-sm font-black uppercase tracking-widest text-slate-900">Node Onboarding</h2>
             <div className="flex items-center gap-1 md:gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400 overflow-x-auto whitespace-nowrap pb-1 md:pb-0 scrollbar-hide">
@@ -346,7 +346,7 @@ export default function MerchantAccountsPage() {
           <div className="p-6 md:p-8">
             {wizardStep === 1 && (
               <div className="space-y-6 max-w-2xl mx-auto text-center">
-                <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-100 shadow-sm">
+                <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-md flex items-center justify-center mx-auto border border-amber-100 shadow-sm">
                   <AlertTriangle className="w-8 h-8" />
                 </div>
                 <div className="space-y-2">
@@ -356,8 +356,8 @@ export default function MerchantAccountsPage() {
                   </p>
                 </div>
                 <div className="pt-4 flex flex-col md:flex-row items-center justify-center gap-3">
-                  <button onClick={resetWizard} className="w-full md:w-auto px-8 py-3.5 bg-slate-50 text-slate-500 rounded-xl font-black uppercase text-[11px] tracking-widest border border-slate-200 hover:bg-slate-100 transition-colors order-2 md:order-1">Cancel</button>
-                  <button onClick={() => setWizardStep(2)} className="w-full md:w-auto px-8 py-3.5 bg-blue-600 text-white rounded-xl font-black uppercase text-[11px] tracking-widest hover:bg-blue-700 transition-all order-1 md:order-2 shadow-lg shadow-blue-600/20">I Understand</button>
+                  <button onClick={resetWizard} className="w-full md:w-auto px-8 py-3.5 bg-slate-50 text-slate-500 rounded-md font-black uppercase text-[11px] tracking-widest border border-slate-200 hover:bg-slate-100 transition-colors order-2 md:order-1">Cancel</button>
+                  <button onClick={() => setWizardStep(2)} className="w-full md:w-auto px-8 py-3.5 bg-blue-600 text-white rounded-md font-black uppercase text-[11px] tracking-widest hover:bg-blue-700 transition-all order-1 md:order-2 shadow-lg shadow-blue-600/20">I Understand</button>
                 </div>
               </div>
             )}
@@ -366,15 +366,15 @@ export default function MerchantAccountsPage() {
                 <div className="grid gap-5">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Internal Alias</label>
-                    <input value={newName} onChange={(e) => setNewName(e.target.value.replace(/\s+/g, '-'))} placeholder="e.g. gpay-primary" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <input value={newName} onChange={(e) => setNewName(e.target.value.replace(/\s+/g, '-'))} placeholder="e.g. gpay-primary" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Google Identity (Email)</label>
-                    <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="merchant@gmail.com" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="merchant@gmail.com" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Access Token (Google Password)</label>
-                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter password" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter password" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Confirm Password</label>
@@ -384,26 +384,26 @@ export default function MerchantAccountsPage() {
                       onChange={(e) => setConfirmPassword(e.target.value)} 
                       onPaste={(e) => e.preventDefault()}
                       placeholder="Type again (pasting disabled)" 
-                      className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" 
+                      className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" 
                     />
                     <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tight px-1">Must match exactly to ensure operational accuracy</p>
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Business UPI Endpoint</label>
-                    <input value={newUpiId} onChange={(e) => setNewUpiId(e.target.value)} placeholder="merchant@okaxis" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <input value={newUpiId} onChange={(e) => setNewUpiId(e.target.value)} placeholder="merchant@okaxis" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Proxy Configuration (Optional)</label>
-                    <input value={newProxy} onChange={(e) => setNewProxy(e.target.value)} placeholder="http://user:pass@ip:port" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <input value={newProxy} onChange={(e) => setNewProxy(e.target.value)} placeholder="http://user:pass@ip:port" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Min Ticket</label>
-                      <input type="number" value={newMinTicket} onChange={(e) => setNewMinTicket(e.target.value)} placeholder="0" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                      <input type="number" value={newMinTicket} onChange={(e) => setNewMinTicket(e.target.value)} placeholder="0" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Max Ticket</label>
-                      <input type="number" value={newMaxTicket} onChange={(e) => setNewMaxTicket(e.target.value)} placeholder="100000" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                      <input type="number" value={newMaxTicket} onChange={(e) => setNewMaxTicket(e.target.value)} placeholder="100000" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
                     </div>
                   </div>
                 </div>
@@ -412,7 +412,7 @@ export default function MerchantAccountsPage() {
                   <button 
                     onClick={submitForReview} 
                     disabled={!newName || !newEmail || !newPassword || !newUpiId || newPassword !== confirmPassword || isSubmitting} 
-                    className="w-full md:w-auto px-8 py-3.5 bg-blue-600 text-white rounded-xl font-black uppercase text-[11px] tracking-widest hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center justify-center gap-3 order-1 md:order-2 shadow-lg shadow-blue-600/20 active:scale-95"
+                    className="w-full md:w-auto px-8 py-3.5 bg-blue-600 text-white rounded-md font-black uppercase text-[11px] tracking-widest hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center justify-center gap-3 order-1 md:order-2 shadow-lg shadow-blue-600/20 active:scale-95"
                   >
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />} 
                     Submit for Operational Activation
@@ -422,7 +422,7 @@ export default function MerchantAccountsPage() {
             )}
             {wizardStep === 3 && (
               <div className="max-w-md mx-auto text-center space-y-8 py-8 md:py-12">
-                <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto border border-blue-100 shadow-sm">
+                <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mx-auto border border-blue-100 shadow-sm">
                   <Clock className="w-12 h-12" />
                 </div>
                 <div className="space-y-3">
@@ -431,7 +431,7 @@ export default function MerchantAccountsPage() {
                     Our operations staff has received your credentials. They will now manually activate your browser session on our secure VPS infrastructure.
                   </p>
                 </div>
-                <div className="bg-slate-50 rounded-2xl p-4 text-left border border-slate-100">
+                <div className="bg-slate-50 rounded-md p-4 text-left border border-slate-100">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Next Steps</p>
                   <ul className="space-y-2">
                     <li className="flex items-center gap-3 text-[11px] font-bold text-slate-600">
@@ -445,7 +445,7 @@ export default function MerchantAccountsPage() {
                     </li>
                   </ul>
                 </div>
-                <button onClick={resetWizard} className="w-full px-8 py-4 bg-slate-900 text-white rounded-xl font-black uppercase text-[11px] tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">
+                <button onClick={resetWizard} className="w-full px-8 py-4 bg-slate-900 text-white rounded-md font-black uppercase text-[11px] tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">
                   Return to Dashboard
                 </button>
               </div>
@@ -459,7 +459,7 @@ export default function MerchantAccountsPage() {
       {!showWizard && (
         <div className={`grid gap-3 md:gap-6 px-2 md:px-0 pb-12 transition-all duration-300 ${poolState?.processingMode === "PLATFORM_POOL" ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
           {poolState?.processingMode === "PLATFORM_POOL" && (
-             <div className="col-span-full mb-2 flex items-center gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl text-amber-800 text-xs font-bold">
+             <div className="col-span-full mb-2 flex items-center gap-2 p-3 bg-amber-50 border border-amber-100 rounded-md text-amber-800 text-xs font-bold">
                <AlertTriangle className="w-4 h-4" /> Self-managed accounts are disabled while using Platform Pool mode.
              </div>
           )}
@@ -468,10 +468,10 @@ export default function MerchantAccountsPage() {
             const isOnline = acc.sessionStatus === "ONLINE";
             const isActive = acc.status === "ACTIVE";
             return (
-              <div key={acc.id} className={`bg-white rounded-2xl border transition-all ${isActive ? 'border-slate-200 shadow-sm' : 'border-slate-100 opacity-70 grayscale-[0.5]'}`}>
+              <div key={acc.id} className={`bg-white rounded-md border transition-all ${isActive ? 'border-slate-200 shadow-sm' : 'border-slate-100 opacity-70 grayscale-[0.5]'}`}>
                 <div className="p-4 md:p-6 flex flex-col gap-4">
                   <div className="flex gap-3 md:gap-4">
-                    <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-xl flex items-center justify-center border shadow-sm ${isActive ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
+                    <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-md flex items-center justify-center border shadow-sm ${isActive ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
                       <Smartphone className="w-5 h-5 md:w-6 md:h-6" />
                     </div>
                     <div className="min-w-0 flex-grow">
@@ -507,7 +507,7 @@ export default function MerchantAccountsPage() {
                   </div>
 
                   {/* Controls Row */}
-                  <div className="flex items-center justify-between gap-4 bg-slate-50/50 rounded-xl p-3 md:p-4 border border-slate-100">
+                  <div className="flex items-center justify-between gap-4 bg-slate-50/50 rounded-md p-3 md:p-4 border border-slate-100">
                     <div className="flex items-center gap-3">
                       <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Status</label>
                       <button onClick={() => updateAccount(acc.id, { status: isActive ? "PAUSED" : "ACTIVE" })} className={`w-11 h-6 rounded-full relative transition-all duration-300 ${isActive ? 'bg-blue-600' : 'bg-slate-200'}`}><div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all duration-300 shadow-sm ${isActive ? 'left-6' : 'left-1'}`} /></button>
@@ -534,11 +534,11 @@ export default function MerchantAccountsPage() {
             );
           })}
           {accounts.length === 0 && (
-            <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200 px-8 mx-2">
+            <div className="text-center py-20 bg-white rounded-md border-2 border-dashed border-slate-200 px-8 mx-2">
               <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-100"><Smartphone className="w-8 h-8 text-slate-300" /></div>
               <h3 className="text-xl font-black text-slate-900 mb-2">Fleet Empty</h3>
               <p className="text-sm text-slate-500 leading-relaxed max-w-[240px] mx-auto mb-8 font-medium">Provision your first Google Pay node to begin automated payment orchestration.</p>
-              <button onClick={() => setShowWizard(true)} className="px-8 py-3.5 bg-blue-600 text-white rounded-xl font-black uppercase text-[11px] tracking-widest shadow-lg shadow-blue-600/20 active:scale-95 transition-all">Onboard First Node</button>
+              <button onClick={() => setShowWizard(true)} className="px-8 py-3.5 bg-blue-600 text-white rounded-md font-black uppercase text-[11px] tracking-widest shadow-lg shadow-blue-600/20 active:scale-95 transition-all">Onboard First Node</button>
             </div>
           )}
         </div>
@@ -548,10 +548,10 @@ export default function MerchantAccountsPage() {
       {activeLogBot && (
         <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-8 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setActiveLogBot(null)} />
-          <div className="relative w-full md:max-w-4xl bg-white md:rounded-2xl rounded-t-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col h-[90vh] md:h-[85vh] animate-in slide-in-from-bottom-4 md:zoom-in-95 duration-300">
+          <div className="relative w-full md:max-w-4xl bg-white md:rounded-md rounded-t-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col h-[90vh] md:h-[85vh] animate-in slide-in-from-bottom-4 md:zoom-in-95 duration-300">
             <div className="bg-slate-50 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between border-b border-slate-200">
               <div className="flex items-center gap-2 md:gap-3 min-w-0">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center text-blue-600 border border-slate-200 shadow-sm shrink-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-md flex items-center justify-center text-blue-600 border border-slate-200 shadow-sm shrink-0">
                   <TerminalIcon className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
                 <div className="min-w-0">
@@ -567,22 +567,22 @@ export default function MerchantAccountsPage() {
             {/* Stats Dashboard (Top Half) */}
             {botStats && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 p-4 md:p-6 bg-slate-50/50 border-b border-slate-200">
-                <div className="p-3 md:p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <div className="p-3 md:p-4 bg-white rounded-md border border-slate-200 shadow-sm">
                   <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Uptime</p>
                   <p className="text-xs md:text-sm font-black text-slate-900">{formatUptime(botStats.uptime)}</p>
                 </div>
-                <div className="p-3 md:p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <div className="p-3 md:p-4 bg-white rounded-md border border-slate-200 shadow-sm">
                   <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Sweeps</p>
                   <p className="text-xs md:text-sm font-black text-emerald-600">{botStats.totalSweeps || 0}</p>
                 </div>
-                <div className="p-3 md:p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <div className="p-3 md:p-4 bg-white rounded-md border border-slate-200 shadow-sm">
                   <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Relay</p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[9px] md:text-[10px] font-black text-emerald-600">{botStats.webhookStats?.success || 0} OK</span>
                     <span className="text-[9px] md:text-[10px] font-black text-rose-500">{botStats.webhookStats?.failure || 0} ERR</span>
                   </div>
                 </div>
-                <div className="p-3 md:p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <div className="p-3 md:p-4 bg-white rounded-md border border-slate-200 shadow-sm">
                   <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Load</p>
                   <p className="text-xs md:text-sm font-black text-blue-600">{Math.round(botStats.memory / 1024 / 1024)} MB</p>
                 </div>
@@ -697,7 +697,7 @@ function CloudBrowser({ name }: { name: string }) {
     <div className="space-y-3">
       <div 
         ref={containerRef}
-        className="relative bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl cursor-crosshair aspect-[1280/800] w-full group outline-none"
+        className="relative bg-slate-950 rounded-md overflow-hidden border border-slate-800 shadow-2xl cursor-crosshair aspect-[1280/800] w-full group outline-none"
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         tabIndex={0}

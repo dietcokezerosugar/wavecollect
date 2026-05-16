@@ -144,7 +144,7 @@ export default function ReconciliationPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex bg-slate-100 p-1 rounded-xl">
+          <div className="flex bg-slate-100 p-1 rounded-md">
             <button
               onClick={() => setActiveTab("upload")}
               className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
@@ -186,7 +186,7 @@ export default function ReconciliationPage() {
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative cursor-pointer border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
+              className={`relative cursor-pointer border-2 border-dashed rounded-md p-12 text-center transition-all duration-300 ${
                 isDragging
                   ? "border-blue-400 bg-blue-50 scale-[1.01]"
                   : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
@@ -214,7 +214,7 @@ export default function ReconciliationPage() {
               ) : (
                 <div className="flex flex-col items-center gap-4">
                   <div
-                    className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${
+                    className={`w-16 h-16 rounded-md flex items-center justify-center transition-colors ${
                       isDragging ? "bg-blue-100" : "bg-slate-100"
                     }`}
                   >
@@ -239,7 +239,7 @@ export default function ReconciliationPage() {
 
           {/* Error */}
           {error && (
-            <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-md">
               <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
               <p className="text-sm font-medium text-red-700">{error}</p>
             </div>
@@ -257,7 +257,7 @@ export default function ReconciliationPage() {
               ].map((card) => (
                 <div
                   key={card.label}
-                  className={`p-4 rounded-xl border ${card.color}`}
+                  className={`p-4 rounded-md border ${card.color}`}
                 >
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{card.label}</p>
                   <p className={`text-2xl font-black mt-1 ${card.text}`}>{card.value}</p>
@@ -268,7 +268,7 @@ export default function ReconciliationPage() {
 
           {/* Results Table */}
           {summary && results.length > 0 && (
-            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+            <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
               {/* Filter Tabs */}
               <div className="px-4 pt-4 flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mr-2">Filter:</span>
@@ -333,7 +333,7 @@ export default function ReconciliationPage() {
 
           {/* Info Card */}
           {!summary && !isUploading && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6">
+            <div className="bg-white border border-slate-200 rounded-md p-6">
               <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-slate-400" />
                 How It Works
@@ -361,7 +361,7 @@ export default function ReconciliationPage() {
         </>
       ) : (
         /* History View */
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <h3 className="text-sm font-bold text-slate-900">Reconciliation Audit Trail</h3>
             <button 

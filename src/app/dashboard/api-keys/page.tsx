@@ -108,7 +108,7 @@ export default function ApiKeysPage() {
       {apiAccessStatus !== "APPROVED" && (
         <div className="p-6 bg-amber-50 border border-amber-200 rounded-[24px] flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-md flex items-center justify-center">
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
@@ -120,7 +120,7 @@ export default function ApiKeysPage() {
               </p>
             </div>
           </div>
-          <a href="/dashboard/ip-whitelist" className="px-6 py-3 bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-700 transition-colors">
+          <a href="/dashboard/ip-whitelist" className="px-6 py-3 bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-md hover:bg-amber-700 transition-colors">
             Go to Security Setup
           </a>
         </div>
@@ -140,7 +140,7 @@ export default function ApiKeysPage() {
         <button
           onClick={generateKey}
           disabled={loading || apiAccessStatus !== "APPROVED"}
-          className="w-full md:w-auto px-8 py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+          className="w-full md:w-auto px-8 py-4 bg-slate-900 text-white rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
         >
           {loading ? <Activity className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
           Provision New Key
@@ -154,8 +154,8 @@ export default function ApiKeysPage() {
           { label: "Current Volume", value: `₹${totalUsed.toLocaleString()}`, icon: Activity, color: "bg-slate-900" },
           { label: "Aggregate Capacity", value: `₹${totalLimit.toLocaleString()}`, icon: ShieldCheck, color: "bg-emerald-600" },
         ].map((stat, i) => (
-          <div key={i} className="bg-white rounded-[32px] p-8 border border-slate-200 shadow-sm flex items-center gap-6 group hover:border-blue-500 transition-all">
-             <div className={`w-14 h-14 ${stat.color} rounded-2xl flex items-center justify-center text-white shadow-lg`}>
+          <div key={i} className="bg-white rounded-lg p-8 border border-slate-200 shadow-sm flex items-center gap-6 group hover:border-blue-500 transition-all">
+             <div className={`w-14 h-14 ${stat.color} rounded-md flex items-center justify-center text-white shadow-lg`}>
                 <stat.icon className="w-6 h-6" />
              </div>
              <div>
@@ -199,7 +199,7 @@ export default function ApiKeysPage() {
                       <tr key={key.id} className="group hover:bg-slate-50/50 transition-colors">
                         <td className="px-10 py-8">
                            <div className="flex items-center gap-4">
-                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${key.isBlocked ? 'bg-slate-50 text-slate-300 border-slate-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                              <div className={`w-10 h-10 rounded-md flex items-center justify-center border ${key.isBlocked ? 'bg-slate-50 text-slate-300 border-slate-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
                                  <Key className="w-4 h-4" />
                               </div>
                               <div>
@@ -242,7 +242,7 @@ export default function ApiKeysPage() {
                            <div className="flex items-center justify-end gap-3">
                               <button 
                                 onClick={() => toggleBlock(key.id, key.isBlocked)}
-                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                className={`px-4 py-2 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${
                                    key.isBlocked 
                                       ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700" 
                                       : "bg-white text-rose-500 border border-rose-100 hover:bg-rose-50 hover:border-rose-200 shadow-sm"
@@ -262,7 +262,7 @@ export default function ApiKeysPage() {
         {/* Mobile List View */}
         <div className="md:hidden space-y-4">
            {keys.length === 0 ? (
-              <div className="bg-white rounded-3xl border border-slate-200 p-10 text-center shadow-sm">
+              <div className="bg-white rounded-lg border border-slate-200 p-10 text-center shadow-sm">
                  <Key className="w-12 h-12 text-slate-200 mx-auto mb-4" />
                  <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">No active keys</p>
               </div>
@@ -270,7 +270,7 @@ export default function ApiKeysPage() {
               <div key={key.id} className="bg-white rounded-[24px] border border-slate-200 p-5 shadow-sm space-y-4">
                  <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 ${key.isBlocked ? 'bg-slate-50 text-slate-300 border-slate-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                       <div className={`w-10 h-10 rounded-md flex items-center justify-center border shrink-0 ${key.isBlocked ? 'bg-slate-50 text-slate-300 border-slate-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
                           <Key className="w-4 h-4" />
                        </div>
                        <div>
@@ -285,7 +285,7 @@ export default function ApiKeysPage() {
                     </div>
                  </div>
 
-                 <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 flex items-center justify-between">
+                 <div className="bg-slate-50 rounded-md p-3 border border-slate-100 flex items-center justify-between">
                     <code className="text-xs font-black text-slate-900 font-mono tracking-tighter truncate max-w-[200px]">{key.key}</code>
                     <button 
                       onClick={() => copyToClipboard(key.key, key.id)}
@@ -310,7 +310,7 @@ export default function ApiKeysPage() {
 
                  <button 
                    onClick={() => toggleBlock(key.id, key.isBlocked)}
-                   className={`w-full py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all mt-2 ${
+                   className={`w-full py-3.5 rounded-md text-[11px] font-black uppercase tracking-widest transition-all mt-2 ${
                       key.isBlocked 
                          ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 active:scale-95" 
                          : "bg-white text-rose-500 border-2 border-rose-100 active:bg-rose-50"
@@ -348,7 +348,7 @@ export default function ApiKeysPage() {
             </div>
             <div className="shrink-0 space-y-4 w-full md:w-auto">
                <div className="p-6 bg-white/5 rounded-[24px] border border-white/5 flex items-center gap-5">
-                  <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white">
+                  <div className="w-12 h-12 bg-blue-600 rounded-md flex items-center justify-center text-white">
                      <RotateCcw className="w-6 h-6" />
                   </div>
                   <div>

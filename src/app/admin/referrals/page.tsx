@@ -102,10 +102,10 @@ export default function AdminReferralHub() {
       {/* Agent Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {agents.map(agent => (
-          <div key={agent.id} className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm group hover:border-blue-300 transition-all">
+          <div key={agent.id} className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm group hover:border-blue-300 transition-all">
              <div className="flex items-center justify-between mb-8">
                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-900 font-black border border-slate-200 text-lg shadow-sm">
+                  <div className="w-12 h-12 bg-slate-50 rounded-md flex items-center justify-center text-slate-900 font-black border border-slate-200 text-lg shadow-sm">
                      {agent.name[0]}
                   </div>
                   <div>
@@ -120,15 +120,15 @@ export default function AdminReferralHub() {
              </div>
 
              <div className="grid grid-cols-3 gap-4 mb-8">
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="p-4 bg-slate-50 rounded-md border border-slate-100">
                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Merchants</p>
                    <p className="text-lg font-black text-slate-900">{agent._count?.merchants || 0}</p>
                 </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="p-4 bg-slate-50 rounded-md border border-slate-100">
                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Code</p>
                    <p className="text-xs font-black text-blue-600 font-mono tracking-tighter">{agent.referralCode}</p>
                 </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="p-4 bg-slate-50 rounded-md border border-slate-100">
                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Earnings</p>
                    <p className="text-lg font-black text-emerald-600">₹{agent.walletBalance.toLocaleString()}</p>
                 </div>
@@ -140,7 +140,7 @@ export default function AdminReferralHub() {
                   <p className="text-[10px] italic text-slate-300 px-1">No earnings logged yet</p>
                 ) : (
                   agent.commissionLogs.slice(0, 3).map((log: any) => (
-                    <div key={log.id} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl">
+                    <div key={log.id} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-md">
                        <span className="text-[10px] font-bold text-slate-600 truncate max-w-[150px]">{log.description}</span>
                        <span className="text-[10px] font-black text-emerald-600">+₹{log.amount.toLocaleString()}</span>
                     </div>
@@ -156,7 +156,7 @@ export default function AdminReferralHub() {
         {showAddModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl border border-slate-200 p-8 space-y-6">
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-lg bg-white rounded-lg shadow-2xl border border-slate-200 p-8 space-y-6">
                <div>
                   <h3 className="text-xl font-black text-slate-900">Provision Agent</h3>
                   <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">Create referral partner credentials</p>
@@ -165,29 +165,29 @@ export default function AdminReferralHub() {
                <div className="space-y-4">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase text-slate-400 px-1">Full Name</label>
-                    <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Agent Name" className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all" />
+                    <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Agent Name" className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase text-slate-400 px-1">Email Address</label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="agent@wave.com" className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all" />
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="agent@wave.com" className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase text-slate-400 px-1">Referral Code</label>
-                      <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().replace(/\s/g, ""))} placeholder="WAVE-PARTNER" className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all" />
+                      <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().replace(/\s/g, ""))} placeholder="WAVE-PARTNER" className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase text-slate-400 px-1">Comm. Rate (% of Fee)</label>
-                      <input type="number" value={rate} onChange={(e) => setRate(e.target.value)} placeholder="10" className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all" />
+                      <input type="number" value={rate} onChange={(e) => setRate(e.target.value)} placeholder="10" className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all" />
                     </div>
                   </div>
                </div>
 
                <div className="flex gap-3 pt-4">
-                  <button onClick={handleAddAgent} disabled={submitting || !name || !email || !code} className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all disabled:opacity-50">
+                  <button onClick={handleAddAgent} disabled={submitting || !name || !email || !code} className="flex-1 py-4 bg-slate-900 text-white rounded-md font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all disabled:opacity-50">
                      {submitting ? "Provisioning..." : "Activate Agent"}
                   </button>
-                  <button onClick={() => setShowAddModal(false)} className="px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">
+                  <button onClick={() => setShowAddModal(false)} className="px-6 py-4 bg-slate-100 text-slate-600 rounded-md font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">
                      Cancel
                   </button>
                </div>

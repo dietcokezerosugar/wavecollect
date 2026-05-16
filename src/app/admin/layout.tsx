@@ -125,7 +125,7 @@ export default function AdminLayout({
         {/* Mobile Header */}
         <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-slate-100 z-40 px-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-9 h-9 bg-slate-900 rounded-md flex items-center justify-center shadow-md">
               <ShieldCheck className="text-white w-4 h-4" />
             </div>
             <div className="flex flex-col">

@@ -16,7 +16,7 @@ export default function LandingPage() {
       <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-slate-900/20">
+            <div className="w-10 h-10 bg-slate-900 rounded-md flex items-center justify-center shadow-lg shadow-slate-900/20">
               <Zap className="text-white w-5 h-5 fill-current" />
             </div>
             <span className="text-2xl font-black tracking-tighter text-slate-900">PayxMint</span>
@@ -30,7 +30,7 @@ export default function LandingPage() {
             <div className="h-6 w-[1px] bg-slate-200 mx-2" />
 
             {status === "authenticated" ? (
-              <Link href="/dashboard" className="px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 active:scale-95">
+              <Link href="/dashboard" className="px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-md hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 active:scale-95">
                 Command Center
               </Link>
             ) : (
@@ -38,7 +38,7 @@ export default function LandingPage() {
                 <Link href="/login" className="text-sm font-bold text-slate-900 hover:text-blue-600 transition-colors">
                   Sign In
                 </Link>
-                <Link href="/register" className="px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95">
+                <Link href="/register" className="px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-md hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95">
                   Get API Key
                 </Link>
               </div>
@@ -81,7 +81,7 @@ export default function LandingPage() {
                 {status === "authenticated" ? (
                   <Link 
                     href="/dashboard" 
-                    className="w-full py-4 bg-slate-900 text-white rounded-xl text-center font-black shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-slate-900 text-white rounded-md text-center font-black shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Command Center <ArrowRight size={18} />
@@ -90,14 +90,14 @@ export default function LandingPage() {
                   <>
                     <Link 
                       href="/register" 
-                      className="w-full py-4 bg-blue-600 text-white rounded-xl text-center font-black shadow-lg shadow-blue-600/20"
+                      className="w-full py-4 bg-blue-600 text-white rounded-md text-center font-black shadow-lg shadow-blue-600/20"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Create Free Account
                     </Link>
                     <Link 
                       href="/login" 
-                      className="w-full py-4 bg-slate-100 text-slate-900 rounded-xl text-center font-black"
+                      className="w-full py-4 bg-slate-100 text-slate-900 rounded-md text-center font-black"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Sign In
@@ -132,15 +132,15 @@ export default function LandingPage() {
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 delay-300 duration-700 px-4">
             {status === "authenticated" ? (
-              <Link href="/dashboard" className="w-full sm:w-auto px-10 py-5 bg-slate-900 text-white rounded-2xl text-lg font-black flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-slate-900/20">
+              <Link href="/dashboard" className="w-full sm:w-auto px-10 py-5 bg-slate-900 text-white rounded-md text-lg font-black flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-slate-900/20">
                 Command Center <ArrowRight className="w-5 h-5" />
               </Link>
             ) : (
               <>
-                <Link href="/register" className="w-full sm:w-auto px-10 py-5 bg-blue-600 text-white rounded-2xl text-lg font-black flex items-center justify-center gap-3 hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-600/20">
+                <Link href="/register" className="w-full sm:w-auto px-10 py-5 bg-blue-600 text-white rounded-md text-lg font-black flex items-center justify-center gap-3 hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-600/20">
                   Start Building Now <ArrowRight className="w-5 h-5" />
                 </Link>
-                <Link href="/docs" className="w-full sm:w-auto px-10 py-5 bg-white text-slate-900 border border-slate-200 rounded-2xl text-lg font-black hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-2">
+                <Link href="/docs" className="w-full sm:w-auto px-10 py-5 bg-white text-slate-900 border border-slate-200 rounded-md text-lg font-black hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-2">
                   <Terminal className="w-5 h-5 text-slate-400" /> Read the Docs
                 </Link>
               </>
@@ -157,8 +157,8 @@ export default function LandingPage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-slate-300 transition-colors group">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-300 transition-colors group">
+                <div className="w-14 h-14 bg-white rounded-md flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
                   <Server className="w-6 h-6 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-black text-slate-900 mb-3">Headless Fleet Engines</h3>
@@ -167,8 +167,8 @@ export default function LandingPage() {
                 </p>
               </div>
               
-              <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-slate-300 transition-colors group">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-300 transition-colors group">
+                <div className="w-14 h-14 bg-white rounded-md flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
                   <ShieldCheck className="w-6 h-6 text-emerald-600" />
                 </div>
                 <h3 className="text-xl font-black text-slate-900 mb-3">Cryptographic Webhooks</h3>
@@ -177,8 +177,8 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-slate-300 transition-colors group">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-300 transition-colors group">
+                <div className="w-14 h-14 bg-white rounded-md flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
                   <Globe2 className="w-6 h-6 text-purple-600" />
                 </div>
                 <h3 className="text-xl font-black text-slate-900 mb-3">Edge-Optimized APIs</h3>
@@ -196,7 +196,7 @@ export default function LandingPage() {
            <div className="container mx-auto px-6 relative z-10 text-center">
               <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-6">Ready to scale?</h2>
               <p className="text-xl text-slate-300 font-medium max-w-2xl mx-auto mb-10">Join the businesses processing millions of rupees daily with PayxMint's automated settlement engine.</p>
-              <Link href="/register" className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-white text-slate-900 rounded-2xl text-lg font-black hover:bg-slate-50 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-white/10">
+              <Link href="/register" className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-white text-slate-900 rounded-md text-lg font-black hover:bg-slate-50 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-white/10">
                 Create Free Account
               </Link>
            </div>

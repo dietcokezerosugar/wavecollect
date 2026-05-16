@@ -62,13 +62,13 @@ export default function SettlementsPanel() {
           <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Manage Unsettled Funds & Risk Holds</p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={fetchData} className="p-3 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm">
+          <button onClick={fetchData} className="p-3 bg-white border border-slate-200 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm">
             <RefreshCcw size={18} className={loading ? "animate-spin" : ""} />
           </button>
           <button 
             onClick={processBatch}
             disabled={processing}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm"
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm"
           >
             {processing ? <RefreshCcw size={16} className="animate-spin" /> : <Clock size={16} />}
             Process T+1 Batch
@@ -78,7 +78,7 @@ export default function SettlementsPanel() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-slate-900 rounded-[32px] p-8 text-white shadow-xl relative overflow-hidden">
+        <div className="bg-slate-900 rounded-lg p-8 text-white shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 blur-[40px] -mr-10 -mt-10" />
           <div className="relative z-10 space-y-4">
             <div className="flex items-center gap-2 text-amber-400">
@@ -91,7 +91,7 @@ export default function SettlementsPanel() {
           </div>
         </div>
 
-        <div className="bg-rose-50 border border-rose-200 rounded-[32px] p-8 shadow-sm">
+        <div className="bg-rose-50 border border-rose-200 rounded-lg p-8 shadow-sm">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-rose-600">
               <ShieldAlert size={20} /> <h3 className="text-xs font-black uppercase tracking-widest">Risk Holds</h3>
@@ -103,7 +103,7 @@ export default function SettlementsPanel() {
           </div>
         </div>
 
-        <div className="bg-emerald-50 border border-emerald-200 rounded-[32px] p-8 shadow-sm">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-8 shadow-sm">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-emerald-600">
               <CheckCircle2 size={20} /> <h3 className="text-xs font-black uppercase tracking-widest">Released</h3>
@@ -117,7 +117,7 @@ export default function SettlementsPanel() {
       </div>
 
       {/* Ledger Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">

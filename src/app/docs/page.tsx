@@ -68,7 +68,7 @@ const Callout = ({ type = "info", title, children }: any) => {
   };
   const s = styles[type];
   return (
-    <div className={`${s.bg} border ${s.border} rounded-2xl p-4 my-6 flex gap-3 shadow-sm`}>
+    <div className={`${s.bg} border ${s.border} rounded-md p-4 my-6 flex gap-3 shadow-sm`}>
       <div className="mt-0.5">{s.icon}</div>
       <div>
         {title && <div className={`text-sm font-bold ${s.text} mb-1`}>{title}</div>}
@@ -89,7 +89,7 @@ const CodeBlock = ({ snippets }: any) => {
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 overflow-hidden my-6 bg-slate-950 shadow-xl">
+    <div className="rounded-md border border-slate-200 overflow-hidden my-6 bg-slate-950 shadow-xl">
       <div className="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-white/10 backdrop-blur-md">
         <div className="flex gap-4 overflow-x-auto scrollbar-hide">
           {Object.keys(snippets).map(l => (
@@ -118,7 +118,7 @@ const CodeBlock = ({ snippets }: any) => {
 };
 
 const Table = ({ headers, rows }: any) => (
-  <div className="my-6 border border-slate-200 rounded-2xl overflow-x-auto shadow-sm">
+  <div className="my-6 border border-slate-200 rounded-md overflow-x-auto shadow-sm">
     <table className="w-full text-left border-collapse bg-white whitespace-nowrap md:whitespace-normal">
       <thead className="bg-slate-50">
         <tr>
@@ -260,7 +260,7 @@ def verify_webhook(payload, signature, secret):
         <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
         <input 
           placeholder="Search docs... (⌘K)" 
-          className="w-full bg-slate-100 border-none rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold text-slate-900 focus:bg-blue-50 focus:ring-2 focus:ring-blue-600/20 transition-all outline-none placeholder:font-medium placeholder:text-slate-500"
+          className="w-full bg-slate-100 border-none rounded-md py-2.5 pl-10 pr-4 text-xs font-bold text-slate-900 focus:bg-blue-50 focus:ring-2 focus:ring-blue-600/20 transition-all outline-none placeholder:font-medium placeholder:text-slate-500"
         />
       </div>
 
@@ -308,7 +308,7 @@ def verify_webhook(payload, signature, secret):
         </div>
         
         <div className="flex items-center gap-4">
-          <Link href="/login" className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all active:scale-95">
+          <Link href="/login" className="px-5 py-2.5 bg-blue-600 text-white rounded-md text-[11px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all active:scale-95">
             Log In
           </Link>
         </div>
@@ -375,15 +375,15 @@ def verify_webhook(payload, signature, secret):
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-6 my-10">
-                  <div className="p-6 md:p-8 border border-slate-200 rounded-3xl bg-slate-50 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-600/5 transition-all cursor-pointer group">
-                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center border border-slate-200 mb-6 shadow-sm">
+                  <div className="p-6 md:p-8 border border-slate-200 rounded-lg bg-slate-50 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-600/5 transition-all cursor-pointer group">
+                    <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center border border-slate-200 mb-6 shadow-sm">
                       <Globe className="text-blue-600" size={24} />
                     </div>
                     <h4 className="font-black text-slate-900 mb-2 flex items-center gap-2 text-lg">Hosted Checkout <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform text-blue-600"/></h4>
                     <p className="text-sm text-slate-500 font-medium leading-relaxed">Zero-code UI for merchants. Perfect for web stores and SaaS billing.</p>
                   </div>
-                  <div className="p-6 md:p-8 border border-slate-200 rounded-3xl bg-slate-50 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-600/5 transition-all cursor-pointer group">
-                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center border border-slate-200 mb-6 shadow-sm">
+                  <div className="p-6 md:p-8 border border-slate-200 rounded-lg bg-slate-50 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-600/5 transition-all cursor-pointer group">
+                    <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center border border-slate-200 mb-6 shadow-sm">
                       <Smartphone className="text-emerald-600" size={24} />
                     </div>
                     <h4 className="font-black text-slate-900 mb-2 flex items-center gap-2 text-lg">Native Integration <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform text-emerald-600"/></h4>
@@ -428,20 +428,20 @@ def verify_webhook(payload, signature, secret):
                     
                     <div className="grid gap-8">
                       {/* Hosted Preview */}
-                      <div className="border border-slate-200 rounded-[32px] overflow-hidden bg-slate-50 shadow-sm">
+                      <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50 shadow-sm">
                         <div className="px-6 py-4 border-b border-slate-200 bg-white flex items-center justify-between">
                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Hosted Checkout (Desktop View)</span>
                           <Globe size={14} className="text-slate-400" />
                         </div>
                         <div className="p-8 md:p-12">
-                          <div className="flex bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-w-4xl mx-auto min-h-[300px]">
+                          <div className="flex bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-100 max-w-4xl mx-auto min-h-[300px]">
                             <div className="flex-1 bg-slate-50 p-8 border-r border-slate-100 hidden md:block">
                               <div className="w-8 h-8 bg-slate-900 rounded-lg mb-6 flex items-center justify-center text-white text-[10px] font-bold">W</div>
                               <h4 className="text-3xl font-black mb-2 text-slate-900">₹500.00</h4>
                               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Reference: #ORD_12345</p>
                             </div>
                             <div className="flex-1 p-8 flex flex-col items-center justify-center text-center">
-                              <div className="w-24 h-24 bg-slate-50 border-2 border-slate-100 rounded-2xl mb-4 flex items-center justify-center text-slate-300 font-black text-[10px]">QR CODE</div>
+                              <div className="w-24 h-24 bg-slate-50 border-2 border-slate-100 rounded-md mb-4 flex items-center justify-center text-slate-300 font-black text-[10px]">QR CODE</div>
                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Scan to Pay</p>
                             </div>
                           </div>
@@ -449,24 +449,24 @@ def verify_webhook(payload, signature, secret):
                       </div>
 
                       {/* Custom Preview */}
-                      <div className="border border-slate-200 rounded-[32px] overflow-hidden bg-slate-50 shadow-sm">
+                      <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50 shadow-sm">
                         <div className="px-6 py-4 border-b border-slate-200 bg-white flex items-center justify-between">
                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Custom Integration (Mobile Card)</span>
                           <Smartphone size={14} className="text-slate-400" />
                         </div>
                         <div className="p-8 flex justify-center">
-                          <div className="w-full max-w-[320px] bg-white rounded-[28px] shadow-2xl p-6 border border-slate-100 text-center">
+                          <div className="w-full max-w-[320px] bg-white rounded-lg shadow-2xl p-6 border border-slate-100 text-center">
                              <div className="flex items-center gap-3 mb-6 text-left">
-                               <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-sm">P</div>
+                               <div className="w-10 h-10 bg-blue-600 rounded-md flex items-center justify-center text-white font-black text-sm">P</div>
                                <div>
                                  <p className="text-[10px] font-black text-slate-900 uppercase tracking-wider">Pay Merchant</p>
                                  <p className="text-[10px] text-slate-500 font-bold">₹500.00</p>
                                </div>
                              </div>
-                             <div className="w-24 h-24 bg-slate-50 border border-slate-100 rounded-2xl mx-auto mb-6 flex items-center justify-center text-slate-200 text-[10px] font-bold">QR</div>
+                             <div className="w-24 h-24 bg-slate-50 border border-slate-100 rounded-md mx-auto mb-6 flex items-center justify-center text-slate-200 text-[10px] font-bold">QR</div>
                              <div className="space-y-3">
-                               <div className="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer">Open PhonePe</div>
-                               <div className="w-full py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer">Open GPay</div>
+                               <div className="w-full py-3 bg-slate-900 text-white rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer">Open PhonePe</div>
+                               <div className="w-full py-3 border border-slate-200 rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer">Open GPay</div>
                              </div>
                           </div>
                         </div>
@@ -525,7 +525,7 @@ export default function Checkout({ intent }) {
       {/* 📦 Desktop Summary (Left Side) */}
       <div className="flex-1 p-8 md:p-16 border-r border-slate-200 hidden md:flex flex-col items-end">
         <div className="w-full max-w-sm">
-          <div className="w-10 h-10 bg-slate-900 rounded-xl mb-8 flex items-center justify-center text-white font-black italic">W</div>
+          <div className="w-10 h-10 bg-slate-900 rounded-md mb-8 flex items-center justify-center text-white font-black italic">W</div>
           <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-2">Merchant Name</p>
           <h1 className="text-5xl font-black mb-12">₹{intent.amount.toFixed(2)}</h1>
           <div className="space-y-4 border-t border-slate-200 pt-8 text-sm">
@@ -539,16 +539,16 @@ export default function Checkout({ intent }) {
         <div className="w-full max-w-sm mx-auto md:mx-0">
           <h2 className="text-2xl font-black mb-8">Pay with UPI</h2>
           
-          <div className="p-4 border border-slate-100 rounded-[32px] shadow-2xl mb-8 inline-block bg-white">
+          <div className="p-4 border border-slate-100 rounded-lg shadow-2xl mb-8 inline-block bg-white">
             <QRCodeSVG value={intent.upi_link} size={200} />
           </div>
 
           <div className="w-full space-y-4">
-            <button onClick={copyUpi} className="w-full flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <button onClick={copyUpi} className="w-full flex items-center justify-between p-4 bg-slate-50 rounded-md border border-slate-100">
                <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">UPI Link</span>
                <span className="text-xs font-bold text-blue-600">{copied ? <Check size={14}/> : 'COPY LINK'}</span>
             </button>
-            <a href={intent.upi_link} className="block w-full py-5 bg-blue-600 text-white rounded-2xl text-center font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-600/20 active:scale-95 transition-all">
+            <a href={intent.upi_link} className="block w-full py-5 bg-blue-600 text-white rounded-md text-center font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-600/20 active:scale-95 transition-all">
               Open UPI Apps
             </a>
           </div>
@@ -574,7 +574,7 @@ const SuccessView = () => (
                       PayxMint checkouts automatically switch between two distinct UI behaviors based on the device detected.
                     </p>
                     <div className="grid md:grid-cols-2 gap-8">
-                       <div className="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm">
+                       <div className="p-8 border border-slate-200 rounded-lg bg-white shadow-sm">
                           <Smartphone className="text-blue-600 mb-4" />
                           <h4 className="font-black mb-2">The Mobile Card</h4>
                           <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">
@@ -582,7 +582,7 @@ const SuccessView = () => (
                           </p>
                           <span className="text-[10px] font-black text-blue-600 uppercase bg-blue-50 px-2 py-1 rounded">Best for Conversion</span>
                        </div>
-                       <div className="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm">
+                       <div className="p-8 border border-slate-200 rounded-lg bg-white shadow-sm">
                           <Globe className="text-emerald-600 mb-4" />
                           <h4 className="font-black mb-2">The Desktop Split</h4>
                           <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">
@@ -603,7 +603,7 @@ const SuccessView = () => (
                   Receive real-time settlement notifications confirmed by our GPay bot engine.
                 </p>
                 <SectionHeading id="payload">Success Payload</SectionHeading>
-                <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 font-mono text-sm text-emerald-400 overflow-x-auto shadow-xl">
+                <div className="bg-slate-950 p-6 rounded-md border border-slate-800 font-mono text-sm text-emerald-400 overflow-x-auto shadow-xl">
                   {`{
   "event": "payment.success",
   "order_id": "ORD_12345",
@@ -650,7 +650,7 @@ const SuccessView = () => (
 
 const SetupStep = ({ num, title, children }: any) => (
   <div className="flex gap-6">
-    <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black shrink-0 shadow-lg shadow-blue-600/20">{num}</div>
+    <div className="w-12 h-12 bg-blue-600 text-white rounded-md flex items-center justify-center font-black shrink-0 shadow-lg shadow-blue-600/20">{num}</div>
     <div className="space-y-2 pt-2">
       <h4 className="text-xl font-bold text-slate-900">{title}</h4>
       <div className="text-sm text-slate-500 font-medium leading-relaxed">{children}</div>
@@ -659,8 +659,8 @@ const SetupStep = ({ num, title, children }: any) => (
 );
 
 const PhaseCard = ({ num, title, desc }: any) => (
-  <div className="p-6 border border-slate-200 rounded-3xl bg-white space-y-4 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all group">
-    <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-black text-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">{num}</div>
+  <div className="p-6 border border-slate-200 rounded-lg bg-white space-y-4 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all group">
+    <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center font-black text-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">{num}</div>
     <div className="space-y-2">
       <h4 className="text-base font-bold text-slate-900">{title}</h4>
       <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{desc}</p>

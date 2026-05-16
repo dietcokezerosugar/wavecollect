@@ -131,7 +131,7 @@ export default function AdminMerchants() {
 
   const SkeletonRow = () => (
     <tr className="animate-pulse border-b border-slate-50">
-      <td className="p-4 px-6"><div className="w-40 h-10 bg-slate-100 rounded-xl"></div></td>
+      <td className="p-4 px-6"><div className="w-40 h-10 bg-slate-100 rounded-md"></div></td>
       <td className="p-4 px-6"><div className="w-24 h-6 bg-slate-50 rounded-lg"></div></td>
       <td className="p-4 px-6"><div className="w-20 h-6 bg-slate-50 rounded-lg"></div></td>
       <td className="p-4 px-6"><div className="w-24 h-8 bg-slate-100 rounded-full"></div></td>
@@ -153,12 +153,12 @@ export default function AdminMerchants() {
           <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Full Control & Wallet Management</p>
         </div>
         <div className="flex items-center gap-3">
-            <div className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black border border-emerald-100 flex items-center gap-2">
+            <div className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-md text-[10px] font-black border border-emerald-100 flex items-center gap-2">
                 <Wallet size={12} /> Total Float: ₹{merchants.reduce((acc, m) => acc + m.walletBalance, 0).toLocaleString()}
             </div>
             <button 
               onClick={() => setIsAdding(true)}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md shadow-blue-600/10 active:scale-95 transition-all"
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-bold shadow-md shadow-blue-600/10 active:scale-95 transition-all"
             >
               + Add New Merchant
             </button>
@@ -180,7 +180,7 @@ export default function AdminMerchants() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
+              className="relative w-full max-w-md bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden"
             >
               <div className="p-8 space-y-6">
                 <div>
@@ -193,7 +193,7 @@ export default function AdminMerchants() {
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Merchant Name</label>
                     <input 
                       type="text" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-3 text-sm font-bold outline-none focus:border-blue-500"
                       onChange={(e) => setAddForm({...addForm, name: e.target.value})}
                     />
                   </div>
@@ -201,7 +201,7 @@ export default function AdminMerchants() {
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Email Address</label>
                     <input 
                       type="email" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-3 text-sm font-bold outline-none focus:border-blue-500"
                       onChange={(e) => setAddForm({...addForm, email: e.target.value})}
                     />
                   </div>
@@ -211,7 +211,7 @@ export default function AdminMerchants() {
                       <input 
                         type="number" 
                         defaultValue="0"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-3 text-sm font-bold outline-none focus:border-blue-500"
                         onChange={(e) => setAddForm({...addForm, walletBalance: parseFloat(e.target.value)})}
                       />
                     </div>
@@ -220,7 +220,7 @@ export default function AdminMerchants() {
                       <input 
                         type="number" 
                         defaultValue="2"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-3 text-sm font-bold outline-none focus:border-blue-500"
                         onChange={(e) => setAddForm({...addForm, commissionRate: parseFloat(e.target.value)})}
                       />
                     </div>
@@ -229,7 +229,7 @@ export default function AdminMerchants() {
                   <div>
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Referral Agent (Optional)</label>
                     <select 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-3 text-sm font-bold outline-none focus:border-blue-500"
                       onChange={(e) => setAddForm({...addForm, agentId: e.target.value})}
                       value={addForm.agentId || ""}
                     >
@@ -240,7 +240,7 @@ export default function AdminMerchants() {
                     </select>
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-md border border-slate-100">
                      <div className="flex items-center gap-3">
                         <ZapOff size={18} className="text-amber-500" />
                         <div>
@@ -258,10 +258,10 @@ export default function AdminMerchants() {
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                  <button onClick={() => handleAddMerchant()} className="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:bg-blue-700 transition-all">
+                  <button onClick={() => handleAddMerchant()} className="flex-1 py-4 bg-blue-600 text-white rounded-md font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:bg-blue-700 transition-all">
                     Create Account
                   </button>
-                  <button onClick={() => setIsAdding(false)} className="px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-200 transition-all">
+                  <button onClick={() => setIsAdding(false)} className="px-6 py-4 bg-slate-100 text-slate-600 rounded-md font-black text-sm uppercase tracking-widest hover:bg-slate-200 transition-all">
                     Cancel
                   </button>
                 </div>
@@ -278,7 +278,7 @@ export default function AdminMerchants() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-white rounded-2xl border border-amber-200 overflow-hidden shadow-sm"
+            className="bg-white rounded-md border border-amber-200 overflow-hidden shadow-sm"
           >
             <div className="bg-amber-50 p-4 border-b border-amber-100 flex items-center gap-3">
               <Globe className="text-amber-600 w-5 h-5" />
@@ -309,7 +309,7 @@ export default function AdminMerchants() {
       </AnimatePresence>
 
       {/* Merchants Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm overflow-x-auto min-h-[400px]">
+      <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm overflow-x-auto min-h-[400px]">
         <table className="w-full text-left border-collapse min-w-[1000px]">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">

@@ -78,12 +78,12 @@ export default function WebhookManagement() {
         <div className="flex items-center gap-3">
           <button 
             onClick={handleRetryAll}
-            className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg flex items-center gap-2"
+            className="px-4 py-2 bg-slate-900 text-white rounded-md text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg flex items-center gap-2"
           >
             <RefreshCcw size={14} className={loading ? "animate-spin" : ""} />
             Retry All Failed
           </button>
-          <button onClick={fetchData} className="p-2 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 transition-all shadow-sm">
+          <button onClick={fetchData} className="p-2 bg-white border border-slate-200 rounded-md text-slate-500 hover:text-slate-900 transition-all shadow-sm">
             <RefreshCcw size={18} className={loading ? "animate-spin" : ""} />
           </button>
         </div>
@@ -92,7 +92,7 @@ export default function WebhookManagement() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Pending & Failed Events */}
         <div className="xl:col-span-2 space-y-6">
-          <div className="bg-white rounded-[32px] border border-slate-200 overflow-hidden shadow-sm">
+          <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
             <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
                 <Activity size={16} className="text-blue-600" /> Active Delivery Queue
@@ -156,7 +156,7 @@ export default function WebhookManagement() {
 
         {/* Execution History */}
         <div className="space-y-6">
-          <div className="bg-slate-900 rounded-[32px] p-8 text-white shadow-xl relative overflow-hidden h-fit">
+          <div className="bg-slate-900 rounded-lg p-8 text-white shadow-xl relative overflow-hidden h-fit">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 blur-[40px] -mr-10 -mt-10" />
             <div className="relative z-10 space-y-6">
               <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
@@ -165,7 +165,7 @@ export default function WebhookManagement() {
               
               <div className="space-y-4">
                 {logs.map((log) => (
-                  <div key={log.id} className="p-4 bg-white/5 rounded-2xl border border-white/10 hover:border-white/20 transition-all cursor-pointer group">
+                  <div key={log.id} className="p-4 bg-white/5 rounded-md border border-white/10 hover:border-white/20 transition-all cursor-pointer group">
                     <div className="flex justify-between items-start mb-2">
                       <p className="text-xs font-black text-white">{log.merchant?.name}</p>
                       <span className={`text-[9px] font-black px-2 py-0.5 rounded ${log.isSuccess ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
@@ -183,7 +183,7 @@ export default function WebhookManagement() {
             </div>
           </div>
 
-          <div className="bg-white rounded-[32px] p-8 border border-slate-200 shadow-sm space-y-4">
+          <div className="bg-white rounded-lg p-8 border border-slate-200 shadow-sm space-y-4">
             <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
               <AlertCircle size={14} className="text-amber-500" /> Backoff Strategy
             </h4>

@@ -71,7 +71,7 @@ export default function AdminAnalytics() {
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
           </div>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border border-slate-200 shadow-sm w-fit">
+        <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-md border border-slate-200 shadow-sm w-fit">
           <Wifi className="w-4 h-4 text-emerald-500" />
           <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
             {new Date().toLocaleDateString("en-IN", { month: "short", day: "numeric" })} · {new Date().toLocaleTimeString()}
@@ -114,7 +114,7 @@ export default function AdminAnalytics() {
       {/* Phase 5: Risk & Settlement & VPA Health */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Settlement Flow */}
-        <div className="bg-slate-900 rounded-[32px] p-6 text-white shadow-lg relative overflow-hidden group">
+        <div className="bg-slate-900 rounded-lg p-6 text-white shadow-lg relative overflow-hidden group">
            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 blur-[50px] -mr-10 -mt-10 transition-all group-hover:bg-blue-500/30" />
            <div className="relative z-10 space-y-4">
               <div className="flex items-center gap-2">
@@ -139,7 +139,7 @@ export default function AdminAnalytics() {
         </div>
 
         {/* Risk Distribution */}
-        <div className="bg-white rounded-[32px] border border-slate-200 p-6 shadow-sm group hover:border-slate-300 transition-all">
+        <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm group hover:border-slate-300 transition-all">
            <div className="flex items-center gap-2 mb-4">
               <ShieldCheck className="text-slate-600" size={18} />
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">Customer Risk Profile</h3>
@@ -176,7 +176,7 @@ export default function AdminAnalytics() {
         </div>
 
         {/* VPA Health */}
-        <div className="bg-white rounded-[32px] border border-slate-200 p-6 shadow-sm group hover:border-slate-300 transition-all flex flex-col justify-between">
+        <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm group hover:border-slate-300 transition-all flex flex-col justify-between">
            <div className="flex items-center gap-2 mb-4">
               <Activity className="text-emerald-500" size={18} />
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">Global VPA Health</h3>
@@ -208,7 +208,7 @@ export default function AdminAnalytics() {
         
         {/* Main Chart Section */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm">
+          <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm">
              <div className="flex items-center justify-between mb-12">
                <div>
                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Volume Velocity</h3>
@@ -248,9 +248,9 @@ export default function AdminAnalytics() {
           </div>
 
           {/* Top Merchants Leaderboard */}
-          <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm">
+          <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm">
              <div className="flex items-center gap-3 mb-8">
-               <div className="p-2.5 bg-emerald-50 rounded-xl text-emerald-600">
+               <div className="p-2.5 bg-emerald-50 rounded-md text-emerald-600">
                  <ArrowUpRight size={20} />
                </div>
                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Merchant Growth Leaderboard</h3>
@@ -258,9 +258,9 @@ export default function AdminAnalytics() {
 
              <div className="space-y-4">
                {topMerchants.map((m: any, i: number) => (
-                 <div key={m.id} className="flex items-center justify-between p-5 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-blue-200 transition-all group">
+                 <div key={m.id} className="flex items-center justify-between p-5 bg-slate-50/50 rounded-md border border-slate-100 hover:border-blue-200 transition-all group">
                    <div className="flex items-center gap-4">
-                     <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center font-black text-slate-900 shadow-sm">
+                     <div className="w-10 h-10 rounded-md bg-white border border-slate-200 flex items-center justify-center font-black text-slate-900 shadow-sm">
                         {i + 1}
                      </div>
                      <div>
@@ -286,7 +286,7 @@ export default function AdminAnalytics() {
 
         {/* Action Center & Critical Alerts */}
         <div className="space-y-8">
-           <div className="bg-slate-900 rounded-[32px] p-8 text-white shadow-2xl relative overflow-hidden">
+           <div className="bg-slate-900 rounded-lg p-8 text-white shadow-2xl relative overflow-hidden">
              <div className="absolute top-0 right-0 w-40 h-40 bg-blue-600/30 blur-[80px] -mr-20 -mt-20" />
              <div className="relative z-10 space-y-6">
                 <div className="flex items-center gap-3">
@@ -295,15 +295,15 @@ export default function AdminAnalytics() {
                 </div>
                 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-md border border-white/10">
                      <span className="text-[10px] font-black text-white/50 uppercase">Active Bots</span>
                      <span className="text-sm font-black">Online</span>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-md border border-white/10">
                      <span className="text-[10px] font-black text-white/50 uppercase">Gateway Health</span>
                      <span className="text-xs font-black text-emerald-400">Stable</span>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-md border border-white/10">
                      <span className="text-[10px] font-black text-white/50 uppercase">Response Time</span>
                      <span className="text-xs font-black">240ms</span>
                   </div>
@@ -312,7 +312,7 @@ export default function AdminAnalytics() {
            </div>
 
            {stats.pendingIpRequests > 0 && (
-             <div className="bg-amber-50 border border-amber-200 rounded-[32px] p-8 space-y-4 shadow-sm animate-bounce-subtle">
+             <div className="bg-amber-50 border border-amber-200 rounded-lg p-8 space-y-4 shadow-sm animate-bounce-subtle">
                <div className="flex items-center gap-3">
                  <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
                    <Globe size={18} />
@@ -322,20 +322,20 @@ export default function AdminAnalytics() {
                <p className="text-xs text-amber-800 font-bold leading-relaxed">
                  You have <span className="underline">{stats.pendingIpRequests}</span> merchant IP whitelist requests pending review.
                </p>
-               <a href="/admin/merchants" className="block w-full py-3 bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest text-center hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20">
+               <a href="/admin/merchants" className="block w-full py-3 bg-amber-600 text-white rounded-md text-[10px] font-black uppercase tracking-widest text-center hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20">
                  Review All Requests
                </a>
              </div>
            )}
 
-           <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm space-y-4">
+           <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm space-y-4">
               <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Quick Actions</h4>
               <div className="grid grid-cols-1 gap-2">
-                <button className="flex items-center justify-between p-4 bg-slate-50 hover:bg-blue-50 rounded-2xl border border-slate-100 hover:border-blue-200 transition-all group">
+                <button className="flex items-center justify-between p-4 bg-slate-50 hover:bg-blue-50 rounded-md border border-slate-100 hover:border-blue-200 transition-all group">
                    <span className="text-xs font-black text-slate-700 group-hover:text-blue-600 transition-colors">Export Ledger</span>
                    <ArrowUpRight size={14} className="text-slate-400 group-hover:text-blue-500" />
                 </button>
-                <button className="flex items-center justify-between p-4 bg-slate-50 hover:bg-blue-50 rounded-2xl border border-slate-100 hover:border-blue-200 transition-all group">
+                <button className="flex items-center justify-between p-4 bg-slate-50 hover:bg-blue-50 rounded-md border border-slate-100 hover:border-blue-200 transition-all group">
                    <span className="text-xs font-black text-slate-700 group-hover:text-blue-600 transition-colors">Audit Logs</span>
                    <ShieldCheck size={14} className="text-slate-400 group-hover:text-blue-500" />
                 </button>
@@ -356,9 +356,9 @@ function StatCard({ label, value, icon, color, subtitle }: any) {
   };
 
   return (
-    <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm group hover:border-blue-200 transition-all">
+    <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm group hover:border-blue-200 transition-all">
       <div className="flex items-center gap-3 mb-6">
-        <div className={`p-3 rounded-2xl border ${colorMap[color]}`}>{icon}</div>
+        <div className={`p-3 rounded-md border ${colorMap[color]}`}>{icon}</div>
       </div>
       <div>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">{label}</p>

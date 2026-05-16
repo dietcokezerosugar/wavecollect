@@ -58,9 +58,9 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
       
       {/* Trial Status Banner */}
       {isTrialActive ? (
-        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+        <div className="bg-emerald-50 border border-emerald-100 rounded-md p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+              <div className="w-10 h-10 bg-emerald-500 rounded-md flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
                  <Zap size={20} />
               </div>
               <div>
@@ -75,9 +75,9 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
            </Link>
         </div>
       ) : trialEndsAt && trialEndsAt < new Date() && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+        <div className="bg-amber-50 border border-amber-200 rounded-md p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+              <div className="w-10 h-10 bg-amber-500 rounded-md flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
                  <ShieldAlert size={20} />
               </div>
               <div>
@@ -115,12 +115,12 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
         <div className="flex items-center gap-3">
            <button 
              onClick={() => setIsLive(!isLive)}
-             className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 shadow-sm ${isLive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
+             className={`px-3 py-2 rounded-md text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 shadow-sm ${isLive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
            >
               {isLive ? <RefreshCw className="animate-spin" size={12} /> : <Clock size={12} />}
               {isLive ? 'Real-time On' : 'Paused'}
            </button>
-           <Link href="/dashboard/recharge" className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-black text-[11px] uppercase tracking-widest shadow-md shadow-blue-600/20 active:scale-95 transition-all">
+           <Link href="/dashboard/recharge" className="px-5 py-2.5 bg-blue-600 text-white rounded-md font-black text-[11px] uppercase tracking-widest shadow-md shadow-blue-600/20 active:scale-95 transition-all">
               + Recharge Wallet
            </Link>
         </div>
@@ -170,7 +170,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
             </Link>
           </div>
           
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-x-auto divide-y divide-slate-100 shadow-sm min-h-[400px]">
+          <div className="bg-white rounded-md border border-slate-200 overflow-x-auto divide-y divide-slate-100 shadow-sm min-h-[400px]">
              <div className="min-w-[600px]">
             {recentIntents.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
@@ -226,7 +226,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
         {/* Mini Ledger Widget (Static Sidebar) */}
         <div className="space-y-4">
            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-2">Wallet Ledger</h3>
-           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+           <div className="bg-white rounded-md border border-slate-200 p-6 shadow-sm">
               <div className="space-y-4">
                  {ledgerEntries.map((entry: any) => (
                     <div key={entry.id} className="flex items-center justify-between pb-4 border-b border-slate-100 last:border-0 last:pb-0">
@@ -262,9 +262,9 @@ function DashboardCard({ label, value, sub, icon, color }: any) {
   };
 
   return (
-    <div className={`bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-slate-300 transition-all group relative overflow-hidden`}>
+    <div className={`bg-white rounded-md border border-slate-200 p-6 shadow-sm hover:border-slate-300 transition-all group relative overflow-hidden`}>
       <div className="flex flex-col gap-4 relative z-10">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shadow-sm ${colors[color]}`}>
+        <div className={`w-12 h-12 rounded-md flex items-center justify-center border shadow-sm ${colors[color]}`}>
           {React.cloneElement(icon as React.ReactElement<any>, { size: 20 })}
         </div>
         <div>

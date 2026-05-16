@@ -60,7 +60,7 @@ export default function ApiLogsPage() {
            </div>
            <button
              onClick={() => setAutoRefresh(!autoRefresh)}
-             className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-slate-900 transition-all shadow-sm"
+             className="p-3 bg-white border border-slate-200 rounded-md text-slate-400 hover:text-slate-900 transition-all shadow-sm"
            >
              {autoRefresh ? <X size={16} /> : <RefreshCw size={16} />}
            </button>
@@ -70,14 +70,14 @@ export default function ApiLogsPage() {
       <div className="grid lg:grid-cols-4 gap-8">
         
         <div className="lg:col-span-1 space-y-6">
-           <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-6 shadow-sm">
+           <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-6 shadow-sm">
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Filter Protocol</h3>
               <div className="flex flex-col gap-1">
                  {[null, 'SUCCESS', 'WARNING', 'ERROR', 'CRITICAL'].map((f) => (
                     <button
                        key={String(f)}
                        onClick={() => setFilter(f)}
-                       className={`w-full text-left px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                       className={`w-full text-left px-4 py-3 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${
                           filter === f ? "bg-slate-900 text-white shadow-lg shadow-slate-900/10" : "text-slate-500 hover:bg-slate-50"
                        }`}
                     >
@@ -87,7 +87,7 @@ export default function ApiLogsPage() {
               </div>
            </div>
 
-           <div className="bg-blue-600 rounded-3xl p-6 text-white space-y-4 shadow-xl shadow-blue-600/20">
+           <div className="bg-blue-600 rounded-lg p-6 text-white space-y-4 shadow-xl shadow-blue-600/20">
               <ShieldCheck className="w-8 h-8 opacity-50" />
               <h4 className="text-sm font-black uppercase tracking-tight">Audit Integrity</h4>
               <p className="text-[11px] font-medium text-blue-100 leading-relaxed">
@@ -104,11 +104,11 @@ export default function ApiLogsPage() {
                  placeholder="Search by Order ID, IP, or Metadata..."
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
-                 className="w-full bg-white border border-slate-200 py-4 pl-14 pr-6 rounded-2xl text-sm font-bold text-slate-900 focus:ring-4 focus:ring-blue-600/5 outline-none transition-all"
+                 className="w-full bg-white border border-slate-200 py-4 pl-14 pr-6 rounded-md text-sm font-bold text-slate-900 focus:ring-4 focus:ring-blue-600/5 outline-none transition-all"
               />
            </div>
 
-           <div className="bg-slate-950 rounded-[32px] border border-slate-800 shadow-2xl overflow-hidden flex flex-col min-h-[600px]">
+           <div className="bg-slate-950 rounded-lg border border-slate-800 shadow-2xl overflow-hidden flex flex-col min-h-[600px]">
               <div className="bg-slate-900/50 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
                  <div className="flex items-center gap-2">
                     <Terminal className="w-4 h-4 text-slate-500" />
@@ -153,7 +153,7 @@ export default function ApiLogsPage() {
                                       {log.message}
                                    </p>
                                    {log.metadata && (
-                                      <div className="mt-3 p-4 bg-black/40 rounded-2xl border border-white/5 font-mono text-[10px] text-slate-500 overflow-x-auto">
+                                      <div className="mt-3 p-4 bg-black/40 rounded-md border border-white/5 font-mono text-[10px] text-slate-500 overflow-x-auto">
                                          {JSON.stringify(JSON.parse(log.metadata), null, 2)}
                                       </div>
                                    )}

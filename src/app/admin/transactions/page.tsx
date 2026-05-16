@@ -127,13 +127,13 @@ export default function MasterTransactionLedger() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by UTR, Order ID, or Merchant..."
-            className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-sm font-bold text-slate-900 focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-400 shadow-sm"
+            className="w-full bg-white border border-slate-200 rounded-md py-2.5 pl-11 pr-4 text-sm font-bold text-slate-900 focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-400 shadow-sm"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-black text-slate-700 focus:outline-none focus:border-blue-500 shadow-sm"
+          className="bg-white border border-slate-200 rounded-md px-4 py-2.5 text-xs font-black text-slate-700 focus:outline-none focus:border-blue-500 shadow-sm"
         >
           <option value="ALL">ALL STATUSES</option>
           <option value="SUCCESS">SUCCESS</option>
@@ -141,14 +141,14 @@ export default function MasterTransactionLedger() {
           <option value="FAILED">FAILED</option>
           <option value="EXPIRED">EXPIRED</option>
         </select>
-        <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-sm">
+        <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-md px-4 py-2.5 shadow-sm">
           <span className="text-xs font-black text-slate-900">{filtered.length}</span>
           <span className="text-[10px] font-black text-slate-400 uppercase">Results</span>
         </div>
       </div>
 
       {/* Ledger Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[1000px]">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
@@ -231,7 +231,7 @@ export default function MasterTransactionLedger() {
       {approvalModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setApprovalModal(null)} />
-          <div className="relative w-full max-w-lg bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+          <div className="relative w-full max-w-lg bg-white rounded-md border border-slate-200 shadow-2xl overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center border border-blue-100">
@@ -242,14 +242,14 @@ export default function MasterTransactionLedger() {
                   <p className="text-[10px] font-bold text-slate-400">Admin Approval System</p>
                 </div>
               </div>
-              <button onClick={() => setApprovalModal(null)} className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
+              <button onClick={() => setApprovalModal(null)} className="p-2 hover:bg-slate-50 rounded-md transition-colors">
                 <X className="w-5 h-5 text-slate-400" />
               </button>
             </div>
 
             <div className="p-6 space-y-5">
               {/* Transaction Info */}
-              <div className="bg-slate-50 rounded-xl p-4 border border-slate-200/50 space-y-3 shadow-inner">
+              <div className="bg-slate-50 rounded-md p-4 border border-slate-200/50 space-y-3 shadow-inner">
                 <div className="flex justify-between">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Order ID</span>
                   <span className="text-xs font-black text-slate-900 font-mono">{approvalModal.referenceId}</span>

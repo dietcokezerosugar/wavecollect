@@ -59,13 +59,13 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className="flex items-center justify-center md:justify-end gap-3">
-          <div className="flex items-center gap-2 px-3 md:px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-2 px-3 md:px-4 py-2 bg-slate-50 rounded-md border border-slate-200 shadow-sm">
             <Clock className="w-4 h-4 text-blue-600" />
             <span className="text-[10px] md:text-[11px] font-black text-slate-600 uppercase tracking-widest">LIVE: {new Date().toLocaleTimeString()}</span>
           </div>
           <button 
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="p-2.5 bg-rose-50 text-rose-600 rounded-xl border border-rose-100 hover:bg-rose-100 transition-all shadow-sm group active:scale-95"
+            className="p-2.5 bg-rose-50 text-rose-600 rounded-md border border-rose-100 hover:bg-rose-100 transition-all shadow-sm group active:scale-95"
             title="Sign Out"
           >
             <LogOut size={18} className="group-hover:scale-110 transition-transform" />
@@ -101,7 +101,7 @@ export default function AdminDashboard() {
       {/* Secondary Info Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         {/* Merchant Activity */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 md:p-8 shadow-sm">
+        <div className="bg-white rounded-md border border-slate-200 p-5 md:p-8 shadow-sm">
           <div className="flex items-center justify-between mb-5 md:mb-6">
             <h3 className="text-sm md:text-base font-black text-slate-900 flex items-center gap-2.5">
               <Users className="w-5 h-5 text-blue-600" /> Top Merchants
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* System Health & Alerts */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 md:p-8 shadow-sm">
+        <div className="bg-white rounded-md border border-slate-200 p-5 md:p-8 shadow-sm">
           <div className="flex items-center justify-between mb-5 md:mb-6">
             <h3 className="text-sm md:text-base font-black text-slate-900 flex items-center gap-2.5">
               <AlertCircle className="w-5 h-5 text-rose-500" /> System Alerts
@@ -143,9 +143,9 @@ function StatCard({ label, value, sub, icon, color }: any) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-5 md:p-8 shadow-sm flex flex-col justify-between">
+    <div className="bg-white rounded-md border border-slate-200 p-5 md:p-8 shadow-sm flex flex-col justify-between">
       <div className="flex items-center justify-between mb-3 md:mb-4">
-        <div className={`p-2 md:p-2.5 rounded-xl border ${colorMap[color]}`}>
+        <div className={`p-2 md:p-2.5 rounded-md border ${colorMap[color]}`}>
           {React.cloneElement(icon, { className: "w-4 h-4 md:w-5 md:h-5" })}
         </div>
       </div>
@@ -160,7 +160,7 @@ function StatCard({ label, value, sub, icon, color }: any) {
 
 function MerchantRow({ name, volume, txns, status }: any) {
   return (
-    <div className="flex items-center justify-between p-3 md:p-4 bg-white rounded-xl border border-slate-100 hover:border-slate-300 transition-colors cursor-pointer group shadow-sm active:scale-[0.98]">
+    <div className="flex items-center justify-between p-3 md:p-4 bg-white rounded-md border border-slate-100 hover:border-slate-300 transition-colors cursor-pointer group shadow-sm active:scale-[0.98]">
        <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 md:w-10 md:h-10 rounded-[10px] bg-slate-50 flex items-center justify-center font-black text-slate-600 border border-slate-200 group-hover:bg-white transition-colors shrink-0 text-sm">{name[0]}</div>
           <div className="min-w-0">
@@ -179,7 +179,7 @@ function MerchantRow({ name, volume, txns, status }: any) {
 function AlertItem({ type, msg, time }: any) {
   const color = type === 'DANGER' ? 'bg-rose-500' : type === 'WARNING' ? 'bg-amber-500' : 'bg-blue-500';
   return (
-    <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+    <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-md border border-slate-100">
        <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${color}`} />
        <div className="flex-1">
           <p className="text-xs font-semibold text-slate-700 leading-snug">{msg}</p>

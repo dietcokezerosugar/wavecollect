@@ -92,14 +92,14 @@ export default function StaffOverview() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
          {/* Operational Alerts */}
-         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+         <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
             <div className="px-5 md:px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">High Priority Tasks</h3>
                <span className="px-2 py-0.5 bg-rose-100 text-rose-600 rounded text-[9px] font-black uppercase tracking-widest">Live</span>
             </div>
             <div className="p-5 md:p-6 space-y-4">
                {stats.pendingReviews > 0 ? (
-                 <div className="flex items-start gap-3 md:gap-4 p-4 bg-amber-50 border border-amber-100 rounded-xl">
+                 <div className="flex items-start gap-3 md:gap-4 p-4 bg-amber-50 border border-amber-100 rounded-md">
                     <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
                        <Clock className="w-5 h-5" />
                     </div>
@@ -120,18 +120,18 @@ export default function StaffOverview() {
          </div>
 
          {/* Maintenance Status */}
-         <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8 text-white relative overflow-hidden">
+         <div className="bg-slate-900 rounded-md border border-slate-800 p-6 md:p-8 text-white relative overflow-hidden">
             <div className="relative z-10 space-y-6">
                <div className="space-y-2">
                   <h3 className="text-lg md:text-xl font-black tracking-tight">VPS Performance</h3>
                   <p className="text-slate-400 text-sm font-medium">Monitoring active browser contexts across all nodes.</p>
                </div>
                <div className="grid grid-cols-2 gap-3 md:gap-4">
-                  <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                  <div className="p-4 bg-white/5 rounded-md border border-white/10">
                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Nodes</p>
                      <p className="text-2xl font-black">1</p>
                   </div>
-                  <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                  <div className="p-4 bg-white/5 rounded-md border border-white/10">
                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Active Browsers</p>
                      <p className="text-2xl font-black">{stats.onlineSessions}</p>
                   </div>
@@ -147,10 +147,10 @@ export default function StaffOverview() {
 
 function StatCard({ label, value, icon: Icon, color, bg, border, href }: any) {
   return (
-    <Link href={href} className={`block p-4 md:p-6 rounded-2xl border ${bg} ${border} hover:shadow-xl hover:shadow-slate-200/50 transition-all group active:scale-95`}>
+    <Link href={href} className={`block p-4 md:p-6 rounded-md border ${bg} ${border} hover:shadow-xl hover:shadow-slate-200/50 transition-all group active:scale-95`}>
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div className="space-y-3 md:space-y-4">
-          <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl ${bg} ${border} flex items-center justify-center ${color} shadow-sm group-hover:scale-110 transition-transform`}>
+          <div className={`w-10 h-10 md:w-12 md:h-12 rounded-md ${bg} ${border} flex items-center justify-center ${color} shadow-sm group-hover:scale-110 transition-transform`}>
             <Icon className="w-5 h-5 md:w-6 md:h-6" />
           </div>
           <div className="space-y-0.5 md:space-y-1">

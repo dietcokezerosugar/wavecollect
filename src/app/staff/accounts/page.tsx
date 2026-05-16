@@ -143,7 +143,7 @@ export default function StaffAccountReview() {
         </div>
         <button 
           onClick={() => setShowPoolModal(true)}
-          className="w-full md:w-auto px-6 py-3.5 bg-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95"
+          className="w-full md:w-auto px-6 py-3.5 bg-blue-600 text-white rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95"
         >
            <Plus className="w-4 h-4" /> Create Pool Account
         </button>
@@ -153,17 +153,17 @@ export default function StaffAccountReview() {
         {/* Account List */}
         <div className="xl:col-span-2 space-y-4">
            {accounts.length === 0 ? (
-             <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-12 text-center">
+             <div className="bg-white border border-dashed border-slate-300 rounded-md p-12 text-center">
                 <ShieldCheck className="w-12 h-12 text-slate-200 mx-auto mb-4" />
                 <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Queue Empty</p>
              </div>
            ) : (
              accounts.map((account) => (
-               <div key={account.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden group hover:border-slate-300 transition-all">
+               <div key={account.id} className="bg-white rounded-md border border-slate-200 shadow-sm overflow-hidden group hover:border-slate-300 transition-all">
                   <div className="p-6">
                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="flex gap-4">
-                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${
+                           <div className={`w-12 h-12 rounded-md flex items-center justify-center shrink-0 border ${
                              account.reviewStatus === 'PENDING_REVIEW' ? 'bg-amber-50 border-amber-100 text-amber-600' :
                              account.reviewStatus === 'APPROVED' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
                              'bg-slate-50 border-slate-100 text-slate-400'
@@ -224,7 +224,7 @@ export default function StaffAccountReview() {
                      </div>
 
                      {/* Credential Reveal Section */}
-                     <div className="mt-4 md:mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-4">
+                     <div className="mt-4 md:mt-6 p-4 bg-slate-50 rounded-md border border-slate-100 space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                            <div className="space-y-1">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Target Account</p>
@@ -388,14 +388,14 @@ export default function StaffAccountReview() {
                       </button>
                    </div>
                    <CloudBrowser name={activeHandshake.name} />
-                   <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 text-[10px] text-slate-400 font-mono space-y-1">
+                   <div className="p-4 bg-slate-900 rounded-md border border-slate-800 text-[10px] text-slate-400 font-mono space-y-1">
                       <p className="text-emerald-500 font-bold">[SYSTEM] Connection Established</p>
                       <p>[INFO] Target: {activeHandshake.email}</p>
                       <p>[INFO] Waiting for manual Google login completion...</p>
                    </div>
                 </div>
               ) : (
-                <div className="p-12 border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center text-center space-y-4">
+                <div className="p-12 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-center space-y-4">
                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
                       <Monitor className="w-8 h-8" />
                    </div>
@@ -406,7 +406,7 @@ export default function StaffAccountReview() {
                 </div>
               )}
               
-              <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6 space-y-3">
+              <div className="bg-amber-50 border border-amber-100 rounded-md p-6 space-y-3">
                  <div className="flex items-center gap-2 text-amber-600">
                     <AlertTriangle className="w-4 h-4" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Protocol Notice</span>
@@ -423,10 +423,10 @@ export default function StaffAccountReview() {
       {showPoolModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowPoolModal(false)} />
-           <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+           <div className="relative bg-white rounded-lg shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
               <div className="p-8 space-y-6">
                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border border-blue-100">
+                    <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100">
                        <Globe className="w-6 h-6" />
                     </div>
                     <div>
@@ -443,7 +443,7 @@ export default function StaffAccountReview() {
                             value={newPoolAccount.name} 
                             onChange={(e) => setNewPoolAccount({...newPoolAccount, name: e.target.value.replace(/\s+/g, '-')})}
                             placeholder="pool-node-01" 
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
                           />
                        </div>
                        <div className="space-y-1.5">
@@ -452,7 +452,7 @@ export default function StaffAccountReview() {
                             value={newPoolAccount.upiId} 
                             onChange={(e) => setNewPoolAccount({...newPoolAccount, upiId: e.target.value})}
                             placeholder="pool@okaxis" 
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
                           />
                        </div>
                     </div>
@@ -462,7 +462,7 @@ export default function StaffAccountReview() {
                          value={newPoolAccount.email} 
                          onChange={(e) => setNewPoolAccount({...newPoolAccount, email: e.target.value})}
                          placeholder="gpay-pool-1@gmail.com" 
-                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
+                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
                        />
                     </div>
                     <div className="space-y-1.5">
@@ -472,7 +472,7 @@ export default function StaffAccountReview() {
                          value={newPoolAccount.password} 
                          onChange={(e) => setNewPoolAccount({...newPoolAccount, password: e.target.value})}
                          placeholder="••••••••" 
-                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
+                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
                        />
                     </div>
                     <div className="space-y-1.5">
@@ -481,7 +481,7 @@ export default function StaffAccountReview() {
                          value={newPoolAccount.proxy} 
                          onChange={(e) => setNewPoolAccount({...newPoolAccount, proxy: e.target.value})}
                          placeholder="http://user:pass@ip:port" 
-                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
+                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
                        />
                     </div>
                  </div>
@@ -489,14 +489,14 @@ export default function StaffAccountReview() {
                  <div className="pt-4 flex items-center gap-3">
                     <button 
                       onClick={() => setShowPoolModal(false)}
-                      className="flex-1 px-6 py-4 bg-slate-50 text-slate-500 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
+                      className="flex-1 px-6 py-4 bg-slate-50 text-slate-500 rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
                     >
                        Cancel
                     </button>
                     <button 
                       onClick={createPoolAccount}
                       disabled={isCreating || !newPoolAccount.name || !newPoolAccount.email || !newPoolAccount.password || !newPoolAccount.upiId}
-                      className="flex-[2] px-6 py-4 bg-blue-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 disabled:opacity-50"
+                      className="flex-[2] px-6 py-4 bg-blue-600 text-white rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 disabled:opacity-50"
                     >
                        {isCreating ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Initialize Pool Node'}
                     </button>
@@ -594,7 +594,7 @@ function CloudBrowser({ name }: { name: string }) {
     <div className="space-y-3">
       <div 
         ref={containerRef}
-        className="relative bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl cursor-crosshair aspect-[1280/800] w-full group outline-none"
+        className="relative bg-slate-950 rounded-md overflow-hidden border border-slate-800 shadow-2xl cursor-crosshair aspect-[1280/800] w-full group outline-none"
         onClick={handleClick}
       >
         {isConnected && screenBlob ? (
@@ -621,11 +621,11 @@ function CloudBrowser({ name }: { name: string }) {
           onChange={(e) => setTypingText(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') sendText(); }}
           placeholder="Type credential..."
-          className="flex-grow px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold text-white placeholder:text-slate-600 outline-none"
+          className="flex-grow px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-md text-xs font-bold text-white placeholder:text-slate-600 outline-none"
         />
         <button 
           onClick={sendText}
-          className="px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700"
+          className="px-4 py-2.5 bg-emerald-600 text-white rounded-md text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700"
         >
           Send
         </button>

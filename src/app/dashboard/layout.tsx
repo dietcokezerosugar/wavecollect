@@ -150,7 +150,7 @@ export default function DashboardLayout({
               initial={{ opacity: 0, scale: 0.98, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: -10 }}
-              className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden"
+              className="relative w-full max-w-xl bg-white rounded-md shadow-2xl border border-slate-200 overflow-hidden"
             >
               <div className="flex items-center px-5 border-b border-slate-100">
                 <Search className="w-4 h-4 text-slate-400" />
@@ -338,7 +338,7 @@ export default function DashboardLayout({
              <LogOut className="w-4 h-4" />
              Sign Out
            </button>
-           <div className="px-3 py-2.5 rounded-xl bg-slate-50 flex items-center justify-between border border-slate-100 shadow-inner">
+           <div className="px-3 py-2.5 rounded-md bg-slate-50 flex items-center justify-between border border-slate-100 shadow-inner">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security</span>
               <div className={`w-1.5 h-1.5 rounded-full ${
                 systemStatus === 'online' ? 'bg-emerald-500 animate-pulse' : 
@@ -384,7 +384,7 @@ export default function DashboardLayout({
         {/* Premium Mobile Header */}
         <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-slate-100 z-40 px-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-9 h-9 bg-slate-900 rounded-md flex items-center justify-center shadow-md">
               <Zap className="text-white w-4 h-4 fill-current" />
             </div>
             <div className="flex flex-col">
