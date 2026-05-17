@@ -18,6 +18,17 @@ export async function POST(req: NextRequest) {
   const apiKey = authHeader?.replace("Bearer ", "") || ip;
   
   const currentTime = Date.now();
+  
+  // Prune expired rate limit entries to prevent memory exhaustion (DoS/OOM) attacks
+  if (rateLimitMap.size > 1000) {
+    const cutoff = currentTime - RATE_LIMIT_WINDOW_MS;
+    for (const [key, data] of rateLimitMap.entries()) {
+      if (data.timestamp < cutoff) {
+        rateLimitMap.delete(key);
+      }
+    }
+  }
+
   const rateLimitData = rateLimitMap.get(apiKey) || { count: 0, timestamp: currentTime };
 
   if (currentTime - rateLimitData.timestamp > RATE_LIMIT_WINDOW_MS) {
