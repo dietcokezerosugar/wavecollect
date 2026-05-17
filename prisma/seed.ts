@@ -47,6 +47,30 @@ async function main() {
     }
   });
 
+  // 2b. Seed a default active Google Pay Account so routing works instantly
+  await prisma.googlePayAccount.upsert({
+    where: { id: "demo-gpay-account-1" },
+    update: {
+      upiId: "7440673279@okbizaxis",
+      status: "ACTIVE",
+      reviewStatus: "APPROVED",
+      sessionStatus: "ONLINE"
+    },
+    create: {
+      id: "demo-gpay-account-1",
+      merchantId: "demo-merchant-1",
+      name: "SOLANA TECHNOLOGIES",
+      email: "solanatech@gmail.com",
+      upiId: "7440673279@okbizaxis",
+      status: "ACTIVE",
+      reviewStatus: "APPROVED",
+      sessionStatus: "ONLINE",
+      accountType: "MERCHANT_OWNED",
+      minTicket: 0,
+      maxTicket: 1000000,
+    }
+  });
+
   const merchant = await prisma.user.upsert({
     where: { email: merchantEmail },
     update: { password: merchantPassword, role: "MERCHANT", merchantId: demoMerchantProfile.id },
