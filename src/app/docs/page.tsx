@@ -19,13 +19,13 @@ const SidebarLink = ({ id, label, active, onClick, isGroup = false }: any) => (
         : "text-[13px] group relative pl-6"
     } ${
       !isGroup && active 
-        ? "bg-indigo-50 text-indigo-700 font-bold" 
-        : !isGroup ? "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-medium" : ""
+        ? "bg-blue-50 text-blue-600 font-bold" 
+        : !isGroup ? "text-slate-500 hover:text-slate-700 hover:bg-slate-50 font-medium" : ""
     }`}
   >
     {label}
     {!isGroup && active && (
-       <motion.div layoutId="activeNav" className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-600 rounded-r-full" />
+       <motion.div layoutId="activeNav" className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-blue-600 rounded-r-full" />
     )}
   </button>
 );
@@ -41,15 +41,15 @@ const CodeBlock = ({ code, language = "JSON" }: { code: string, language?: strin
   };
 
   return (
-    <div className="my-6 rounded-xl overflow-hidden border border-slate-200 bg-slate-900 shadow-lg shadow-indigo-900/5">
-      <div className="flex items-center justify-between px-5 py-2.5 bg-slate-800/40 border-b border-white/5">
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{language}</span>
-        <button onClick={copy} className="text-slate-400 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-lg">
-          {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+    <div className="my-6 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm shadow-blue-900/5">
+      <div className="flex items-center justify-between px-5 py-2.5 bg-slate-100 border-b border-slate-200">
+        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{language}</span>
+        <button onClick={copy} className="text-slate-400 hover:text-slate-750 transition-colors p-1.5 hover:bg-slate-200/50 rounded-lg">
+          {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
         </button>
       </div>
-      <div className="p-5 overflow-x-auto bg-[#0F172A]">
-        <pre className="text-[12.5px] font-mono leading-relaxed text-slate-300">
+      <div className="p-5 overflow-x-auto bg-slate-50/50">
+        <pre className="text-[12.5px] font-mono leading-relaxed text-slate-700">
            {code}
         </pre>
       </div>
@@ -61,7 +61,7 @@ const CodeBlock = ({ code, language = "JSON" }: { code: string, language?: strin
 const Callout = ({ type, title, children }: any) => {
   const styles: any = {
     warning: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-900", icon: <AlertTriangle size={18} className="text-amber-500" /> },
-    info: { bg: "bg-indigo-50", border: "border-indigo-200", text: "text-indigo-900", icon: <Shield size={18} className="text-indigo-500" /> },
+    info: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-900", icon: <Shield size={18} className="text-blue-500" /> },
     tip: { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-900", icon: <ShieldCheck size={18} className="text-emerald-500" /> }
   };
   const s = styles[type] || styles.info;
@@ -132,18 +132,18 @@ export default function DocsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900 text-slate-900">
+    <div className="flex flex-col min-h-screen bg-slate-50 font-sans selection:bg-blue-100 selection:text-blue-900 text-slate-705">
       {/* --- Header --- */}
       <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-[100] px-6 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2 group">
-             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-all duration-300">W</div>
-             <span className="font-bold text-slate-900 tracking-tight text-base">WaveCollect <span className="text-slate-400 font-medium ml-1">Developers</span></span>
+             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-all duration-300">W</div>
+             <span className="font-bold text-slate-705 tracking-tight text-base">WaveCollect <span className="text-slate-400 font-medium ml-1">Developers</span></span>
           </Link>
           <div className="hidden md:flex h-6 w-px bg-slate-200 mx-2" />
           <div className="hidden md:flex items-center gap-6">
-             <Link href="/dashboard" className="text-xs font-black text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">Dashboard</Link>
-             <Link href="/docs" className="text-xs font-black text-indigo-600 uppercase tracking-widest border-b-2 border-indigo-600 py-5 translate-y-[2px]">Documentation</Link>
+             <Link href="/dashboard" className="text-xs font-black text-slate-500 hover:text-slate-700 transition-colors uppercase tracking-widest">Dashboard</Link>
+             <Link href="/docs" className="text-xs font-black text-blue-600 uppercase tracking-widest border-b-2 border-blue-600 py-5 translate-y-[2px]">Documentation</Link>
           </div>
         </div>
 
@@ -175,16 +175,16 @@ export default function DocsPage() {
             ))}
           </div>
 
-          <div className="mt-12 p-5 bg-indigo-600 rounded-2xl text-white shadow-xl shadow-indigo-600/10 group overflow-hidden relative">
+          <div className="mt-12 p-5 bg-blue-600 rounded-2xl text-white shadow-xl shadow-blue-600/10 group overflow-hidden relative">
              <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
              <div className="flex items-center gap-2 mb-2">
                 <ShieldCheck size={16} />
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-100">Sync Status</span>
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-100">Sync Status</span>
              </div>
              <p className="text-[11px] leading-relaxed font-bold">
                 Dynamic routing engine verified. Heartbeat is live.
              </p>
-             <Link href="/dashboard" className="mt-3 flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-indigo-200 group-hover:text-white transition-colors">
+             <Link href="/dashboard" className="mt-3 flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-blue-200 group-hover:text-white transition-colors">
                 Open Console <ArrowRight size={10} />
              </Link>
           </div>
@@ -196,13 +196,13 @@ export default function DocsPage() {
              
              {/* --- INTRO --- */}
              <section id="intro" className="mb-24 scroll-mt-24">
-                <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-4">
+                <h1 className="text-4xl font-black text-slate-705 tracking-tight mb-4">
                   How to Start Using PayxMint (WaveCollect)
                 </h1>
                 <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mb-8">
                   Merchant Setup & API Integration Master Guide
                 </p>
-                <div className="h-1 w-20 bg-indigo-600 rounded-full mb-8" />
+                <div className="h-1 w-20 bg-blue-600 rounded-full mb-8" />
                 <p className="text-base text-slate-600 leading-relaxed font-medium">
                   Follow these simple steps to set up your account, configure security credentials, whitelist your servers, and start collecting lightning-fast UPI payments on your platform today.
                 </p>
@@ -210,8 +210,8 @@ export default function DocsPage() {
 
              {/* --- STEP 1 --- */}
              <section id="step1" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><UserCheck size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><UserCheck size={18}/></div>
                    Step 1: Create Your Account
                 </h2>
                 <div className="space-y-4 text-[14.5px] text-slate-600 leading-relaxed font-medium">
@@ -227,8 +227,8 @@ export default function DocsPage() {
 
              {/* --- STEP 2 --- */}
              <section id="step2" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><FileText size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><FileText size={18}/></div>
                    Step 2: Fill Your Business Details
                 </h2>
                 <div className="space-y-4 text-[14.5px] text-slate-600 leading-relaxed font-medium">
@@ -247,8 +247,8 @@ export default function DocsPage() {
 
              {/* --- STEP 3 --- */}
              <section id="step3" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><Shield size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><Shield size={18}/></div>
                    Step 3: Secure Your Server (IP Whitelist)
                 </h2>
                 <div className="space-y-4 text-[14.5px] text-slate-600 leading-relaxed font-medium">
@@ -267,8 +267,8 @@ export default function DocsPage() {
 
              {/* --- STEP 4 --- */}
              <section id="step4" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><WebhookIcon size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><WebhookIcon size={18}/></div>
                    Step 4: Set Up Your Webhook
                 </h2>
                 <div className="space-y-4 text-[14.5px] text-slate-600 leading-relaxed font-medium">
@@ -284,8 +284,8 @@ export default function DocsPage() {
 
              {/* --- STEP 5 --- */}
              <section id="step5" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><Layers size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><Layers size={18}/></div>
                    Step 5: Join the Payment Pool
                 </h2>
                 <div className="space-y-4 text-[14.5px] text-slate-600 leading-relaxed font-medium">
@@ -305,8 +305,8 @@ export default function DocsPage() {
 
              {/* --- STEP 6 --- */}
              <section id="step6" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><Cpu size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><Cpu size={18}/></div>
                    Step 6: How the System Works (The Technical Part)
                 </h2>
                 <div className="space-y-6 text-[14px] text-slate-600 leading-relaxed font-medium">
@@ -340,8 +340,8 @@ export default function DocsPage() {
 
              {/* --- STEP 7 --- */}
              <section id="step7" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><Code size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><Code size={18}/></div>
                    Step 7: API Reference (Full Details)
                 </h2>
                 
@@ -857,8 +857,8 @@ const interval = setInterval(updateTimer,1000);
 
              {/* --- STEP 8 --- */}
              <section id="step8" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><ShieldCheck size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><ShieldCheck size={18}/></div>
                    Step 8: Webhooks & Safety
                 </h2>
                 
@@ -896,8 +896,8 @@ const interval = setInterval(updateTimer,1000);
 
              {/* --- STEP 9 --- */}
              <section id="step9" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><AlertTriangle size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><AlertTriangle size={18}/></div>
                    Step 9: Error Codes
                 </h2>
                 <div className="space-y-6 text-[14px] text-slate-600 leading-relaxed font-medium">
@@ -950,8 +950,8 @@ const interval = setInterval(updateTimer,1000);
 
              {/* --- STEP 10 --- */}
              <section id="step10" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><HelpCircle size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><HelpCircle size={18}/></div>
                    Step 10: Troubleshooting
                 </h2>
                 
@@ -975,12 +975,12 @@ const interval = setInterval(updateTimer,1000);
 
              {/* --- CHECKLIST --- */}
              <section id="checklist" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
-                   <div className="w-9 h-9 bg-slate-950 rounded-xl flex items-center justify-center text-white"><CheckSquare size={18}/></div>
+                <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
+                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><CheckSquare size={18}/></div>
                    Final Production Checklist
                 </h2>
                 
-                <div className="p-6 bg-slate-900 text-white rounded-2xl shadow-xl shadow-slate-900/10 space-y-4 font-bold text-xs uppercase tracking-wider">
+                <div className="p-6 bg-blue-50 border border-blue-100 text-blue-900 rounded-2xl shadow-xl shadow-blue-100/10 space-y-4 font-bold text-xs uppercase tracking-wider">
                    {[
                      "Account is APPROVED for Platform Pool operation.",
                      "Idempotency-Key header is supplied with every API call.",
@@ -988,17 +988,17 @@ const interval = setInterval(updateTimer,1000);
                      "IP Whitelist includes all production/testing backend server IPs.",
                      "Secret API Key is stored securely in env (never hardcoded)."
                    ].map((item, idx) => (
-                     <div key={idx} className="flex items-center gap-3 border-b border-white/5 pb-3 last:border-b-0 last:pb-0">
-                       <div className="w-5 h-5 bg-indigo-600 rounded flex items-center justify-center shrink-0">
+                     <div key={idx} className="flex items-center gap-3 border-b border-blue-100/50 pb-3 last:border-b-0 last:pb-0">
+                       <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center shrink-0 shadow-sm shadow-blue-600/20">
                          <Check size={12} className="text-white" />
                        </div>
-                       <span className="text-slate-300 normal-case font-medium text-[13.5px] leading-relaxed">{item}</span>
+                       <span className="text-slate-700 normal-case font-medium text-[13.5px] leading-relaxed">{item}</span>
                      </div>
                    ))}
                 </div>
 
                 <div className="mt-8 text-center text-slate-400 font-bold text-xs">
-                   Need programmatic assistance? Contact our engineering team at <a href="mailto:infra@payxmint.com" className="text-indigo-600 hover:underline">infra@payxmint.com</a>.
+                   Need programmatic assistance? Contact our engineering team at <a href="mailto:infra@payxmint.com" className="text-blue-600 hover:underline font-bold">infra@payxmint.com</a>.
                 </div>
              </section>
 
@@ -1006,13 +1006,13 @@ const interval = setInterval(updateTimer,1000);
              <footer className="mt-32 pt-8 border-t border-slate-200">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-slate-900 rounded flex items-center justify-center text-white text-[10px] font-black">W</div>
+                      <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white text-[10px] font-black shadow-sm shadow-blue-600/20">W</div>
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">© 2026 WaveCollect Developers Portal</span>
                    </div>
                    <div className="flex gap-6">
-                      <Link href="/dashboard" className="text-[10px] font-black text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-widest">Status Feed</Link>
-                      <Link href="/dashboard" className="text-[10px] font-black text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-widest">Security compliance</Link>
-                      <Link href="/dashboard" className="text-[10px] font-black text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-widest">Legal Portal</Link>
+                      <Link href="/dashboard" className="text-[10px] font-black text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-widest">Status Feed</Link>
+                      <Link href="/dashboard" className="text-[10px] font-black text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-widest">Security compliance</Link>
+                      <Link href="/dashboard" className="text-[10px] font-black text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-widest">Legal Portal</Link>
                    </div>
                 </div>
              </footer>

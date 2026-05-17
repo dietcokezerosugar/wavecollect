@@ -1,23 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { 
   LayoutDashboard, 
   Users, 
-  Activity, 
-  Key, 
-  Settings,
-  ShieldCheck,
-  LogOut,
-  Zap,
-  Menu,
-  X,
+  ShieldCheck, 
+  LogOut, 
+  Zap, 
+  Menu, 
+  X, 
   ChevronRight,
-  Monitor,
   FileSpreadsheet
 } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
 export default function StaffLayout({
@@ -27,7 +23,6 @@ export default function StaffLayout({
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
 
   const navItems = [
     { label: "Overview", icon: LayoutDashboard, href: "/staff" },
@@ -41,7 +36,7 @@ export default function StaffLayout({
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/60 z-50 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 bg-slate-300/40 z-50 backdrop-blur-sm md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -50,10 +45,10 @@ export default function StaffLayout({
       <aside className={`fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-200 z-[60] transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="h-16 px-6 flex items-center justify-between border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <Zap className="text-emerald-600 w-5 h-5 fill-current" />
-            <span className="text-sm font-black tracking-tighter text-slate-900 uppercase">Operations</span>
+            <Zap className="text-blue-600 w-5 h-5 fill-current" />
+            <span className="text-sm font-black tracking-tighter text-slate-700 uppercase">Operations</span>
           </div>
-          <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-2 text-slate-400 hover:text-slate-900">
+          <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-2 text-slate-400 hover:text-slate-700">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -66,8 +61,8 @@ export default function StaffLayout({
               onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center gap-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-md transition-all ${
                 pathname === item.href 
-                  ? "bg-slate-900 text-white shadow-lg shadow-slate-900/20" 
-                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10" 
+                  : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >
               <item.icon className="w-4 h-4" />
@@ -100,7 +95,7 @@ export default function StaffLayout({
             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
               <span>Ops Control</span>
               <ChevronRight className="w-3 h-3" />
-              <span className="text-slate-900">{navItems.find(i => i.href === pathname)?.label || "Dashboard"}</span>
+              <span className="text-slate-700">{navItems.find(i => i.href === pathname)?.label || "Dashboard"}</span>
             </div>
           </div>
 

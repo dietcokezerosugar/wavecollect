@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { 
-  Users, CheckCircle2, AlertTriangle, Key, Loader2, Play, Square, Settings, Link as LinkIcon, Unlink, Edit
+  Users, CheckCircle2, Key, Loader2, Play, Square, Edit, Link as LinkIcon, Unlink
 } from "lucide-react";
 
 export default function PoolManagementPage() {
@@ -130,18 +130,18 @@ export default function PoolManagementPage() {
     }
   }
 
-  if (loading) return <div className="p-8 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-500" /></div>;
+  if (loading) return <div className="p-8 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-24 font-sans">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Platform Pool</h1>
+          <h1 className="text-2xl md:text-3xl font-black text-slate-707 tracking-tight">Platform Pool</h1>
           <p className="text-slate-500 mt-1 text-xs md:text-sm font-medium">Manage shared Google Pay accounts and merchant allocations.</p>
         </div>
         <button 
           onClick={() => setCreateModal(true)}
-          className="px-6 py-3 bg-slate-900 text-white rounded-md text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
+          className="px-6 py-3 bg-blue-600 text-white rounded-md text-xs font-black uppercase tracking-widest hover:bg-blue-705 transition-colors shadow-lg shadow-blue-600/20 active:scale-95"
         >
           + Add Pool Account
         </button>
@@ -151,7 +151,7 @@ export default function PoolManagementPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white p-6 rounded-md border border-slate-200 shadow-sm">
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Total Pool</p>
-          <p className="text-2xl font-black text-slate-900">{data.summary.total || 0}</p>
+          <p className="text-2xl font-black text-slate-700">{data.summary.total || 0}</p>
         </div>
         <div className="bg-white p-6 rounded-md border border-slate-200 shadow-sm">
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Allocated</p>
@@ -170,7 +170,7 @@ export default function PoolManagementPage() {
       <div className="grid md:grid-cols-3 gap-8">
         {/* Left Column: Pool Accounts */}
         <div className="md:col-span-2 space-y-4">
-          <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4">Pool Inventory</h2>
+          <h2 className="text-sm font-black uppercase tracking-widest text-slate-700 mb-4">Pool Inventory</h2>
           
           {data.poolAccounts.map((acc: any) => {
             const isAssigned = acc.allocationStatus !== "UNASSIGNED";
@@ -182,7 +182,7 @@ export default function PoolManagementPage() {
                 {/* Account Details */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-lg font-black text-slate-900 truncate">{acc.name}</h3>
+                    <h3 className="text-lg font-black text-slate-700 truncate">{acc.name}</h3>
                     <div className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border flex items-center gap-1.5 ${isOnline ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
                       <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
                       {acc.sessionStatus}
@@ -191,13 +191,13 @@ export default function PoolManagementPage() {
                   <p className="text-xs font-bold text-slate-500 font-mono mb-3">{acc.upiId}</p>
                   
                   {isAssigned ? (
-                    <div className="bg-slate-50 rounded-md p-4 border border-slate-100">
+                    <div className="bg-slate-50 rounded-md p-4 border border-slate-150">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <LinkIcon className="w-4 h-4 text-blue-500" />
-                          <span className="text-xs font-black text-slate-900 uppercase tracking-widest">Allocated to: {acc.allocatedToMerchant?.name || "Unknown"}</span>
+                          <span className="text-xs font-black text-slate-700 uppercase tracking-widest">Allocated to: {acc.allocatedToMerchant?.name || "Unknown"}</span>
                         </div>
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${isExhausted ? 'bg-rose-100 text-rose-600' : acc.allocationStatus === 'PAUSED' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'}`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${isExhausted ? 'bg-rose-50 text-rose-600 border border-rose-100' : acc.allocationStatus === 'PAUSED' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
                           {acc.allocationStatus}
                         </span>
                       </div>
@@ -238,7 +238,7 @@ export default function PoolManagementPage() {
                           setSelectedAccountId(acc.id);
                           setAllocateModal({ merchant: null, accountId: acc.id });
                         }}
-                        className="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200 flex items-center justify-center gap-1.5 shadow-sm"
+                        className="py-2.5 px-4 bg-blue-50 hover:bg-blue-100 text-blue-650 rounded-md text-[10px] font-black uppercase tracking-widest transition-all border border-blue-100 flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
                       >
                         <LinkIcon className="w-3 h-3" /> Allocate to Merchant
                       </button>
@@ -259,12 +259,12 @@ export default function PoolManagementPage() {
  
         {/* Right Column: Merchant Requests */}
         <div className="space-y-4">
-          <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4">Pending Requests</h2>
+          <h2 className="text-sm font-black uppercase tracking-widest text-slate-700 mb-4">Pending Requests</h2>
           
           {data.pendingRequests.map((req: any) => (
             <div key={req.id} className="bg-amber-50 rounded-md border border-amber-100 p-5 space-y-4">
               <div>
-                <h3 className="text-sm font-black text-slate-900">{req.name}</h3>
+                <h3 className="text-sm font-black text-slate-700">{req.name}</h3>
                 <p className="text-xs font-medium text-slate-500 mt-0.5">{req.email}</p>
                 <p className="text-[10px] font-bold text-slate-400 mt-2">Requested: {new Date(req.poolRequestedAt).toLocaleDateString()}</p>
               </div>
@@ -278,8 +278,8 @@ export default function PoolManagementPage() {
           ))}
  
           {data.pendingRequests.length === 0 && (
-            <div className="text-center p-8 bg-slate-50 border border-slate-100 rounded-md">
-              <CheckCircle2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <div className="text-center p-8 bg-slate-50 border border-slate-100 rounded-md animate-in fade-in duration-500">
+              <CheckCircle2 className="w-8 h-8 text-slate-350 mx-auto mb-2" />
               <p className="text-sm font-bold text-slate-500">All caught up</p>
               <p className="text-xs text-slate-400">No pending pool requests.</p>
             </div>
@@ -289,10 +289,10 @@ export default function PoolManagementPage() {
  
       {/* Allocate Modal */}
       {allocateModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-300/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-md shadow-xl w-full max-w-md overflow-hidden">
             <div className="p-6 border-b border-slate-100">
-              <h2 className="text-lg font-black text-slate-900">Allocate Pool Account</h2>
+              <h2 className="text-lg font-black text-slate-700">Allocate Pool Account</h2>
               <p className="text-xs text-slate-500 mt-1">
                 {allocateModal.merchant 
                   ? `Assign an account to ${allocateModal.merchant.name}` 
@@ -301,14 +301,14 @@ export default function PoolManagementPage() {
               </p>
             </div>
             <div className="p-6 space-y-4">
-              {/* Select Merchant (only if direct allocation) */}
+              {/* Select Merchant */}
               {!allocateModal.merchant && (
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Select Merchant</label>
                   <select 
                     value={selectedMerchantId}
                     onChange={(e) => setSelectedMerchantId(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer text-slate-700"
                   >
                     <option value="">-- Choose merchant --</option>
                     {(data.activeMerchants || []).map((m: any) => (
@@ -318,14 +318,14 @@ export default function PoolManagementPage() {
                 </div>
               )}
 
-              {/* Select Pool Account (disabled/pre-selected if opened from card) */}
+              {/* Select Pool Account */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Select Pool Account</label>
                 <select 
                   value={selectedAccountId}
                   onChange={(e) => setSelectedAccountId(e.target.value)}
                   disabled={!!allocateModal.accountId}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-75"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-75 text-slate-700"
                 >
                   <option value="">-- Select an available account --</option>
                   {data.poolAccounts.filter((a: any) => a.allocationStatus === "UNASSIGNED" || a.id === allocateModal.accountId).map((a: any) => (
@@ -340,18 +340,18 @@ export default function PoolManagementPage() {
                   type="number" 
                   value={totalQuota}
                   onChange={(e) => setTotalQuota(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" 
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-slate-700" 
                 />
               </div>
  
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Min Ticket</label>
-                  <input type="number" value={minTicket} onChange={(e) => setMinTicket(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold" />
+                  <input type="number" value={minTicket} onChange={(e) => setMinTicket(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-700" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Max Ticket</label>
-                  <input type="number" value={maxTicket} onChange={(e) => setMaxTicket(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold" />
+                  <input type="number" value={maxTicket} onChange={(e) => setMaxTicket(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-700" />
                 </div>
               </div>
             </div>
@@ -369,7 +369,7 @@ export default function PoolManagementPage() {
               <button 
                 onClick={handleAllocate} 
                 disabled={!selectedAccountId || (!allocateModal.merchant && !selectedMerchantId) || isSubmitting} 
-                className="px-6 py-2 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="px-6 py-2 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95"
               >
                 {isSubmitting && <Loader2 className="w-3 h-3 animate-spin" />}
                 Confirm Allocation
@@ -381,10 +381,10 @@ export default function PoolManagementPage() {
 
       {/* Edit Quota Modal */}
       {editModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-305/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-md shadow-xl w-full max-w-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100">
-              <h2 className="text-lg font-black text-slate-900">Update Quota</h2>
+              <h2 className="text-lg font-black text-slate-700">Update Quota</h2>
               <p className="text-xs text-slate-500 mt-1">{editModal.name}</p>
             </div>
             <div className="p-6 space-y-4">
@@ -394,17 +394,17 @@ export default function PoolManagementPage() {
                   type="number" 
                   defaultValue={editModal.totalQuota}
                   id="edit-total-quota"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" 
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-slate-700" 
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Min Ticket</label>
-                  <input type="number" defaultValue={editModal.minTicket} id="edit-min-ticket" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold" />
+                  <input type="number" defaultValue={editModal.minTicket} id="edit-min-ticket" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-700" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Max Ticket</label>
-                  <input type="number" defaultValue={editModal.maxTicket} id="edit-max-ticket" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold" />
+                  <input type="number" defaultValue={editModal.maxTicket} id="edit-max-ticket" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-700" />
                 </div>
               </div>
             </div>
@@ -420,7 +420,7 @@ export default function PoolManagementPage() {
                     handleUpdate(editModal.id, 'update_quota', { totalQuota: tq, minTicket: min, maxTicket: max });
                   }} 
                   disabled={isSubmitting} 
-                  className="px-6 py-2 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 active:scale-95"
                 >
                   Save
                 </button>
@@ -432,34 +432,34 @@ export default function PoolManagementPage() {
 
       {/* Create Pool Account Modal */}
       {createModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-300/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-md shadow-xl w-full max-w-md overflow-hidden">
             <div className="p-6 border-b border-slate-100">
-              <h2 className="text-lg font-black text-slate-900">Add Platform Pool Account</h2>
+              <h2 className="text-lg font-black text-slate-700">Add Platform Pool Account</h2>
               <p className="text-xs text-slate-500 mt-1">This account will be available for allocation</p>
             </div>
             <form onSubmit={handleCreate}>
               <div className="p-6 space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Alias / Name</label>
-                  <input name="name" required placeholder="e.g. pool-primary" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <input name="name" required placeholder="e.g. pool-primary" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-slate-700" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Google Email</label>
-                  <input name="email" type="email" required placeholder="pool1@gmail.com" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <input name="email" type="email" required placeholder="pool1@gmail.com" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-slate-700" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Google Password</label>
-                  <input name="password" type="password" required placeholder="••••••••" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <input name="password" type="password" required placeholder="••••••••" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-slate-700" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">UPI ID</label>
-                  <input name="upiId" required placeholder="pool1@okaxis" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <input name="upiId" required placeholder="pool1@okaxis" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-slate-700" />
                 </div>
               </div>
               <div className="p-4 bg-slate-50 flex justify-end gap-3 border-t border-slate-100">
                 <button type="button" onClick={() => setCreateModal(false)} className="px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 rounded-lg transition-colors">Cancel</button>
-                <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-lg disabled:opacity-50 hover:bg-slate-800 transition-colors flex items-center gap-2">
+                <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95">
                   {isSubmitting && <Loader2 className="w-3 h-3 animate-spin" />}
                   Create Account
                 </button>

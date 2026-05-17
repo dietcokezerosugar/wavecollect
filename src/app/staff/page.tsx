@@ -18,7 +18,6 @@ export default function StaffOverview() {
     errorSessions: 0,
     totalAccounts: 0
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -36,8 +35,6 @@ export default function StaffOverview() {
         }
       } catch (e) {
         console.error("Failed to fetch staff stats", e);
-      } finally {
-        setLoading(false);
       }
     };
     fetchStats();
@@ -46,7 +43,7 @@ export default function StaffOverview() {
   return (
     <div className="space-y-6 md:space-y-8 pb-24">
       <div className="text-center md:text-left">
-        <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">Operations Hub</h1>
+        <h1 className="text-2xl md:text-3xl font-black text-slate-700 tracking-tighter">Operations Hub</h1>
         <p className="text-slate-500 font-medium text-sm">Real-time oversight of merchant onboarding and session integrity.</p>
       </div>
 
@@ -99,46 +96,46 @@ export default function StaffOverview() {
             </div>
             <div className="p-5 md:p-6 space-y-4">
                {stats.pendingReviews > 0 ? (
-                 <div className="flex items-start gap-3 md:gap-4 p-4 bg-amber-50 border border-amber-100 rounded-md">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
-                       <Clock className="w-5 h-5" />
-                    </div>
-                    <div className="space-y-1 min-w-0">
-                       <p className="text-sm font-bold text-slate-900">{stats.pendingReviews} Merchants awaiting activation</p>
-                       <p className="text-xs text-slate-500 hidden md:block">Security credentials submitted. Manual browser handshake required.</p>
-                       <Link href="/staff/accounts" className="inline-flex items-center gap-1.5 text-[10px] font-black text-amber-600 uppercase tracking-widest mt-2 hover:gap-3 transition-all">
-                          Start Review <ArrowRight className="w-3.5 h-3.5" />
-                       </Link>
-                    </div>
-                 </div>
+                  <div className="flex items-start gap-3 md:gap-4 p-4 bg-amber-50 border border-amber-100 rounded-md">
+                     <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                        <Clock className="w-5 h-5" />
+                     </div>
+                     <div className="space-y-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-700">{stats.pendingReviews} Merchants awaiting activation</p>
+                        <p className="text-xs text-slate-500 hidden md:block">Security credentials submitted. Manual browser handshake required.</p>
+                        <Link href="/staff/accounts" className="inline-flex items-center gap-1.5 text-[10px] font-black text-amber-600 uppercase tracking-widest mt-2 hover:gap-3 transition-all">
+                           Start Review <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                     </div>
+                  </div>
                ) : (
-                 <div className="text-center py-8">
-                    <p className="text-sm text-slate-400 font-medium">All clear. No pending reviews.</p>
-                 </div>
+                  <div className="text-center py-8">
+                     <p className="text-sm text-slate-400 font-medium">All clear. No pending reviews.</p>
+                  </div>
                )}
             </div>
          </div>
 
          {/* Maintenance Status */}
-         <div className="bg-slate-900 rounded-md border border-slate-800 p-6 md:p-8 text-white relative overflow-hidden">
+         <div className="bg-white rounded-md border border-slate-200 p-6 md:p-8 text-slate-700 relative overflow-hidden shadow-sm">
             <div className="relative z-10 space-y-6">
                <div className="space-y-2">
-                  <h3 className="text-lg md:text-xl font-black tracking-tight">VPS Performance</h3>
-                  <p className="text-slate-400 text-sm font-medium">Monitoring active browser contexts across all nodes.</p>
+                  <h3 className="text-lg md:text-xl font-black tracking-tight text-slate-700">VPS Performance</h3>
+                  <p className="text-slate-500 text-sm font-medium">Monitoring active browser contexts across all nodes.</p>
                </div>
                <div className="grid grid-cols-2 gap-3 md:gap-4">
-                  <div className="p-4 bg-white/5 rounded-md border border-white/10">
-                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Nodes</p>
-                     <p className="text-2xl font-black">1</p>
+                  <div className="p-4 bg-slate-50 rounded-md border border-slate-100">
+                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total VPS Nodes</p>
+                     <p className="text-2xl font-black text-slate-700">1</p>
                   </div>
-                  <div className="p-4 bg-white/5 rounded-md border border-white/10">
-                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Active Browsers</p>
-                     <p className="text-2xl font-black">{stats.onlineSessions}</p>
+                  <div className="p-4 bg-slate-50 rounded-md border border-slate-100">
+                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Browsers</p>
+                     <p className="text-2xl font-black text-slate-700">{stats.onlineSessions}</p>
                   </div>
                </div>
             </div>
             {/* Background Pattern */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] -mr-32 -mt-32 rounded-full" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] -mr-32 -mt-32 rounded-full animate-pulse" />
          </div>
       </div>
     </div>
@@ -154,11 +151,11 @@ function StatCard({ label, value, icon: Icon, color, bg, border, href }: any) {
             <Icon className="w-5 h-5 md:w-6 md:h-6" />
           </div>
           <div className="space-y-0.5 md:space-y-1">
-            <p className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">{value}</p>
+            <p className="text-2xl md:text-3xl font-black text-slate-700 tracking-tighter">{value}</p>
             <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
           </div>
         </div>
-        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 transition-colors hidden md:block" />
+        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-slate-700 transition-colors hidden md:block" />
       </div>
     </Link>
   );

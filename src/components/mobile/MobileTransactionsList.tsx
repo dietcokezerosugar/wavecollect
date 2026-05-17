@@ -62,7 +62,7 @@ export function MobileTransactionsList({
                value={searchQuery}
                onChange={(e) => setSearchQuery(e.target.value)}
                placeholder="Search reference..."
-               className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all placeholder:text-slate-400"
+               className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all placeholder:text-slate-400"
              />
            </div>
            <button 
@@ -82,7 +82,7 @@ export function MobileTransactionsList({
                  key={s}
                  onClick={() => setStatusFilter(s)}
                  className={`shrink-0 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors ${
-                   statusFilter === s ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200'
+                   statusFilter === s ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10' : 'bg-white text-slate-500 border-slate-200'
                  }`}
                >
                  {s.replace('_', ' ')}
@@ -106,58 +106,58 @@ export function MobileTransactionsList({
                <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-3">
                  <Search className="w-5 h-5" />
                </div>
-               <p className="text-[12px] font-bold text-slate-900">No transactions found</p>
+               <p className="text-[12px] font-bold text-slate-700">No transactions found</p>
                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Try adjusting your filters</p>
             </div>
          ) : (
-           transactions.map((intent) => (
-              <div key={intent.id} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-3">
-                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shadow-sm shrink-0 ${
-                         intent.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
-                         intent.status === "DETECTED_UNMATCHED" ? "bg-amber-50 text-amber-600 border-amber-100" :
-                         intent.status === "PENDING" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-200"
-                       }`}>
-                         {statusIcon(intent.status)}
-                       </div>
-                       <div>
-                          <p className="text-[15px] font-black text-slate-900 leading-none">₹{intent.amount.toLocaleString()}</p>
-                          <p className="text-[11px] font-bold text-slate-500 mt-1.5 leading-none">{intent.payerName || intent.transaction?.payerName || "Payment"}</p>
-                       </div>
-                    </div>
-                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1.5 rounded-lg border ${
-                       intent.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
-                       intent.status === "DETECTED_UNMATCHED" ? "bg-amber-50 text-amber-600 border-amber-100" :
-                       intent.status === "PENDING" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-100"
-                    }`}>
-                      {intent.status.replace('DETECTED_UNMATCHED', 'UNMATCHED')}
-                    </span>
-                 </div>
-                 
-                 <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 mt-1 flex justify-between items-center">
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reference</p>
-                      <p className="text-[11px] font-mono font-bold text-slate-900 mt-0.5">{intent.referenceId}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Time</p>
-                      <p className="text-[11px] font-bold text-slate-900 mt-0.5">
-                        {new Date(intent.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                 </div>
+            transactions.map((intent) => (
+               <div key={intent.id} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                     <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shadow-sm shrink-0 ${
+                          intent.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
+                          intent.status === "DETECTED_UNMATCHED" ? "bg-amber-50 text-amber-600 border-amber-100" :
+                          intent.status === "PENDING" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-200"
+                        }`}>
+                          {statusIcon(intent.status)}
+                        </div>
+                        <div>
+                           <p className="text-[15px] font-black text-slate-700 leading-none">₹{intent.amount.toLocaleString()}</p>
+                           <p className="text-[11px] font-bold text-slate-500 mt-1.5 leading-none">{intent.payerName || intent.transaction?.payerName || "Payment"}</p>
+                        </div>
+                     </div>
+                     <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1.5 rounded-lg border ${
+                        intent.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
+                        intent.status === "DETECTED_UNMATCHED" ? "bg-amber-50 text-amber-600 border-amber-100" :
+                        intent.status === "PENDING" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-100"
+                     }`}>
+                       {intent.status.replace('DETECTED_UNMATCHED', 'UNMATCHED')}
+                     </span>
+                  </div>
+                  
+                  <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 mt-1 flex justify-between items-center">
+                     <div>
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reference</p>
+                       <p className="text-[11px] font-mono font-bold text-slate-700 mt-0.5">{intent.referenceId}</p>
+                     </div>
+                     <div className="text-right">
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Time</p>
+                       <p className="text-[11px] font-bold text-slate-700 mt-0.5">
+                         {new Date(intent.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                       </p>
+                     </div>
+                  </div>
 
-                 {intent.status === "PENDING" && (
-                   <button 
-                     onClick={() => onApprove(intent)}
-                     className="w-full mt-1 py-3 bg-slate-900 text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-md shadow-slate-900/20 active:scale-95 transition-transform"
-                   >
-                      Review & Settle
-                   </button>
-                 )}
-              </div>
-           ))
+                  {intent.status === "PENDING" && (
+                    <button 
+                      onClick={() => onApprove(intent)}
+                      className="w-full mt-1 py-3 bg-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-md shadow-blue-600/20 active:scale-95 transition-transform"
+                    >
+                       Review & Settle
+                    </button>
+                  )}
+               </div>
+            ))
          )}
       </div>
     </div>

@@ -3,9 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { 
   ShieldCheck, 
-  ExternalLink, 
   CheckCircle2, 
-  XCircle, 
   Lock, 
   Eye, 
   EyeOff,
@@ -38,7 +36,6 @@ export default function StaffAccountReview() {
   const getBatchCommand = () => {
     if (selectedIds.length === 0) return "# Select accounts below to generate batch commands...";
     
-    // For logs, offer dynamic multi-window/multi-session outputs
     if (batchAction === 'logs') {
       const names = selectedIds.map(id => {
         const acc = accounts.find(a => a.id === id);
@@ -103,7 +100,6 @@ export default function StaffAccountReview() {
 
   const copyToClipboard = (text: string, id: string) => {
     try {
-      // Modern fallback for non-secure HTTP origins
       const textArea = document.createElement("textarea");
       textArea.value = text;
       document.body.appendChild(textArea);
@@ -199,7 +195,7 @@ export default function StaffAccountReview() {
 
   if (loading) return (
     <div className="h-[60vh] flex items-center justify-center">
-       <Loader2 className="w-10 h-10 text-slate-300 animate-spin" />
+       <Loader2 className="w-10 h-10 text-slate-350 animate-spin" />
     </div>
   );
 
@@ -207,7 +203,7 @@ export default function StaffAccountReview() {
     <div className="space-y-6 md:space-y-8 pb-24">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-center md:text-left">
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">Security Gate</h1>
+          <h1 className="text-2xl md:text-3xl font-black text-slate-705 tracking-tighter">Security Gate</h1>
           <p className="text-slate-500 font-medium text-sm">Review credentials and activate remote browser sessions.</p>
         </div>
         <button 
@@ -219,13 +215,13 @@ export default function StaffAccountReview() {
       </div>
 
       {/* Interactive Batch Command Panel */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.02)] p-6 space-y-4">
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm p-6 space-y-4">
          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
-               <h3 className="text-slate-900 text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                  <Terminal className="w-4 h-4 text-blue-650" /> Multi-Account Batch Terminal
+               <h3 className="text-slate-700 text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                  <Terminal className="w-4 h-4 text-blue-600" /> Multi-Account Batch Terminal
                </h3>
-               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+               <p className="text-[10px] text-slate-550 font-bold uppercase tracking-tight">
                   Select multiple nodes below to generate a single-block copyable execution command.
                </p>
             </div>
@@ -239,7 +235,7 @@ export default function StaffAccountReview() {
                      setSelectedIds(accounts.map(a => a.id));
                    }
                  }}
-                 className="text-[10px] font-black text-slate-500 hover:text-slate-950 uppercase transition-colors mr-2 border border-slate-200 rounded-lg px-2.5 py-1.5 hover:bg-slate-50"
+                 className="text-[10px] font-black text-slate-500 hover:text-slate-750 uppercase transition-colors mr-2 border border-slate-200 rounded-lg px-2.5 py-1.5 hover:bg-slate-50"
                >
                   {selectedIds.length === accounts.length ? 'Deselect All' : 'Select All'}
                </button>
@@ -271,49 +267,49 @@ export default function StaffAccountReview() {
                 onClick={() => setBatchAction(act.id)}
                 className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all ${
                   batchAction === act.id 
-                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-650/15' 
-                    : 'bg-slate-50 border-slate-100 text-slate-650 hover:bg-slate-100'
+                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/10' 
+                    : 'bg-slate-50 border-slate-200 text-slate-650 hover:bg-slate-100/50'
                 }`}
               >
                  <span className="text-[10px] font-black uppercase tracking-wider">{act.label}</span>
-                 <span className={`text-[8px] font-mono mt-0.5 ${batchAction === act.id ? 'text-blue-200' : 'text-slate-400'}`}>{act.desc}</span>
+                 <span className={`text-[8px] font-mono mt-0.5 ${batchAction === act.id ? 'text-blue-100' : 'text-slate-400'}`}>{act.desc}</span>
               </button>
             ))}
          </div>
 
-          {/* Log Window Mode Sub-Selector (Only visible when View Logs is selected) */}
+          {/* Log Window Mode Sub-Selector */}
           {batchAction === 'logs' && (
-             <div className="bg-slate-50 border border-slate-100 rounded-lg p-4 space-y-3">
-                <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest">
-                   Log Window Mode
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                   {[
-                     { id: 'combined', label: 'Single Consolidated Window', desc: 'Space separated logs' },
-                     { id: 'tmux', label: 'tmux Splits (Side-by-Side Windows)', desc: 'Beautiful split panels' },
-                     { id: 'screen', label: 'Background Sessions (screen)', desc: 'Virtual screens' },
-                     { id: 'raw', label: 'Separate Shell Windows', desc: 'Raw separate commands' }
-                   ].map(mode => (
-                     <button
-                       key={mode.id}
-                       onClick={() => setLogMode(mode.id)}
-                       className={`text-left px-3.5 py-2.5 rounded border transition-all flex flex-col justify-center ${
-                         logMode === mode.id
-                           ? 'bg-blue-650 border-blue-600 text-white shadow shadow-blue-600/10'
-                           : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 shadow-sm'
-                       }`}
-                     >
-                        <span className="text-[10px] font-black uppercase tracking-wider">{mode.label}</span>
-                        <span className={`text-[8px] mt-0.5 font-medium leading-tight ${logMode === mode.id ? 'text-blue-100' : 'text-slate-400'}`}>{mode.desc}</span>
-                     </button>
-                   ))}
-                </div>
-             </div>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-3">
+                 <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest">
+                    Log Window Mode
+                 </p>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                    {[
+                      { id: 'combined', label: 'Single Consolidated Window', desc: 'Space separated logs' },
+                      { id: 'tmux', label: 'tmux Splits (Side-by-Side Windows)', desc: 'Beautiful split panels' },
+                      { id: 'screen', label: 'Background Sessions (screen)', desc: 'Virtual screens' },
+                      { id: 'raw', label: 'Separate Shell Windows', desc: 'Raw separate commands' }
+                    ].map(mode => (
+                      <button
+                        key={mode.id}
+                        onClick={() => setLogMode(mode.id)}
+                        className={`text-left px-3.5 py-2.5 rounded border transition-all flex flex-col justify-center ${
+                          logMode === mode.id
+                            ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-605/10'
+                            : 'bg-white border-slate-200 text-slate-600 hover:text-slate-700 hover:border-slate-350 shadow-sm'
+                        }`}
+                      >
+                         <span className="text-[10px] font-black uppercase tracking-wider">{mode.label}</span>
+                         <span className={`text-[8px] mt-0.5 font-medium leading-tight ${logMode === mode.id ? 'text-blue-100' : 'text-slate-450'}`}>{mode.desc}</span>
+                      </button>
+                    ))}
+                 </div>
+              </div>
           )}
 
          {/* Generated Terminal Block */}
-         <div className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50 shadow-inner">
-            <div className="flex items-center justify-between px-4 py-2 bg-slate-100 border-b border-slate-200">
+         <div className="relative rounded-lg overflow-hidden border border-slate-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200">
                <span className="text-[9px] font-mono text-slate-500 uppercase">GENERATED SHELL COMMAND BLOCK</span>
                {selectedIds.length > 0 && (
                   <button 
@@ -330,7 +326,7 @@ export default function StaffAccountReview() {
                   </button>
                )}
             </div>
-            <pre className="p-4 overflow-x-auto text-[11px] font-mono leading-relaxed text-slate-700 min-h-[64px] max-h-48 whitespace-pre font-semibold">
+            <pre className="p-4 overflow-x-auto text-[11px] font-mono leading-relaxed text-slate-600 min-h-[64px] max-h-48 whitespace-pre font-semibold">
                {getBatchCommand()}
             </pre>
          </div>
@@ -350,7 +346,7 @@ export default function StaffAccountReview() {
                   <div className="p-6">
                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
-                           {/* Checkbox selector for Batch Terminal */}
+                           {/* Checkbox selector */}
                            <button
                              onClick={() => {
                                if (selectedIds.includes(account.id)) {
@@ -361,8 +357,8 @@ export default function StaffAccountReview() {
                              }}
                              className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-all ${
                                selectedIds.includes(account.id)
-                                 ? 'bg-indigo-600 border-indigo-500 text-white'
-                                 : 'bg-white border-slate-300 hover:border-slate-400 text-transparent hover:bg-slate-50'
+                                 ? 'bg-blue-600 border-blue-500 text-white'
+                                 : 'bg-white border-slate-350 hover:border-slate-400 text-transparent hover:bg-slate-50'
                              }`}
                            >
                               <span className="text-[10px] font-bold">✓</span>
@@ -377,7 +373,7 @@ export default function StaffAccountReview() {
                            </div>
                            <div className="space-y-1 min-w-0">
                               <div className="flex flex-wrap items-center gap-2">
-                                 <h3 className="font-black text-slate-900 text-sm md:text-base">{account.name}</h3>
+                                 <h3 className="font-black text-slate-700 text-sm md:text-base">{account.name}</h3>
                                  <StatusBadge status={account.reviewStatus} type="review" />
                                  <StatusBadge status={account.sessionStatus} type="session" />
                               </div>
@@ -395,13 +391,13 @@ export default function StaffAccountReview() {
                              <>
                                 <button 
                                   onClick={() => handleAction(account.id, 'approve')}
-                                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center gap-2"
+                                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-sm"
                                 >
                                    <CheckCircle2 className="w-3.5 h-3.5" /> Approve
                                 </button>
                                 <button 
                                   onClick={() => handleAction(account.id, 'reject')}
-                                  className="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all"
+                                  className="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all shadow-sm"
                                 >
                                    Reject
                                 </button>
@@ -411,7 +407,7 @@ export default function StaffAccountReview() {
                            {account.reviewStatus === 'APPROVED' && account.sessionStatus !== 'ONLINE' && (
                              <button 
                                onClick={() => handleAction(account.id, 'activate')}
-                               className="px-4 py-2 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2"
+                               className="px-4 py-2 bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2 shadow-sm"
                              >
                                 <Monitor className="w-3.5 h-3.5" /> Start Handshake
                              </button>
@@ -420,7 +416,7 @@ export default function StaffAccountReview() {
                            {account.sessionStatus === 'ONLINE' && (
                               <button 
                                 onClick={() => setActiveHandshake(account)}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2"
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2 shadow-sm"
                               >
                                  <Monitor className="w-3.5 h-3.5" /> Open Browser
                               </button>
@@ -429,7 +425,7 @@ export default function StaffAccountReview() {
                      </div>
 
                      {/* Credential Reveal Section */}
-                     <div className="mt-4 md:mt-6 p-4 bg-slate-50 rounded-md border border-slate-100 space-y-4">
+                     <div className="mt-4 md:mt-6 p-4 bg-slate-50/50 rounded-md border border-slate-200 space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                            <div className="space-y-1">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Target Account</p>
@@ -438,12 +434,12 @@ export default function StaffAccountReview() {
                            <div className="space-y-1">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Password</p>
                               <div className="flex items-center gap-2">
-                                 <span className="text-xs font-mono font-bold text-slate-900">
+                                 <span className="text-xs font-mono font-bold text-slate-700">
                                     {showPassword === account.id ? account.botPassword : '••••••••••••'}
                                  </span>
                                  <button 
                                    onClick={() => setShowPassword(showPassword === account.id ? null : account.id)}
-                                   className="text-slate-400 hover:text-slate-900 transition-colors"
+                                   className="text-slate-400 hover:text-slate-705 transition-colors"
                                  >
                                     {showPassword === account.id ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                                  </button>
@@ -455,7 +451,7 @@ export default function StaffAccountReview() {
                            </div>
                         </div>
 
-                        {/* Merchant ID (Report ID) — Editable */}
+                        {/* Merchant ID (Report ID) */}
                         <div className="space-y-1.5 pt-3 border-t border-slate-200">
                            <div className="flex items-center justify-between">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
@@ -467,39 +463,39 @@ export default function StaffAccountReview() {
                            </div>
                            {editingReportId === account.id ? (
                              <div className="flex items-center gap-2">
-                                <input
-                                  value={reportIdValue}
-                                  onChange={(e) => setReportIdValue(e.target.value.trim())}
-                                  placeholder="BCR2DN5T7OGZNGQJ"
-                                  className="flex-1 px-3 py-2 bg-white border-2 border-blue-300 rounded-lg text-xs font-mono font-bold outline-none focus:ring-4 focus:ring-blue-600/10"
-                                  autoFocus
-                                />
-                                <button
-                                  onClick={() => saveReportId(account.id)}
-                                  disabled={!reportIdValue}
-                                  className="px-3 py-2 bg-emerald-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50"
-                                >
-                                  Save
-                                </button>
-                                <button
-                                  onClick={() => setEditingReportId(null)}
-                                  className="px-3 py-2 bg-slate-100 text-slate-500 rounded-lg text-[9px] font-black uppercase"
-                                >
-                                  ✕
-                                </button>
+                                 <input
+                                   value={reportIdValue}
+                                   onChange={(e) => setReportIdValue(e.target.value.trim())}
+                                   placeholder="BCR2DN5T7OGZNGQJ"
+                                   className="flex-1 px-3 py-2 bg-white border border-slate-250 rounded-lg text-xs font-mono font-bold outline-none focus:ring-4 focus:ring-blue-600/10"
+                                   autoFocus
+                                 />
+                                 <button
+                                   onClick={() => saveReportId(account.id)}
+                                   disabled={!reportIdValue}
+                                   className="px-3 py-2 bg-emerald-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50"
+                                 >
+                                   Save
+                                 </button>
+                                 <button
+                                   onClick={() => setEditingReportId(null)}
+                                   className="px-3 py-2 bg-slate-100 text-slate-500 rounded-lg text-[9px] font-black uppercase"
+                                 >
+                                   ✕
+                                 </button>
                              </div>
                            ) : (
                              <div className="flex items-center gap-2">
-                                <p className={`text-xs font-mono font-bold ${account.reportId ? 'text-slate-900' : 'text-rose-400 italic'}`}>
-                                   {account.reportId || 'Not set — bot will auto-discover on login'}
-                                </p>
-                                <button
-                                  onClick={() => { setEditingReportId(account.id); setReportIdValue(account.reportId || ''); }}
-                                  className="px-2 py-1 bg-slate-200 text-slate-600 rounded text-[8px] font-black uppercase hover:bg-slate-300 transition-all"
-                                >
-                                  {account.reportId ? 'Edit' : 'Set Manually'}
-                                </button>
-                             </div>
+                                 <p className={`text-xs font-mono font-bold ${account.reportId ? 'text-slate-705' : 'text-rose-600 italic'}`}>
+                                    {account.reportId || 'Not set — bot will auto-discover on login'}
+                                 </p>
+                                 <button
+                                   onClick={() => { setEditingReportId(account.id); setReportIdValue(account.reportId || ''); }}
+                                   className="px-2 py-1 bg-slate-200 text-slate-600 rounded text-[8px] font-black uppercase hover:bg-slate-300 transition-all"
+                                 >
+                                   {account.reportId ? 'Edit' : 'Set Manually'}
+                                 </button>
+                              </div>
                            )}
                            {!account.reportId && (
                              <p className="text-[9px] text-amber-600 font-medium mt-1">⚠ If auto-discovery fails after login, find the BCR ID from pay.google.com/g4b/transactions/BCR... URL</p>
@@ -523,8 +519,8 @@ export default function StaffAccountReview() {
                                   const cmd = `cd ~/wavecollect && node src/bot/auto-login.js '${account.name}' '${account.email}' '${account.botPassword}' '${account.proxyConfig || ''}' --terminal`;
                                   copyToClipboard(cmd, `hs-${account.id}`);
                                 }}
-                                className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[9px] font-mono transition-all border ${
-                                  copiedId === `hs-${account.id}` ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'
+                                className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[9px] font-mono transition-all ${
+                                  copiedId === `hs-${account.id}` ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20'
                                 }`}
                               >
                                  <span className="truncate">{copiedId === `hs-${account.id}` ? 'READY TO PASTE' : 'node auto-login.js...'}</span>
@@ -542,7 +538,7 @@ export default function StaffAccountReview() {
                                   copyToClipboard(cmd, `pm-${account.id}`);
                                 }}
                                 className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[9px] font-mono transition-all ${
-                                  copiedId === `pm-${account.id}` ? 'bg-emerald-600 text-white shadow-lg' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'
+                                  copiedId === `pm-${account.id}` ? 'bg-emerald-600 text-white shadow-lg' : 'bg-blue-650 text-white hover:bg-blue-700 shadow-md'
                                 }`}
                               >
                                  <span className="truncate">{copiedId === `pm-${account.id}` ? 'READY TO PASTE' : 'pm2 start bot.js...'}</span>
@@ -583,7 +579,7 @@ export default function StaffAccountReview() {
                    <div className="flex items-center justify-between px-1">
                       <div className="flex items-center gap-2">
                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                         <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">Live Handshake: {activeHandshake.name}</h3>
+                         <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-700">Live Handshake: {activeHandshake.name}</h3>
                       </div>
                       <button 
                         onClick={() => setActiveHandshake(null)}
@@ -593,8 +589,8 @@ export default function StaffAccountReview() {
                       </button>
                    </div>
                    <CloudBrowser name={activeHandshake.name} />
-                   <div className="p-4 bg-slate-900 rounded-md border border-slate-800 text-[10px] text-slate-400 font-mono space-y-1">
-                      <p className="text-emerald-500 font-bold">[SYSTEM] Connection Established</p>
+                   <div className="p-4 bg-slate-50 rounded-md border border-slate-200 text-[10px] text-slate-500 font-mono space-y-1">
+                      <p className="text-emerald-600 font-bold">[SYSTEM] Connection Established</p>
                       <p>[INFO] Target: {activeHandshake.email}</p>
                       <p>[INFO] Waiting for manual Google login completion...</p>
                    </div>
@@ -615,19 +611,19 @@ export default function StaffAccountReview() {
                  <div className="flex items-center gap-2 text-amber-600">
                     <AlertTriangle className="w-4 h-4" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Protocol Notice</span>
-                 </div>
-                 <p className="text-xs text-amber-800 font-medium leading-relaxed">
-                    Merchant account eligibility is tied directly to session health. Ensure the browser context is verified before marking as Online.
-                 </p>
-              </div>
-           </div>
-        </div>
+                  </div>
+                  <p className="text-xs text-amber-800 font-medium leading-relaxed">
+                     Merchant account eligibility is tied directly to session health. Ensure the browser context is verified before marking as Online.
+                  </p>
+               </div>
+            </div>
+         </div>
       </div>
 
       {/* Pool Account Modal */}
       {showPoolModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowPoolModal(false)} />
+           <div className="absolute inset-0 bg-slate-300/40 backdrop-blur-sm" onClick={() => setShowPoolModal(false)} />
            <div className="relative bg-white rounded-lg shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
               <div className="p-8 space-y-6">
                  <div className="flex items-center gap-3">
@@ -635,7 +631,7 @@ export default function StaffAccountReview() {
                        <Globe className="w-6 h-6" />
                     </div>
                     <div>
-                       <h2 className="text-xl font-black text-slate-900">Create Pool Account</h2>
+                       <h2 className="text-xl font-black text-slate-700">Create Pool Account</h2>
                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Shared Platform Infrastructure</p>
                     </div>
                  </div>
@@ -648,7 +644,7 @@ export default function StaffAccountReview() {
                             value={newPoolAccount.name} 
                             onChange={(e) => setNewPoolAccount({...newPoolAccount, name: e.target.value.replace(/\s+/g, '-')})}
                             placeholder="pool-node-01" 
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all text-slate-700" 
                           />
                        </div>
                        <div className="space-y-1.5">
@@ -657,7 +653,7 @@ export default function StaffAccountReview() {
                             value={newPoolAccount.upiId} 
                             onChange={(e) => setNewPoolAccount({...newPoolAccount, upiId: e.target.value})}
                             placeholder="pool@okaxis" 
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all text-slate-700" 
                           />
                        </div>
                     </div>
@@ -667,7 +663,7 @@ export default function StaffAccountReview() {
                          value={newPoolAccount.email} 
                          onChange={(e) => setNewPoolAccount({...newPoolAccount, email: e.target.value})}
                          placeholder="gpay-pool-1@gmail.com" 
-                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
+                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all text-slate-700" 
                        />
                     </div>
                     <div className="space-y-1.5">
@@ -677,7 +673,7 @@ export default function StaffAccountReview() {
                          value={newPoolAccount.password} 
                          onChange={(e) => setNewPoolAccount({...newPoolAccount, password: e.target.value})}
                          placeholder="••••••••" 
-                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
+                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all text-slate-700" 
                        />
                     </div>
                     <div className="space-y-1.5">
@@ -686,7 +682,7 @@ export default function StaffAccountReview() {
                          value={newPoolAccount.proxy} 
                          onChange={(e) => setNewPoolAccount({...newPoolAccount, proxy: e.target.value})}
                          placeholder="http://user:pass@ip:port" 
-                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all" 
+                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold outline-none focus:ring-4 focus:ring-blue-600/5 transition-all text-slate-700" 
                        />
                     </div>
                  </div>
@@ -724,7 +720,7 @@ function StatusBadge({ status, type }: { status: string, type: 'review' | 'sessi
     },
     session: {
       ONLINE: 'bg-emerald-100 text-emerald-700',
-      OFFLINE: 'bg-slate-100 text-slate-600',
+      OFFLINE: 'bg-slate-100 text-slate-650',
       ERROR: 'bg-rose-100 text-rose-700',
       EXPIRED: 'bg-amber-100 text-amber-700',
       STARTING: 'bg-blue-100 text-blue-700'
@@ -799,7 +795,7 @@ function CloudBrowser({ name }: { name: string }) {
     <div className="space-y-3">
       <div 
         ref={containerRef}
-        className="relative bg-slate-950 rounded-md overflow-hidden border border-slate-800 shadow-2xl cursor-crosshair aspect-[1280/800] w-full group outline-none"
+        className="relative bg-slate-50 rounded-md overflow-hidden border border-slate-200 shadow-sm cursor-crosshair aspect-[1280/800] w-full group outline-none"
         onClick={handleClick}
       >
         {isConnected && screenBlob ? (
@@ -811,7 +807,7 @@ function CloudBrowser({ name }: { name: string }) {
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-4 p-6">
-            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
             <div className="text-center space-y-1">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Initializing Context...</p>
             </div>
@@ -826,11 +822,11 @@ function CloudBrowser({ name }: { name: string }) {
           onChange={(e) => setTypingText(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') sendText(); }}
           placeholder="Type credential..."
-          className="flex-grow px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-md text-xs font-bold text-white placeholder:text-slate-600 outline-none"
+          className="flex-grow px-4 py-2.5 bg-white border border-slate-200 rounded-md text-xs font-bold text-slate-700 placeholder:text-slate-400 outline-none"
         />
         <button 
           onClick={sendText}
-          className="px-4 py-2.5 bg-emerald-600 text-white rounded-md text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700"
+          className="px-4 py-2.5 bg-blue-600 text-white rounded-md text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-600/20"
         >
           Send
         </button>

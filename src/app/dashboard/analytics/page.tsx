@@ -3,17 +3,11 @@
 import { useState, useEffect } from "react";
 import { 
   TrendingUp, 
-  ArrowUpRight, 
   ShieldCheck, 
-  Clock, 
-  Smartphone,
   Zap,
   Activity,
-  ArrowDownRight,
-  Globe,
   RefreshCw,
   BarChart3,
-  Terminal,
   Layers,
   CheckCircle2
 } from "lucide-react";
@@ -31,7 +25,6 @@ import {
 export default function AnalyticsPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState("7d");
   const [livePulse, setLivePulse] = useState<any[]>([]);
 
   const fetchAnalytics = async () => {
@@ -76,7 +69,7 @@ export default function AnalyticsPage() {
                 <BarChart3 className="w-6 h-6 text-white" />
              </div>
              <div>
-                <h1 className="text-3xl font-black tracking-tight text-slate-900">Intelligence Dashboard</h1>
+                <h1 className="text-3xl font-black tracking-tight text-slate-700">Intelligence Dashboard</h1>
                 <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest leading-none mt-1">Cross-Platform Throughput Telemetry</p>
              </div>
           </div>
@@ -101,13 +94,13 @@ export default function AnalyticsPage() {
              <div className="relative z-10">
                 <div className="flex items-center justify-between mb-12">
                   <div className="space-y-1">
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight">Processing Volume Chart</h3>
+                    <h3 className="text-lg font-black text-slate-705 tracking-tight">Processing Volume Chart</h3>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Consolidated Intent & Link Volume</p>
                   </div>
                   <div className="flex items-center gap-8">
                     <div className="text-right">
                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Weekly Aggregate</p>
-                       <p className="text-2xl font-black text-slate-900">₹{data.summary.totalWeeklyVolume.toLocaleString()}</p>
+                       <p className="text-2xl font-black text-slate-705">₹{data.summary.totalWeeklyVolume.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -134,8 +127,8 @@ export default function AnalyticsPage() {
                         content={({ active, payload }) => {
                           if (active && payload && payload.length) {
                             return (
-                              <div className="bg-slate-900 text-white p-4 rounded-md border border-slate-800 shadow-2xl">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">{payload[0].payload.fullDate}</p>
+                              <div className="bg-white text-slate-700 p-4 rounded-md border border-slate-200 shadow-2xl">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{payload[0].payload.fullDate}</p>
                                 <p className="text-base font-black">₹{Number(payload[0].value || 0).toLocaleString()}</p>
                               </div>
                             );
@@ -159,39 +152,39 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-             <div className="bg-slate-900 rounded-lg p-8 text-white space-y-6">
-                <div className="w-12 h-12 bg-white/10 rounded-md flex items-center justify-center">
-                   <ShieldCheck className="w-6 h-6 text-emerald-400" />
+             <div className="bg-white rounded-lg border border-slate-200 p-8 text-slate-700 space-y-6 shadow-sm">
+                <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-md flex items-center justify-center border border-emerald-100">
+                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <div>
                    <h4 className="text-xl font-black tracking-tight">System Integrity</h4>
-                   <p className="text-slate-400 text-sm font-medium mt-2 leading-relaxed">All transaction intents are cryptographic verified across the distributed GPay node network.</p>
+                   <p className="text-slate-500 text-sm font-medium mt-2 leading-relaxed">All transaction intents are cryptographic verified across the distributed GPay node network.</p>
                 </div>
-                <div className="flex items-center gap-4 pt-4 border-t border-white/5">
+                <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
                    <div>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Efficiency</p>
-                      <p className="text-lg font-black text-white">99.98%</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Efficiency</p>
+                      <p className="text-lg font-black text-slate-700">99.98%</p>
                    </div>
-                   <div className="w-px h-8 bg-white/5" />
+                   <div className="w-px h-8 bg-slate-200" />
                    <div>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Latency</p>
-                      <p className="text-lg font-black text-white">2.4ms</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Latency</p>
+                      <p className="text-lg font-black text-slate-700">2.4ms</p>
                    </div>
                 </div>
              </div>
 
-             <div className="bg-white rounded-lg border border-slate-200 p-8 space-y-6">
+             <div className="bg-white rounded-lg border border-slate-200 p-8 space-y-6 shadow-sm">
                 <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100">
                    <Activity className="w-6 h-6" />
                 </div>
                 <div>
-                   <h4 className="text-xl font-black tracking-tight text-slate-900">Platform Health</h4>
+                   <h4 className="text-xl font-black tracking-tight text-slate-705">Platform Health</h4>
                    <p className="text-slate-500 text-sm font-medium mt-2 leading-relaxed">Current processing capacity remains stable with 12 active listener nodes operational.</p>
                 </div>
                 <div className="space-y-3 pt-4">
                    <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Network Load</span>
-                      <span className="text-[11px] font-black text-slate-900">14.2%</span>
+                      <span className="text-[11px] font-black text-slate-705">14.2%</span>
                    </div>
                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                       <div className="h-full bg-blue-600 w-[14.2%] rounded-full" />
@@ -203,16 +196,16 @@ export default function AnalyticsPage() {
 
         {/* Real-time Pulse Sidebar */}
         <div className="space-y-6">
-           <div className="bg-slate-950 rounded-lg p-8 text-white min-h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,#3b82f615,transparent)]" />
+           <div className="bg-white border border-slate-200 rounded-lg p-8 text-slate-700 min-h-[600px] flex flex-col shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,#3b82f605,transparent)]" />
               
               <div className="relative z-10 flex flex-col h-full">
                  <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-2">
                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                       <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-500">Real-time Pulse</h3>
+                       <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Real-time Pulse</h3>
                     </div>
-                    <Layers className="w-4 h-4 text-slate-700" />
+                    <Layers className="w-4 h-4 text-slate-400" />
                  </div>
                  
                  <div className="flex-1 space-y-4 overflow-y-auto pr-2 custom-scrollbar">
@@ -228,38 +221,38 @@ export default function AnalyticsPage() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, scale: 0.95 }}
-                          className="p-5 bg-white/5 border border-white/5 rounded-md backdrop-blur-md hover:bg-white/10 transition-all group"
+                          className="p-5 bg-slate-50 border border-slate-150 rounded-md backdrop-blur-md hover:bg-slate-100/50 transition-all group"
                         >
                           <div className="flex items-center justify-between mb-3">
                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 bg-blue-600/20 rounded-lg flex items-center justify-center border border-blue-600/30">
-                                   <Zap className="w-3 h-3 text-blue-400" />
+                                <div className="w-6 h-6 bg-blue-50 rounded-lg flex items-center justify-center border border-blue-100">
+                                   <Zap className="w-3 h-3 text-blue-600" />
                                 </div>
-                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
                                    {p.apiKeyId ? "API Integration" : "Payment Link"}
                                 </span>
                              </div>
-                             <span className="text-[10px] font-black text-emerald-500">+{p.amount}</span>
+                             <span className="text-[10px] font-black text-emerald-600">+{p.amount}</span>
                           </div>
                           <div className="flex items-end justify-between">
                              <div>
-                                <p className="text-[11px] font-black text-white tracking-tight">{p.referenceId || "REF_UNK"}</p>
-                                <p className="text-[9px] text-slate-500 font-bold uppercase mt-1">{new Date(p.createdAt).toLocaleTimeString()}</p>
+                                <p className="text-[11px] font-black text-slate-700 tracking-tight">{p.referenceId || "REF_UNK"}</p>
+                                <p className="text-[9px] text-slate-450 font-bold uppercase mt-1">{new Date(p.createdAt).toLocaleTimeString()}</p>
                              </div>
-                             <CheckCircle2 className="w-4 h-4 text-emerald-500 opacity-50" />
+                             <CheckCircle2 className="w-4 h-4 text-emerald-500 opacity-80" />
                           </div>
                         </motion.div>
                       ))}
                     </AnimatePresence>
                  </div>
 
-                 <div className="mt-8 pt-8 border-t border-white/5 space-y-4">
+                 <div className="mt-8 pt-8 border-t border-slate-100 space-y-4">
                     <div className="flex items-center justify-between">
                        <div>
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Global Velocity</p>
-                          <p className="text-2xl font-black text-white">42 tx<span className="text-blue-500 text-sm ml-1">/min</span></p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Global Velocity</p>
+                          <p className="text-2xl font-black text-slate-700">42 tx<span className="text-blue-500 text-sm ml-1">/min</span></p>
                        </div>
-                       <TrendingUp className="w-6 h-6 text-emerald-400" />
+                       <TrendingUp className="w-6 h-6 text-emerald-500" />
                     </div>
                  </div>
               </div>
@@ -270,4 +263,3 @@ export default function AnalyticsPage() {
     </div>
   );
 }
-

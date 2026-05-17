@@ -93,9 +93,17 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
         </div>
       )}
 
+      {/* Mobile view dashboard */}
+      <MobileDashboard 
+        merchant={merchant} 
+        recentIntents={recentIntents} 
+        totalVolume={totalVolume} 
+        successfulTxns={successfulTxns} 
+      />
+
       <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl md:text-3xl font-black text-slate-700 tracking-tight flex items-center gap-3">
              <LayoutDashboard className="text-blue-600" /> Command Center
           </h1>
           <div className="flex items-center gap-3 mt-1">
@@ -174,7 +182,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
              <div className="min-w-[600px]">
             {recentIntents.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 border border-slate-100">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-350 border border-slate-100">
                    <Clock size={32} />
                 </div>
                 <p className="text-slate-400 italic text-[11px] font-bold uppercase tracking-widest">
@@ -193,7 +201,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
                       {intent.status === "SUCCESS" ? <CheckCircle2 size={18} /> : intent.status === "DETECTED_UNMATCHED" ? <ShieldAlert size={18} /> : <Clock size={18} />}
                     </div>
                     <div>
-                      <p className="text-[13px] font-bold text-slate-900 leading-tight">{intent.referenceId}</p>
+                      <p className="text-[13px] font-bold text-slate-700 leading-tight">{intent.referenceId}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                           {new Date(intent.createdAt).toLocaleTimeString()}
@@ -207,7 +215,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-slate-900">₹{intent.amount.toLocaleString()}</p>
+                    <p className="text-sm font-black text-slate-700">₹{intent.amount.toLocaleString()}</p>
                     <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border mt-1 inline-block ${
                        intent.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
                        intent.status === "DETECTED_UNMATCHED" ? "bg-amber-50 text-amber-600 border-amber-100" :
@@ -235,7 +243,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
                              {entry.type === 'CREDIT' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                           </div>
                           <div>
-                             <p className="text-[11px] font-bold text-slate-900 leading-tight">{entry.description}</p>
+                             <p className="text-[11px] font-bold text-slate-700 leading-tight">{entry.description}</p>
                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{new Date(entry.createdAt).toLocaleDateString()}</p>
                           </div>
                        </div>
@@ -269,7 +277,7 @@ function DashboardCard({ label, value, sub, icon, color }: any) {
         </div>
         <div>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">{label}</p>
-          <p className="text-3xl font-black text-slate-900 tracking-tighter leading-none">{value}</p>
+          <p className="text-3xl font-black text-slate-700 tracking-tighter leading-none">{value}</p>
           <p className="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-tight leading-none">{sub}</p>
         </div>
       </div>

@@ -230,7 +230,7 @@ export default function MerchantAccountsPage() {
     <div className="space-y-8 pb-24 font-sans max-w-5xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2 md:px-0">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Merchant Fleet</h1>
+          <h1 className="text-2xl md:text-3xl font-black text-slate-700 tracking-tight">Merchant Fleet</h1>
           <p className="text-slate-500 mt-1 text-xs md:text-sm font-medium">Configure and monitor your Google Pay automated nodes.</p>
         </div>
         {!showWizard && (
@@ -248,12 +248,12 @@ export default function MerchantAccountsPage() {
       {poolState && (
         <div className="bg-white rounded-md border border-slate-200 shadow-sm p-6 space-y-6">
           <div>
-            <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4">Payment Processing Mode</h2>
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-700 mb-4">Payment Processing Mode</h2>
             <div className="flex bg-slate-50 p-1.5 rounded-md border border-slate-200 max-w-sm">
               <button 
                 onClick={() => toggleProcessingMode("OWN_ACCOUNT")}
                 className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${
-                  poolState.processingMode === "OWN_ACCOUNT" ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                  poolState.processingMode === "OWN_ACCOUNT" ? "bg-white text-slate-750 shadow-sm border border-slate-200" : "text-slate-400 hover:text-slate-650"
                 }`}
               >
                 Self Account
@@ -261,7 +261,7 @@ export default function MerchantAccountsPage() {
               <button 
                 onClick={() => toggleProcessingMode("PLATFORM_POOL")}
                 className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${
-                  poolState.processingMode === "PLATFORM_POOL" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600"
+                  poolState.processingMode === "PLATFORM_POOL" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-650"
                 }`}
               >
                 Platform Pool
@@ -306,14 +306,14 @@ export default function MerchantAccountsPage() {
                 <div className="flex items-center gap-4 p-6 bg-amber-50 rounded-md border border-amber-100">
                   <Loader2 className="w-6 h-6 text-amber-500 animate-spin shrink-0" />
                   <div>
-                    <h3 className="text-sm font-black text-amber-900">Request Pending</h3>
+                    <h3 className="text-sm font-black text-amber-905">Request Pending</h3>
                     <p className="text-xs font-medium text-amber-700">Admin will allocate a platform account to you shortly.</p>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 bg-slate-50 rounded-md border border-slate-200">
                   <div>
-                    <h3 className="text-sm font-black text-slate-900">Use Platform Accounts</h3>
+                    <h3 className="text-sm font-black text-slate-700">Use Platform Accounts</h3>
                     <p className="text-xs font-medium text-slate-500 max-w-lg mt-1">
                       Let the platform handle Google Pay nodes and transaction routing. Simply request access and start processing payments through our shared infrastructure.
                     </p>
@@ -334,7 +334,7 @@ export default function MerchantAccountsPage() {
       {showWizard && (
         <div className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden mx-2 md:mx-0">
           <div className="px-6 md:px-8 py-5 md:py-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between bg-slate-50/30 gap-3">
-            <h2 className="text-sm font-black uppercase tracking-widest text-slate-900">Node Onboarding</h2>
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Node Onboarding</h2>
             <div className="flex items-center gap-1 md:gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400 overflow-x-auto whitespace-nowrap pb-1 md:pb-0 scrollbar-hide">
               <span className={`${wizardStep >= 1 ? 'text-blue-600' : ''}`}>1. Security</span>
               <ArrowRight className="w-3 h-3 text-slate-300 shrink-0" />
@@ -350,7 +350,7 @@ export default function MerchantAccountsPage() {
                   <AlertTriangle className="w-8 h-8" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-black text-slate-900">Mandatory Security Step</h3>
+                  <h3 className="text-xl font-black text-slate-700">Mandatory Security Step</h3>
                   <p className="text-sm md:text-base text-slate-500 leading-relaxed px-4">
                     To automate verification, you <strong>must disable 2FA</strong> and phone prompts on the Google Account. This ensures the headless engine can verify sessions autonomously.
                   </p>
@@ -366,15 +366,15 @@ export default function MerchantAccountsPage() {
                 <div className="grid gap-5">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Internal Alias</label>
-                    <input value={newName} onChange={(e) => setNewName(e.target.value.replace(/\s+/g, '-'))} placeholder="e.g. gpay-primary" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <input value={newName} onChange={(e) => setNewName(e.target.value.replace(/\s+/g, '-'))} placeholder="e.g. gpay-primary" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-350 text-slate-700" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Google Identity (Email)</label>
-                    <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="merchant@gmail.com" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="merchant@gmail.com" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-350 text-slate-700" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Access Token (Google Password)</label>
-                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter password" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter password" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-355 text-slate-700" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Confirm Password</label>
@@ -384,26 +384,26 @@ export default function MerchantAccountsPage() {
                       onChange={(e) => setConfirmPassword(e.target.value)} 
                       onPaste={(e) => e.preventDefault()}
                       placeholder="Type again (pasting disabled)" 
-                      className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" 
+                      className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-355 text-slate-700" 
                     />
                     <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tight px-1">Must match exactly to ensure operational accuracy</p>
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Business UPI Endpoint</label>
-                    <input value={newUpiId} onChange={(e) => setNewUpiId(e.target.value)} placeholder="merchant@okaxis" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <input value={newUpiId} onChange={(e) => setNewUpiId(e.target.value)} placeholder="merchant@okaxis" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-355 text-slate-700" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Proxy Configuration (Optional)</label>
-                    <input value={newProxy} onChange={(e) => setNewProxy(e.target.value)} placeholder="http://user:pass@ip:port" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                    <input value={newProxy} onChange={(e) => setNewProxy(e.target.value)} placeholder="http://user:pass@ip:port" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-355 text-slate-700" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Min Ticket</label>
-                      <input type="number" value={newMinTicket} onChange={(e) => setNewMinTicket(e.target.value)} placeholder="0" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                      <input type="number" value={newMinTicket} onChange={(e) => setNewMinTicket(e.target.value)} placeholder="0" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-355 text-slate-700" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Max Ticket</label>
-                      <input type="number" value={newMaxTicket} onChange={(e) => setNewMaxTicket(e.target.value)} placeholder="100000" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-300 text-slate-900" />
+                      <input type="number" value={newMaxTicket} onChange={(e) => setNewMaxTicket(e.target.value)} placeholder="100000" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all placeholder:text-slate-355 text-slate-700" />
                     </div>
                   </div>
                 </div>
@@ -426,7 +426,7 @@ export default function MerchantAccountsPage() {
                   <Clock className="w-12 h-12" />
                 </div>
                 <div className="space-y-3">
-                  <h3 className="text-2xl font-black text-slate-900">Submission Under Review</h3>
+                  <h3 className="text-2xl font-black text-slate-700">Submission Under Review</h3>
                   <p className="text-sm text-slate-500 font-medium leading-relaxed">
                     Our operations staff has received your credentials. They will now manually activate your browser session on our secure VPS infrastructure.
                   </p>
@@ -445,7 +445,7 @@ export default function MerchantAccountsPage() {
                     </li>
                   </ul>
                 </div>
-                <button onClick={resetWizard} className="w-full px-8 py-4 bg-slate-900 text-white rounded-md font-black uppercase text-[11px] tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">
+                <button onClick={resetWizard} className="w-full px-8 py-4 bg-blue-600 text-white rounded-md font-black uppercase text-[11px] tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
                   Return to Dashboard
                 </button>
               </div>
@@ -476,12 +476,12 @@ export default function MerchantAccountsPage() {
                     </div>
                     <div className="min-w-0 flex-grow">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-base md:text-lg font-black text-slate-900 tracking-tight leading-none">{acc.name}</h4>
+                        <h4 className="text-base md:text-lg font-black text-slate-700 tracking-tight leading-none">{acc.name}</h4>
                         <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                           {isApproved ? 'Approved' : acc.reviewStatus.replace('_', ' ')}
                         </div>
                         {isApproved && (
-                          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${isOnline ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
+                          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${isOnline ? 'bg-emerald-50 text-emerald-650 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
                             <div className={`w-1 h-1 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
                             {isOnline ? 'Session Live' : acc.sessionStatus}
                           </div>
@@ -520,13 +520,12 @@ export default function MerchantAccountsPage() {
                 </div>
                 
 
-
                 <div className="bg-slate-50/30 border-t border-slate-100 px-4 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
                     <span>Processing: {acc.monthlyLimit > 0 ? `${Math.round((acc.usedAmount / acc.monthlyLimit) * 100)}% Capacity` : 'Unlimited'}</span>
                   </div>
                   <div className="flex items-center gap-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                    <button onClick={() => deleteAccount(acc.id)} className="hover:text-rose-500 transition-colors flex items-center gap-1.5 text-rose-400"><X className="w-3 h-3" /> Purge</button>
+                    <button onClick={() => deleteAccount(acc.id)} className="hover:text-rose-500 transition-colors flex items-center gap-1.5 text-rose-450"><X className="w-3 h-3" /> Purge</button>
                   </div>
                 </div>
                 {acc.monthlyLimit > 0 && (<div className="h-1 bg-slate-100 w-full overflow-hidden"><div className={`h-full transition-all duration-1000 ${acc.usedAmount >= acc.monthlyLimit ? 'bg-rose-500' : 'bg-blue-600'}`} style={{ width: `${Math.min((acc.usedAmount / acc.monthlyLimit) * 100, 100)}%` }} /></div>)}
@@ -536,7 +535,7 @@ export default function MerchantAccountsPage() {
           {accounts.length === 0 && (
             <div className="text-center py-20 bg-white rounded-md border-2 border-dashed border-slate-200 px-8 mx-2">
               <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-100"><Smartphone className="w-8 h-8 text-slate-300" /></div>
-              <h3 className="text-xl font-black text-slate-900 mb-2">Fleet Empty</h3>
+              <h3 className="text-xl font-black text-slate-700 mb-2">Fleet Empty</h3>
               <p className="text-sm text-slate-500 leading-relaxed max-w-[240px] mx-auto mb-8 font-medium">Provision your first Google Pay node to begin automated payment orchestration.</p>
               <button onClick={() => setShowWizard(true)} className="px-8 py-3.5 bg-blue-600 text-white rounded-md font-black uppercase text-[11px] tracking-widest shadow-lg shadow-blue-600/20 active:scale-95 transition-all">Onboard First Node</button>
             </div>
@@ -547,7 +546,7 @@ export default function MerchantAccountsPage() {
       {/* Live Console Modal */}
       {activeLogBot && (
         <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-8 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setActiveLogBot(null)} />
+          <div className="absolute inset-0 bg-slate-300/40 backdrop-blur-sm" onClick={() => setActiveLogBot(null)} />
           <div className="relative w-full md:max-w-4xl bg-white md:rounded-md rounded-t-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col h-[90vh] md:h-[85vh] animate-in slide-in-from-bottom-4 md:zoom-in-95 duration-300">
             <div className="bg-slate-50 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between border-b border-slate-200">
               <div className="flex items-center gap-2 md:gap-3 min-w-0">
@@ -555,7 +554,7 @@ export default function MerchantAccountsPage() {
                   <TerminalIcon className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-[11px] md:text-[13px] font-black text-slate-900 uppercase tracking-tight truncate">Stream: {activeLogBot}</h3>
+                  <h3 className="text-[11px] md:text-[13px] font-black text-slate-700 uppercase tracking-tight truncate">Stream: {activeLogBot}</h3>
                   <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 hidden md:block">High-Frequency Verification Node</p>
                 </div>
               </div>
@@ -569,7 +568,7 @@ export default function MerchantAccountsPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 p-4 md:p-6 bg-slate-50/50 border-b border-slate-200">
                 <div className="p-3 md:p-4 bg-white rounded-md border border-slate-200 shadow-sm">
                   <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Uptime</p>
-                  <p className="text-xs md:text-sm font-black text-slate-900">{formatUptime(botStats.uptime)}</p>
+                  <p className="text-xs md:text-sm font-black text-slate-700">{formatUptime(botStats.uptime)}</p>
                 </div>
                 <div className="p-3 md:p-4 bg-white rounded-md border border-slate-200 shadow-sm">
                   <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Sweeps</p>
@@ -589,17 +588,17 @@ export default function MerchantAccountsPage() {
               </div>
             )}
 
-            <div className="flex-grow overflow-y-auto p-6 font-mono text-[12px] text-slate-400 space-y-1.5 custom-scrollbar bg-slate-950">
-              {liveLogs.length === 0 && <p className="text-slate-600 italic">Waiting for node stream...</p>}
+            <div className="flex-grow overflow-y-auto p-6 font-mono text-[12px] text-slate-500 space-y-1.5 custom-scrollbar bg-slate-50 border border-slate-100">
+              {liveLogs.length === 0 && <p className="text-slate-400 italic">Waiting for node stream...</p>}
               {liveLogs.map((log, i) => (
                 <div key={i} className="flex gap-4">
-                  <span className="text-slate-800 shrink-0 select-none">[{i+1}]</span>
+                  <span className="text-slate-300 shrink-0 select-none">[{i+1}]</span>
                   <span className={`${
-                    log.includes('SUCCESS') ? 'text-emerald-400' : 
-                    log.includes('ERROR') || log.includes('CRITICAL') ? 'text-rose-400' : 
-                    log.includes('XHR sweep') || log.includes('CSV process') || log.includes('Sweep cycle') ? 'text-blue-400 font-bold' : 
-                    log.includes('[BOOT]') ? 'text-amber-400' :
-                    ''
+                    log.includes('SUCCESS') ? 'text-emerald-650 font-bold' : 
+                    log.includes('ERROR') || log.includes('CRITICAL') ? 'text-rose-650 font-bold' : 
+                    log.includes('XHR sweep') || log.includes('CSV process') || log.includes('Sweep cycle') ? 'text-blue-650 font-bold' : 
+                    log.includes('[BOOT]') ? 'text-amber-650 font-bold' :
+                    'text-slate-600'
                   }`}>
                     {log}
                   </span>
@@ -614,7 +613,7 @@ export default function MerchantAccountsPage() {
                     <span className="text-[9px] md:text-[10px] font-black text-emerald-600 uppercase tracking-widest">Healthy</span>
                   </div>
                </div>
-               <span className="text-[9px] md:text-[10px] font-black text-slate-300 uppercase tracking-widest hidden md:block">ESC to Close Monitor</span>
+               <span className="text-[9px] md:text-[10px] font-black text-slate-350 uppercase tracking-widest hidden md:block">ESC to Close Monitor</span>
             </div>
           </div>
         </div>
@@ -669,7 +668,6 @@ function CloudBrowser({ name }: { name: string }) {
 
   const handleKeyDown = async (e: React.KeyboardEvent) => {
     if (!isConnected) return;
-    // Let the text input handle regular characters
     if (e.target instanceof HTMLInputElement) return;
     e.preventDefault();
     try {
@@ -697,7 +695,7 @@ function CloudBrowser({ name }: { name: string }) {
     <div className="space-y-3">
       <div 
         ref={containerRef}
-        className="relative bg-slate-950 rounded-md overflow-hidden border border-slate-800 shadow-2xl cursor-crosshair aspect-[1280/800] w-full group outline-none"
+        className="relative bg-slate-50 rounded-md overflow-hidden border border-slate-200 shadow-sm cursor-crosshair aspect-[1280/800] w-full group outline-none"
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         tabIndex={0}
@@ -714,13 +712,13 @@ function CloudBrowser({ name }: { name: string }) {
             <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
             <div className="text-center space-y-1">
               <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Connecting to Cloud Browser...</p>
-              <p className="text-[10px] text-slate-600">The remote browser is starting up. This takes 10-20 seconds.</p>
+              <p className="text-[10px] text-slate-450">The remote browser is starting up. This takes 10-20 seconds.</p>
             </div>
           </div>
         )}
         
         {isConnected && (
-          <div className="absolute top-3 right-3 px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded text-[8px] font-black text-emerald-500 uppercase tracking-widest">
+          <div className="absolute top-3 right-3 px-2 py-1 bg-emerald-50 border border-emerald-100 rounded text-[8px] font-black text-emerald-600 uppercase tracking-widest">
              Connected
           </div>
         )}
@@ -735,7 +733,7 @@ function CloudBrowser({ name }: { name: string }) {
           onKeyDown={(e) => { if (e.key === 'Enter') sendText(); }}
           placeholder={isConnected ? "Type here, then press Enter to send to browser..." : "Waiting for connection..."}
           disabled={!isConnected}
-          className="flex-grow px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg text-xs font-bold text-white placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-blue-500/30 disabled:opacity-40 transition-all"
+          className="flex-grow px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-blue-500/30 disabled:opacity-40 transition-all"
         />
         <button 
           onClick={sendText}
@@ -748,4 +746,3 @@ function CloudBrowser({ name }: { name: string }) {
     </div>
   );
 }
-

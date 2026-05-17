@@ -46,7 +46,7 @@ export default async function PaymentLinkPage({ params }: { params: Promise<{ sl
         <div className="w-20 h-20 bg-rose-50 rounded-lg flex items-center justify-center text-rose-500 mb-8 border border-rose-100">
            <Zap className="w-10 h-10 fill-current" />
         </div>
-        <h1 className="text-2xl font-black text-slate-900 mb-2">Service Unavailable</h1>
+        <h1 className="text-2xl font-black text-slate-705 mb-2">Service Unavailable</h1>
         <p className="text-slate-500 max-w-xs leading-relaxed text-sm">
           The merchant is currently unable to accept payments. Please contact support or try again later.
         </p>

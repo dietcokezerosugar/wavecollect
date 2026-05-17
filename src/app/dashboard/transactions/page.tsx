@@ -95,10 +95,10 @@ export default function TransactionsPage() {
 
   function statusColor(status: string) {
     switch (status) {
-      case "SUCCESS": return "text-emerald-600";
-      case "PENDING": return "text-blue-600";
-      case "EXPIRED": return "text-slate-400";
-      default: return "text-rose-600";
+      case "SUCCESS": return "text-emerald-650";
+      case "PENDING": return "text-blue-650";
+      case "EXPIRED": return "text-slate-450";
+      default: return "text-rose-650";
     }
   }
 
@@ -106,7 +106,7 @@ export default function TransactionsPage() {
     <div className="space-y-6 md:space-y-8 pb-24 animate-in fade-in duration-500">
       <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900">Activity Ledger</h1>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-700">Activity Ledger</h1>
           <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Real-time settlement & transaction audit</p>
         </div>
         <div className="flex items-center gap-3">
@@ -116,7 +116,7 @@ export default function TransactionsPage() {
           </div>
           <button
             onClick={handleExport}
-            className="px-5 py-2.5 bg-slate-900 text-white rounded-md text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-all shadow-md shadow-slate-900/10 active:scale-95"
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-md text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20 active:scale-95"
           >
             <Download className="w-4 h-4" /> Export Ledger
           </button>
@@ -141,13 +141,13 @@ export default function TransactionsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by Reference, UTR or Name..."
-            className="w-full bg-white border border-slate-200 rounded-md py-3.5 pl-12 pr-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all shadow-sm placeholder:text-slate-300"
+            className="w-full bg-white border border-slate-200 rounded-md py-3.5 pl-12 pr-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all shadow-sm placeholder:text-slate-350"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="bg-white border border-slate-200 rounded-md px-6 py-3.5 text-[11px] font-black text-slate-700 uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 shadow-sm cursor-pointer"
+          className="bg-white border border-slate-200 rounded-md px-6 py-3.5 text-[11px] font-black text-slate-500 uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 shadow-sm cursor-pointer"
         >
           <option value="ALL">ALL STATUSES</option>
           <option value="SUCCESS">SUCCESS</option>
@@ -156,7 +156,7 @@ export default function TransactionsPage() {
           <option value="EXPIRED">EXPIRED</option>
         </select>
         <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-md px-6 py-3.5 shadow-inner">
-          <span className="text-sm font-black text-slate-900 leading-none">{filtered.length}</span>
+          <span className="text-sm font-black text-slate-700 leading-none">{filtered.length}</span>
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Records</span>
         </div>
       </div>
@@ -199,19 +199,19 @@ export default function TransactionsPage() {
                         <span className={statusColor(intent.status)}>{intent.status}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-mono font-bold text-slate-900 text-[11px]">{intent.referenceId}</td>
-                    <td className="px-6 py-4 font-black text-slate-900 text-sm">₹{intent.amount.toLocaleString()}</td>
-                    <td className="px-6 py-4 text-[11px] font-bold text-slate-600">
-                      {intent.payerName || intent.transaction?.payerName || <span className="text-slate-300">—</span>}
+                    <td className="px-6 py-4 font-mono font-bold text-slate-700 text-[11px]">{intent.referenceId}</td>
+                    <td className="px-6 py-4 font-black text-slate-700 text-sm">₹{intent.amount.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-[11px] font-bold text-slate-500">
+                      {intent.payerName || intent.transaction?.payerName || <span className="text-slate-350">—</span>}
                     </td>
                     <td className="px-6 py-4">
                       {intent.allocatedAccount ? (
                         <div className="flex flex-col">
-                          <span className="text-[11px] font-black text-slate-800">{intent.allocatedAccount.name}</span>
+                          <span className="text-[11px] font-black text-slate-750">{intent.allocatedAccount.name}</span>
                           <span className="text-[9px] font-mono font-bold text-slate-400">{intent.allocatedAccount.upiId}</span>
                         </div>
                       ) : (
-                        <span className="text-slate-300 font-bold text-[11px]">—</span>
+                        <span className="text-slate-350 font-bold text-[11px]">—</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
@@ -228,7 +228,7 @@ export default function TransactionsPage() {
                        {intent.status === "PENDING" && (
                           <button 
                             onClick={() => { setApprovalModal(intent); setApprovalStatus("SUCCESS"); }}
-                            className="px-4 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-blue-100 shadow-sm"
+                            className="px-4 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-650 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-blue-100 shadow-sm"
                           >
                              Approve
                           </button>
@@ -242,16 +242,13 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-
-
-      {/* Approval Modal */}
       {/* Approval Modal */}
       {approvalModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setApprovalModal(null)} />
+          <div className="absolute inset-0 bg-slate-300/40 backdrop-blur-sm" onClick={() => setApprovalModal(null)} />
           <div className="relative w-full max-w-md bg-white rounded-md shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-300">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Manual Audit Settlement</h3>
+              <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Manual Audit Settlement</h3>
               <button onClick={() => setApprovalModal(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors border border-transparent hover:border-slate-200">
                 <X className="w-5 h-5 text-slate-400" />
               </button>
@@ -261,7 +258,7 @@ export default function TransactionsPage() {
               <div className="bg-slate-50 rounded-md p-5 border border-slate-200 space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ledger Reference</span>
-                  <span className="text-[11px] font-black text-slate-900 font-mono">{approvalModal.referenceId}</span>
+                  <span className="text-[11px] font-black text-slate-700 font-mono">{approvalModal.referenceId}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Settlement Value</span>
@@ -276,7 +273,7 @@ export default function TransactionsPage() {
                     onClick={() => setApprovalStatus("SUCCESS")}
                     className={`py-3 rounded-md text-[11px] font-black uppercase tracking-widest transition-all border-2 ${
                       approvalStatus === "SUCCESS"
-                        ? "bg-emerald-50 text-emerald-600 border-emerald-500 shadow-md shadow-emerald-500/10"
+                        ? "bg-emerald-50 text-emerald-650 border-emerald-500 shadow-md shadow-emerald-500/10"
                         : "bg-white text-slate-400 border-slate-100 hover:border-slate-200"
                     }`}
                   >
@@ -286,7 +283,7 @@ export default function TransactionsPage() {
                     onClick={() => setApprovalStatus("FAILED")}
                     className={`py-3 rounded-md text-[11px] font-black uppercase tracking-widest transition-all border-2 ${
                       approvalStatus === "FAILED"
-                        ? "bg-rose-50 text-rose-600 border-rose-500 shadow-md shadow-rose-500/10"
+                        ? "bg-rose-50 text-rose-650 border-rose-500 shadow-md shadow-rose-500/10"
                         : "bg-white text-slate-400 border-slate-100 hover:border-slate-200"
                     }`}
                   >
@@ -303,7 +300,7 @@ export default function TransactionsPage() {
                     value={approvalUtr}
                     onChange={(e) => setApprovalUtr(e.target.value)}
                     placeholder="Enter 12-digit UTR Number..."
-                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all placeholder:text-slate-300"
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all placeholder:text-slate-350"
                   />
                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight px-1">This ID will be used for final cryptographic settlement.</p>
                 </div>
@@ -311,7 +308,7 @@ export default function TransactionsPage() {
             </div>
 
             <div className="p-6 border-t border-slate-100 flex gap-3 bg-slate-50/30">
-              <button onClick={() => setApprovalModal(null)} className="flex-1 py-3 text-slate-400 font-black text-[11px] uppercase tracking-widest hover:bg-white hover:text-slate-600 rounded-md transition-all border border-transparent hover:border-slate-200">
+              <button onClick={() => setApprovalModal(null)} className="flex-1 py-3 text-slate-400 font-black text-[11px] uppercase tracking-widest hover:bg-white hover:text-slate-650 rounded-md transition-all border border-transparent hover:border-slate-200">
                 Cancel
               </button>
               <button

@@ -46,7 +46,7 @@ export default async function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-slate-900">Merchant Account Not Found</h2>
+          <h2 className="text-2xl font-bold text-slate-700">Merchant Account Not Found</h2>
           <p className="text-slate-500 mt-2">Please contact support to activate your merchant profile.</p>
         </div>
       </div>

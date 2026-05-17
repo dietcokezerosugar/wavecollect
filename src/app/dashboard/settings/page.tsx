@@ -119,13 +119,13 @@ export default function SettingsPage() {
     <div className="space-y-6 md:space-y-8 pb-24 font-sans max-w-5xl mx-auto px-4 md:px-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-8">
         <div className="space-y-1">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Control Center</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-700">Control Center</h1>
           <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest">Global platform architecture & environment security</p>
         </div>
         <div className="flex items-center gap-3">
            <div className={`flex items-center gap-2 px-4 py-2 rounded-full border text-[10px] font-black uppercase tracking-widest ${
-             apiAccessStatus === "APPROVED" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-             apiAccessStatus === "PENDING" ? "bg-amber-50 text-amber-600 border-amber-100" :
+             apiAccessStatus === "APPROVED" ? "bg-emerald-50 text-emerald-650 border-emerald-100" :
+             apiAccessStatus === "PENDING" ? "bg-amber-50 text-amber-650 border-amber-100" :
              "bg-slate-50 text-slate-400 border-slate-200"
            }`}>
               <Activity className={`w-3.5 h-3.5 ${apiAccessStatus === "PENDING" ? "animate-pulse" : ""}`} />
@@ -152,7 +152,7 @@ export default function SettingsPage() {
                      </div>
                   </div>
                   <p className="text-blue-50 text-sm font-medium leading-relaxed max-w-md">
-                    To maintain ecosystem integrity, external API access requires a one-time verification. Applying will notify our compliance team to audit your account nodes.
+                     To maintain ecosystem integrity, external API access requires a one-time verification. Applying will notify our compliance team to audit your account nodes.
                   </p>
                   <button 
                     onClick={applyForAccess}
@@ -171,7 +171,7 @@ export default function SettingsPage() {
                 <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100">
                    <Server className="w-5 h-5" />
                 </div>
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Network Architecture</h3>
+                <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Network Architecture</h3>
              </div>
 
              <div className="grid md:grid-cols-2 gap-8">
@@ -181,7 +181,7 @@ export default function SettingsPage() {
                       value={redirectUrl}
                       onChange={(e) => setRedirectUrl(e.target.value)}
                       placeholder="https://yoursite.com/done"
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all outline-none"
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all outline-none"
                    />
                 </div>
                 <div className="space-y-3">
@@ -190,7 +190,7 @@ export default function SettingsPage() {
                       value={webhookUrl}
                       onChange={(e) => setWebhookUrl(e.target.value)}
                       placeholder="https://api.yoursite.com/webhook"
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all outline-none"
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all outline-none"
                    />
                 </div>
                 <div className="space-y-3 col-span-2">
@@ -239,14 +239,14 @@ export default function SettingsPage() {
                    
                    <div className="p-6 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-between group hover:border-blue-200 transition-all shadow-inner">
                       <div className="space-y-1">
-                         <p className="text-[11px] font-black text-slate-900 leading-none">
+                         <p className="text-[11px] font-black text-slate-700 leading-none">
                             {ipWhitelist || "Awaiting First Request"}
                          </p>
                          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
                             Active Traffic Origination Node
                          </p>
                       </div>
-                      <div className="p-3 bg-white rounded-md border border-slate-200 text-slate-300 shadow-sm">
+                      <div className="p-3 bg-white rounded-md border border-slate-200 text-slate-350 shadow-sm">
                          <Lock size={18} />
                       </div>
                    </div>
@@ -264,23 +264,23 @@ export default function SettingsPage() {
                 <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-md flex items-center justify-center border border-emerald-100">
                    <Zap className="w-5 h-5" />
                 </div>
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Processing Infrastructure</h3>
+                <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Processing Infrastructure</h3>
              </div>
 
              <div className="grid md:grid-cols-2 gap-4">
                 <button 
                   onClick={() => setProcessingMode("OWN_ACCOUNT")}
                   className={`p-6 rounded-lg border text-left transition-all relative overflow-hidden group ${
-                    processingMode === "OWN_ACCOUNT" ? "bg-slate-900 border-slate-900 text-white shadow-xl shadow-slate-900/20" : "bg-slate-50 border-slate-100 text-slate-900 hover:border-slate-200"
+                    processingMode === "OWN_ACCOUNT" ? "bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-600/20" : "bg-slate-50 border-slate-100 text-slate-750 hover:border-blue-200"
                   }`}
                 >
                    <div className="relative z-10 space-y-3">
-                      <div className={`w-10 h-10 rounded-md flex items-center justify-center ${processingMode === "OWN_ACCOUNT" ? "bg-white/10" : "bg-white shadow-sm text-slate-400"}`}>
+                      <div className={`w-10 h-10 rounded-md flex items-center justify-center ${processingMode === "OWN_ACCOUNT" ? "bg-white/10" : "bg-white shadow-sm text-slate-450"}`}>
                          <Smartphone className="w-5 h-5" />
                       </div>
                       <div>
                          <p className="text-[11px] font-black uppercase tracking-widest">Own Managed Account</p>
-                         <p className={`text-[10px] font-medium leading-relaxed mt-1 ${processingMode === "OWN_ACCOUNT" ? "text-slate-400" : "text-slate-500"}`}>
+                         <p className={`text-[10px] font-medium leading-relaxed mt-1 ${processingMode === "OWN_ACCOUNT" ? "text-slate-200" : "text-slate-500"}`}>
                             Route orders through your staff-approved GPay accounts.
                          </p>
                       </div>
@@ -291,7 +291,7 @@ export default function SettingsPage() {
                 <button 
                    onClick={() => setProcessingMode("PLATFORM_POOL")}
                    className={`p-6 rounded-lg border text-left transition-all relative overflow-hidden group ${
-                     processingMode === "PLATFORM_POOL" ? "bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-600/20" : "bg-slate-50 border-slate-100 text-slate-900 hover:border-slate-200"
+                     processingMode === "PLATFORM_POOL" ? "bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-600/20" : "bg-slate-50 border-slate-100 text-slate-750 hover:border-blue-200"
                    }`}
                 >
                    <div className="relative z-10 space-y-3">
@@ -323,7 +323,7 @@ export default function SettingsPage() {
                 <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-md flex items-center justify-center border border-amber-100">
                    <Gift className="w-5 h-5" />
                 </div>
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Referral Network</h3>
+                <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Referral Network</h3>
              </div>
 
              <div className="space-y-4">
@@ -335,7 +335,7 @@ export default function SettingsPage() {
                         </div>
                         <div>
                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Linked Agent</p>
-                           <p className="text-sm font-black text-slate-900">{agentInfo.name}</p>
+                           <p className="text-sm font-black text-slate-700">{agentInfo.name}</p>
                         </div>
                      </div>
                      <div className="px-3 py-1 bg-white rounded-lg border border-emerald-200 text-[10px] font-black text-emerald-600 uppercase tracking-widest">
@@ -352,12 +352,12 @@ export default function SettingsPage() {
                            value={referralCode}
                            onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                            placeholder="Enter Referral Code (e.g. WAVE-123)"
-                           className="flex-1 px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-black text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all outline-none placeholder:font-bold placeholder:text-slate-300"
+                           className="flex-1 px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-black text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all outline-none placeholder:font-bold placeholder:text-slate-300"
                         />
                         <button 
                            onClick={linkReferral}
                            disabled={!referralCode || applying}
-                           className="px-8 py-4 bg-slate-900 text-white rounded-[20px] text-[11px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-95 disabled:opacity-50"
+                           className="px-8 py-4 bg-blue-600 text-white rounded-[20px] text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95 disabled:opacity-50"
                         >
                            {applying ? "Verifying..." : "Link Account"}
                         </button>
@@ -370,10 +370,10 @@ export default function SettingsPage() {
            {/* Branding & Appearance */}
            <section className="bg-white rounded-lg border border-slate-200 p-8 space-y-8 shadow-sm">
               <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-md flex items-center justify-center border border-indigo-100">
+                 <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100">
                     <Palette className="w-5 h-5" />
                  </div>
-                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Checkout Branding</h3>
+                 <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Checkout Branding</h3>
               </div>
 
               <div className="grid md:grid-cols-2 gap-8">
@@ -383,7 +383,7 @@ export default function SettingsPage() {
                        value={brandName}
                        onChange={(e) => setBrandName(e.target.value)}
                        placeholder="e.g. Acme Payments"
-                       className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all outline-none"
+                       className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all outline-none"
                     />
                  </div>
                  <div className="space-y-3">
@@ -398,7 +398,7 @@ export default function SettingsPage() {
                        <input 
                           value={brandColor}
                           onChange={(e) => setBrandColor(e.target.value)}
-                          className="flex-1 px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-mono font-bold text-slate-900 focus:bg-white transition-all outline-none"
+                          className="flex-1 px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-mono font-bold text-slate-700 focus:bg-white transition-all outline-none"
                        />
                     </div>
                  </div>
@@ -408,18 +408,18 @@ export default function SettingsPage() {
                        value={brandLogo}
                        onChange={(e) => setBrandLogo(e.target.value)}
                        placeholder="https://cdn.yoursite.com/logo.png"
-                       className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-900 focus:bg-white outline-none"
+                       className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 focus:bg-white outline-none"
                     />
                  </div>
                  
                  <div className="col-span-2 p-6 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between">
                     <div className="space-y-1">
-                       <p className="text-[11px] font-black text-slate-900">Show Support Identity</p>
+                       <p className="text-[11px] font-black text-slate-700">Show Support Identity</p>
                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Display your email on the checkout page</p>
                     </div>
                     <button 
                       onClick={() => setShowSupportEmail(!showSupportEmail)}
-                      className={`w-12 h-6 rounded-full relative transition-all ${showSupportEmail ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                      className={`w-12 h-6 rounded-full relative transition-all ${showSupportEmail ? 'bg-blue-600' : 'bg-slate-300'}`}
                     >
                       <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${showSupportEmail ? 'left-7' : 'left-1'}`} />
                     </button>
@@ -433,7 +433,7 @@ export default function SettingsPage() {
                     <div className="bg-white w-full max-w-xs rounded-md shadow-xl overflow-hidden border border-slate-200">
                        <div className="p-4 border-b border-slate-50 flex items-center justify-between" style={{ borderTop: `4px solid ${brandColor}` }}>
                           {brandLogo ? <img src={brandLogo} alt="Logo" className="h-6 object-contain" /> : <div className="w-6 h-6 bg-slate-100 rounded-full" />}
-                          <span className="text-[10px] font-black text-slate-900">{brandName || "Merchant Name"}</span>
+                          <span className="text-[10px] font-black text-slate-700">{brandName || "Merchant Name"}</span>
                        </div>
                        <div className="p-6 space-y-4">
                           <div className="h-10 w-full bg-slate-50 rounded-md" />
@@ -442,26 +442,26 @@ export default function SettingsPage() {
                           </button>
                        </div>
                     </div>
-                 </div>
+                  </div>
               </div>
            </section>
         </div>
 
         <div className="space-y-8">
-          <div className="bg-slate-900 rounded-lg p-8 text-white space-y-6 shadow-xl shadow-slate-900/10">
-             <div className="w-12 h-12 bg-white/10 rounded-md flex items-center justify-center backdrop-blur-md">
-                <ShieldCheck className="w-6 h-6 text-emerald-400" />
+          <div className="bg-white rounded-lg p-8 text-slate-750 space-y-6 shadow-xl border border-slate-200">
+             <div className="w-12 h-12 bg-blue-50 border border-blue-100 rounded-md flex items-center justify-center">
+                <ShieldCheck className="w-6 h-6 text-emerald-500" />
              </div>
-             <h3 className="text-xl font-black tracking-tight">Security Hardening</h3>
-             <p className="text-slate-400 text-sm font-medium leading-relaxed">
+             <h3 className="text-xl font-black tracking-tight text-slate-700">Security Hardening</h3>
+             <p className="text-slate-500 text-sm font-medium leading-relaxed">
                 Ensure your callback endpoints are secured with TLS 1.3. For high-throughput environments, we recommend IP whitelisting to prevent unauthorized request injection.
              </p>
-             <div className="pt-4 border-t border-white/5">
+             <div className="pt-4 border-t border-slate-100">
                 <button
                   onClick={saveConfig}
                   disabled={saved}
                   className={`w-full py-5 rounded-[24px] text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all active:scale-95 ${
-                    saved ? "bg-emerald-500 text-white" : "bg-white text-slate-900 hover:bg-slate-50"
+                    saved ? "bg-emerald-500 text-white" : "bg-blue-600 text-white hover:bg-blue-700 shadow-xl shadow-blue-600/20"
                   }`}
                 >
                   {saved ? <CheckCircle2 className="w-5 h-5" /> : <Save className="w-5 h-5" />}
@@ -473,12 +473,12 @@ export default function SettingsPage() {
           <div className="bg-white rounded-lg border border-slate-200 p-8 space-y-6">
              <div className="flex items-center gap-3">
                 <Globe className="w-5 h-5 text-blue-600" />
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Environment Info</h3>
+                <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Environment Info</h3>
              </div>
              <div className="space-y-4">
                 <div className="flex items-center justify-between py-2 border-b border-slate-50">
                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Platform Tier</span>
-                   <span className="text-[11px] font-black text-slate-900">ENTERPRISE</span>
+                   <span className="text-[11px] font-black text-slate-700">ENTERPRISE</span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-slate-50">
                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Latency Avg</span>

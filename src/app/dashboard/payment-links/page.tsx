@@ -66,7 +66,7 @@ export default function PaymentLinksPage() {
       {/* Premium Header */}
       <div className="flex items-center justify-between px-2 md:px-0">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900">Payment Gateways</h1>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-700">Payment Gateways</h1>
           <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest mt-1">Deployable checkout surfaces</p>
         </div>
         <button
@@ -89,7 +89,7 @@ export default function PaymentLinksPage() {
             placeholder="Search by title or descriptor..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-slate-200 py-4 pl-14 pr-6 rounded-md text-sm font-bold text-slate-900 focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all shadow-sm placeholder:text-slate-300"
+            className="w-full bg-white border border-slate-200 py-4 pl-14 pr-6 rounded-md text-sm font-bold text-slate-700 focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all shadow-sm placeholder:text-slate-350"
           />
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function PaymentLinksPage() {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-6">
               <div>
-                <h3 className="text-xl font-black text-slate-900">Link Provisioning</h3>
+                <h3 className="text-xl font-black text-slate-700">Link Provisioning</h3>
                 <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1">Configure payment surface parameters</p>
               </div>
             </div>
@@ -117,7 +117,7 @@ export default function PaymentLinksPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="E.g. Digital Goods"
-                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all placeholder:text-slate-300"
+                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-750 focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all placeholder:text-slate-300"
                 />
               </div>
               <div className="space-y-1.5">
@@ -127,7 +127,7 @@ export default function PaymentLinksPage() {
                   onChange={(e) => setAmount(e.target.value)}
                   type="number"
                   placeholder="99.00"
-                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-black focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all placeholder:text-slate-300"
+                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-black focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all placeholder:text-slate-300 text-slate-750"
                 />
               </div>
               <div className="space-y-1.5">
@@ -136,7 +136,7 @@ export default function PaymentLinksPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Optional brief description"
-                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all placeholder:text-slate-300"
+                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all placeholder:text-slate-300 text-slate-750"
                 />
               </div>
             </div>
@@ -169,45 +169,45 @@ export default function PaymentLinksPage() {
             </motion.div>
           ) : (
             filteredLinks.map((link) => (
-              <motion.div 
-                layout
-                key={link.id}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                className="bg-white rounded-md border border-slate-200 p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 shadow-sm hover:border-slate-300 transition-all"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
-                  <div className="w-14 h-14 bg-blue-50 rounded-md flex items-center justify-center text-blue-600 border border-blue-100 shrink-0 shadow-sm">
-                    <LinkIcon className="w-6 h-6" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                       <p className="text-base font-black text-slate-900 tracking-tight leading-none truncate">{link.title}</p>
-                       <div className={`w-1.5 h-1.5 rounded-full ${link.isActive ? "bg-emerald-500" : "bg-rose-500"} shadow-[0_0_5px_rgba(16,185,129,0.5)]`} />
-                    </div>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tight truncate max-w-[200px]">{link.description || "Active Payment Interface"}</p>
-                  </div>
-                  <div className="text-right shrink-0 px-4 py-2 bg-slate-50 rounded-md border border-slate-100">
-                    <p className="text-lg font-black text-slate-900 leading-none">₹{link.amount.toLocaleString()}</p>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Fixed Value</p>
-                  </div>
-                </div>
+               <motion.div 
+                 layout
+                 key={link.id}
+                 initial={{ opacity: 0, scale: 0.98 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 exit={{ opacity: 0, scale: 0.98 }}
+                 className="bg-white rounded-md border border-slate-200 p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 shadow-sm hover:border-slate-300 transition-all"
+               >
+                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
+                   <div className="w-14 h-14 bg-blue-50 rounded-md flex items-center justify-center text-blue-600 border border-blue-100 shrink-0 shadow-sm">
+                     <LinkIcon className="w-6 h-6" />
+                   </div>
+                   <div className="min-w-0 flex-1">
+                     <div className="flex items-center gap-2 mb-1">
+                        <p className="text-base font-black text-slate-700 tracking-tight leading-none truncate">{link.title}</p>
+                        <div className={`w-1.5 h-1.5 rounded-full ${link.isActive ? "bg-emerald-500" : "bg-rose-500"} shadow-[0_0_5px_rgba(16,185,129,0.5)]`} />
+                     </div>
+                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tight truncate max-w-[200px]">{link.description || "Active Payment Interface"}</p>
+                   </div>
+                   <div className="text-right shrink-0 px-4 py-2 bg-slate-50 rounded-md border border-slate-100">
+                     <p className="text-lg font-black text-slate-700 leading-none">₹{link.amount.toLocaleString()}</p>
+                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Fixed Value</p>
+                   </div>
+                 </div>
 
-                <div className="flex items-center gap-2 border-t md:border-0 pt-4 md:pt-0">
-                  <button onClick={() => copyUrl(link.slug)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-white text-slate-600 rounded-md text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200 hover:bg-slate-50 active:scale-95 shadow-sm">
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy</span>
-                  </button>
-                  <a href={`/link/${link.slug}`} target="_blank" className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-md text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-blue-600/20 active:scale-95">
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>View</span>
-                  </a>
-                  <button onClick={() => deleteLink(link.id)} className="p-3 text-rose-500 bg-rose-50 border border-rose-100 rounded-md hover:bg-rose-100 transition-colors active:scale-95" title="Delete">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
+                 <div className="flex items-center gap-2 border-t md:border-0 pt-4 md:pt-0">
+                   <button onClick={() => copyUrl(link.slug)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-white text-slate-600 rounded-md text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200 hover:bg-slate-50 active:scale-95 shadow-sm">
+                     <Copy className="w-3.5 h-3.5" />
+                     <span>Copy</span>
+                   </button>
+                   <a href={`/link/${link.slug}`} target="_blank" className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-md text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-blue-600/20 active:scale-95">
+                     <ExternalLink className="w-3.5 h-3.5" />
+                     <span>View</span>
+                   </a>
+                   <button onClick={() => deleteLink(link.id)} className="p-3 text-rose-500 bg-rose-50 border border-rose-100 rounded-md hover:bg-rose-100 transition-colors active:scale-95" title="Delete">
+                     <Trash2 className="w-4 h-4" />
+                   </button>
+                 </div>
+               </motion.div>
             ))
           )}
         </AnimatePresence>

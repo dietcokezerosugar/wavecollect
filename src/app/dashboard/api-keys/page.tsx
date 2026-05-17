@@ -9,18 +9,12 @@ import {
   Check, 
   Zap, 
   ShieldCheck, 
-  BarChart3, 
   Globe, 
-  Terminal, 
-  ChevronRight,
   Activity,
   Lock,
-  ArrowUpRight,
-  Shield,
   RotateCcw,
   AlertCircle
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface ApiKeyData {
   id: string;
@@ -108,7 +102,7 @@ export default function ApiKeysPage() {
       {apiAccessStatus !== "APPROVED" && (
         <div className="p-6 bg-amber-50 border border-amber-200 rounded-[24px] flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-md flex items-center justify-center">
+            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-md flex items-center justify-center border border-amber-205">
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
@@ -120,7 +114,7 @@ export default function ApiKeysPage() {
               </p>
             </div>
           </div>
-          <a href="/dashboard/ip-whitelist" className="px-6 py-3 bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-md hover:bg-amber-700 transition-colors">
+          <a href="/dashboard/ip-whitelist" className="px-6 py-3 bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-md hover:bg-amber-700 transition-colors shadow-sm">
             Go to Security Setup
           </a>
         </div>
@@ -130,9 +124,9 @@ export default function ApiKeysPage() {
       <div className={`flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8 border-b border-slate-200 pb-8 md:pb-12 mt-6 md:mt-0 ${apiAccessStatus !== "APPROVED" ? "opacity-50 pointer-events-none" : ""}`}>
         <div className="space-y-4 text-center md:text-left">
            <div className="inline-flex items-center gap-2 text-blue-600 font-black text-[10px] uppercase tracking-[0.2em] bg-blue-50 px-3 py-1.5 rounded-full md:bg-transparent md:px-0 md:py-0 md:rounded-none">
-              <Shield className="w-4 h-4" /> Credentials Infrastructure
+              <Lock className="w-4 h-4" /> Credentials Infrastructure
            </div>
-           <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 leading-none">API Access Control</h1>
+           <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-700 leading-none">API Access Control</h1>
            <p className="text-slate-500 text-sm font-medium max-w-xl leading-relaxed mx-auto md:mx-0">
              Provision high-entropy keys for secure machine-to-machine communication. Manage throttling limits and instant revocation from this control center.
            </p>
@@ -140,7 +134,7 @@ export default function ApiKeysPage() {
         <button
           onClick={generateKey}
           disabled={loading || apiAccessStatus !== "APPROVED"}
-          className="w-full md:w-auto px-8 py-4 bg-slate-900 text-white rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+          className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
         >
           {loading ? <Activity className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
           Provision New Key
@@ -151,7 +145,7 @@ export default function ApiKeysPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           { label: "Active Nodes", value: keys.filter(k => !k.isBlocked).length, icon: Globe, color: "bg-blue-600" },
-          { label: "Current Volume", value: `₹${totalUsed.toLocaleString()}`, icon: Activity, color: "bg-slate-900" },
+          { label: "Current Volume", value: `₹${totalUsed.toLocaleString()}`, icon: Activity, color: "bg-blue-500" },
           { label: "Aggregate Capacity", value: `₹${totalLimit.toLocaleString()}`, icon: ShieldCheck, color: "bg-emerald-600" },
         ].map((stat, i) => (
           <div key={i} className="bg-white rounded-lg p-8 border border-slate-200 shadow-sm flex items-center gap-6 group hover:border-blue-500 transition-all">
@@ -160,7 +154,7 @@ export default function ApiKeysPage() {
              </div>
              <div>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                <p className="text-2xl font-black text-slate-900">{stat.value}</p>
+                <p className="text-2xl font-black text-slate-705">{stat.value}</p>
              </div>
           </div>
         ))}
@@ -189,70 +183,70 @@ export default function ApiKeysPage() {
                  </thead>
                  <tbody className="divide-y divide-slate-100">
                     {keys.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="px-10 py-20 text-center space-y-4">
-                           <Key className="w-12 h-12 text-slate-200 mx-auto" />
-                           <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">No active keys provisioned</p>
-                        </td>
-                      </tr>
+                       <tr>
+                         <td colSpan={4} className="px-10 py-20 text-center space-y-4">
+                            <Key className="w-12 h-12 text-slate-200 mx-auto" />
+                            <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">No active keys provisioned</p>
+                         </td>
+                       </tr>
                     ) : keys.map((key) => (
-                      <tr key={key.id} className="group hover:bg-slate-50/50 transition-colors">
-                        <td className="px-10 py-8">
-                           <div className="flex items-center gap-4">
-                              <div className={`w-10 h-10 rounded-md flex items-center justify-center border ${key.isBlocked ? 'bg-slate-50 text-slate-300 border-slate-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                                 <Key className="w-4 h-4" />
-                              </div>
-                              <div>
-                                 <div className="flex items-center gap-3">
-                                    <code className="text-[13px] font-black text-slate-900 font-mono tracking-tight">{key.key}</code>
-                                    <button 
-                                      onClick={() => copyToClipboard(key.key, key.id)}
-                                      className="text-slate-300 hover:text-blue-600 transition-colors"
-                                    >
-                                       {copiedId === key.id ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                                    </button>
-                                 </div>
-                                 <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Issued {new Date(key.createdAt).toLocaleDateString()}</p>
-                              </div>
-                           </div>
-                        </td>
-                        <td className="px-10 py-8">
-                           <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                             key.isBlocked ? "bg-rose-50 text-rose-600 border-rose-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"
-                           }`}>
-                              <div className={`w-1 h-1 rounded-full ${key.isBlocked ? 'bg-rose-500' : 'bg-emerald-500 animate-pulse'}`} />
-                              {key.isBlocked ? "Revoked" : "Authorized"}
-                           </div>
-                        </td>
-                        <td className="px-10 py-8">
-                           <div className="space-y-2">
-                              <div className="flex justify-between text-[10px] font-black">
-                                 <span className="text-slate-900 uppercase">₹{key.usedAmount.toLocaleString()}</span>
-                                 <span className="text-slate-400">/ ₹{key.monthlyLimit.toLocaleString()}</span>
-                              </div>
-                              <div className="h-1.5 w-32 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
-                                 <div 
-                                    className={`h-full transition-all duration-1000 ${key.isBlocked ? 'bg-slate-200' : 'bg-blue-600'}`}
-                                    style={{ width: `${Math.min((key.usedAmount / key.monthlyLimit) * 100, 100)}%` }}
-                                 />
-                              </div>
-                           </div>
-                        </td>
-                        <td className="px-10 py-8 text-right">
-                           <div className="flex items-center justify-end gap-3">
-                              <button 
-                                onClick={() => toggleBlock(key.id, key.isBlocked)}
-                                className={`px-4 py-2 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${
-                                   key.isBlocked 
-                                      ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700" 
-                                      : "bg-white text-rose-500 border border-rose-100 hover:bg-rose-50 hover:border-rose-200 shadow-sm"
-                                }`}
-                              >
-                                 {key.isBlocked ? "Re-Authorize" : "Revoke"}
-                              </button>
-                           </div>
-                        </td>
-                      </tr>
+                       <tr key={key.id} className="group hover:bg-slate-50/50 transition-colors">
+                         <td className="px-10 py-8">
+                            <div className="flex items-center gap-4">
+                               <div className={`w-10 h-10 rounded-md flex items-center justify-center border ${key.isBlocked ? 'bg-slate-50 text-slate-300 border-slate-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                  <Key className="w-4 h-4" />
+                               </div>
+                               <div>
+                                  <div className="flex items-center gap-3">
+                                     <code className="text-[13px] font-black text-slate-700 font-mono tracking-tight">{key.key}</code>
+                                     <button 
+                                       onClick={() => copyToClipboard(key.key, key.id)}
+                                       className="text-slate-300 hover:text-blue-600 transition-colors"
+                                     >
+                                        {copiedId === key.id ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                                     </button>
+                                  </div>
+                                  <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Issued {new Date(key.createdAt).toLocaleDateString()}</p>
+                               </div>
+                            </div>
+                         </td>
+                         <td className="px-10 py-8">
+                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                              key.isBlocked ? "bg-rose-50 text-rose-600 border-rose-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                            }`}>
+                               <div className={`w-1 h-1 rounded-full ${key.isBlocked ? 'bg-rose-500' : 'bg-emerald-500 animate-pulse'}`} />
+                               {key.isBlocked ? "Revoked" : "Authorized"}
+                            </div>
+                         </td>
+                         <td className="px-10 py-8">
+                            <div className="space-y-2">
+                               <div className="flex justify-between text-[10px] font-black">
+                                  <span className="text-slate-700 uppercase">₹{key.usedAmount.toLocaleString()}</span>
+                                  <span className="text-slate-400">/ ₹{key.monthlyLimit.toLocaleString()}</span>
+                               </div>
+                               <div className="h-1.5 w-32 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
+                                  <div 
+                                     className={`h-full transition-all duration-1000 ${key.isBlocked ? 'bg-slate-200' : 'bg-blue-600'}`}
+                                     style={{ width: `${Math.min((key.usedAmount / key.monthlyLimit) * 100, 100)}%` }}
+                                  />
+                               </div>
+                            </div>
+                         </td>
+                         <td className="px-10 py-8 text-right">
+                            <div className="flex items-center justify-end gap-3">
+                               <button 
+                                 onClick={() => toggleBlock(key.id, key.isBlocked)}
+                                 className={`px-4 py-2 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${
+                                    key.isBlocked 
+                                       ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700" 
+                                       : "bg-white text-rose-500 border border-rose-100 hover:bg-rose-50 hover:border-rose-200 shadow-sm"
+                                 }`}
+                               >
+                                  {key.isBlocked ? "Re-Authorize" : "Revoke"}
+                               </button>
+                            </div>
+                         </td>
+                       </tr>
                     ))}
                  </tbody>
               </table>
@@ -285,19 +279,19 @@ export default function ApiKeysPage() {
                     </div>
                  </div>
 
-                 <div className="bg-slate-50 rounded-md p-3 border border-slate-100 flex items-center justify-between">
-                    <code className="text-xs font-black text-slate-900 font-mono tracking-tighter truncate max-w-[200px]">{key.key}</code>
+                 <div className="bg-slate-50 rounded-md p-3 border border-slate-150 flex items-center justify-between">
+                    <code className="text-xs font-black text-slate-700 font-mono tracking-tighter truncate max-w-[200px]">{key.key}</code>
                     <button 
                       onClick={() => copyToClipboard(key.key, key.id)}
-                      className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm border border-slate-200 text-slate-400 active:scale-95 transition-transform"
+                      className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm border border-slate-200 text-slate-450 active:scale-95 transition-transform"
                     >
                        {copiedId === key.id ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
                     </button>
                  </div>
 
-                 <div className="space-y-2 pt-2 border-t border-slate-100">
+                 <div className="space-y-2 pt-2 border-t border-slate-105">
                     <div className="flex justify-between text-[10px] font-black">
-                       <span className="text-slate-900 uppercase">₹{key.usedAmount.toLocaleString()}</span>
+                       <span className="text-slate-700 uppercase">₹{key.usedAmount.toLocaleString()}</span>
                        <span className="text-slate-400">/ ₹{key.monthlyLimit.toLocaleString()} Capacity</span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
@@ -317,19 +311,19 @@ export default function ApiKeysPage() {
                    }`}
                  >
                     {key.isBlocked ? "Re-Authorize Key" : "Revoke Access"}
-                 </button>
+                  </button>
               </div>
            ))}
         </div>
       </div>
 
       {/* Security Advisory */}
-      <div className="bg-slate-900 rounded-[40px] p-12 text-white relative overflow-hidden">
+      <div className="bg-white rounded-[40px] border border-slate-200 p-12 text-slate-700 relative overflow-hidden shadow-sm">
          <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
             <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
                <defs>
                   <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                     <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                     <path d="M 10 0 L 0 0 0 10" fill="none" stroke="slate-200" strokeWidth="0.5"/>
                   </pattern>
                </defs>
                <rect width="100%" height="100%" fill="url(#grid)" />
@@ -338,22 +332,22 @@ export default function ApiKeysPage() {
          
          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
             <div className="max-w-xl space-y-6">
-               <div className="bg-white/10 px-4 py-1.5 rounded-lg inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest border border-white/10">
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-400" /> Security Protocol v2
+               <div className="bg-amber-50 px-4 py-1.5 rounded-lg inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest border border-amber-100 text-amber-800">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> Security Protocol v2
                </div>
-               <h2 className="text-3xl font-black tracking-tight leading-tight">Key Rotation Advisory</h2>
-               <p className="text-slate-400 font-medium leading-relaxed">
-                  For maximum security, we recommend rotating your production keys every 90 days. If you suspect a key has been compromised, use the <span className="text-white font-black">Revoke</span> action immediately to terminate all active sessions.
+               <h2 className="text-3xl font-black tracking-tight leading-tight text-slate-700">Key Rotation Advisory</h2>
+               <p className="text-slate-500 font-medium leading-relaxed">
+                  For maximum security, we recommend rotating your production keys every 90 days. If you suspect a key has been compromised, use the <span className="text-blue-600 font-black">Revoke</span> action immediately to terminate all active sessions.
                </p>
             </div>
             <div className="shrink-0 space-y-4 w-full md:w-auto">
-               <div className="p-6 bg-white/5 rounded-[24px] border border-white/5 flex items-center gap-5">
+               <div className="p-6 bg-slate-50 rounded-[24px] border border-slate-200/60 flex items-center gap-5">
                   <div className="w-12 h-12 bg-blue-600 rounded-md flex items-center justify-center text-white">
                      <RotateCcw className="w-6 h-6" />
                   </div>
                   <div>
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Rotation Interval</p>
-                     <p className="text-lg font-black text-white">90 Days (Rec.)</p>
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Rotation Interval</p>
+                     <p className="text-lg font-black text-slate-700">90 Days (Rec.)</p>
                   </div>
                </div>
             </div>

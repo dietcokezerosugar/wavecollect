@@ -84,7 +84,6 @@ export default function ReconciliationPage() {
       if (contentType && contentType.includes("application/json")) {
         data = await res.json();
       } else {
-        const text = await res.text();
         throw new Error(`Server error: Expected JSON but got ${contentType || "unknown format"}. Status: ${res.status}`);
       }
 
@@ -138,7 +137,7 @@ export default function ReconciliationPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Manual Reconciliation</h1>
+          <h1 className="text-2xl font-bold text-slate-700">Manual Reconciliation</h1>
           <p className="text-sm text-slate-500 mt-1">
             Upload transaction CSV reports for backup verification and auto-matching
           </p>
@@ -148,7 +147,7 @@ export default function ReconciliationPage() {
             <button
               onClick={() => setActiveTab("upload")}
               className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                activeTab === "upload" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                activeTab === "upload" ? "bg-white text-slate-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
               }`}
             >
               Upload
@@ -159,7 +158,7 @@ export default function ReconciliationPage() {
                 fetchHistory();
               }}
               className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                activeTab === "history" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                activeTab === "history" ? "bg-white text-slate-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
               }`}
             >
               History
@@ -168,7 +167,7 @@ export default function ReconciliationPage() {
           {summary && activeTab === "upload" && (
             <button
               onClick={reset}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/10 active:scale-95"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               New Upload
@@ -189,7 +188,7 @@ export default function ReconciliationPage() {
               className={`relative cursor-pointer border-2 border-dashed rounded-md p-12 text-center transition-all duration-300 ${
                 isDragging
                   ? "border-blue-400 bg-blue-50 scale-[1.01]"
-                  : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                  : "border-slate-200 bg-white hover:border-slate-350 hover:bg-slate-50"
               } ${isUploading ? "pointer-events-none opacity-60" : ""}`}
             >
               <input
@@ -207,7 +206,7 @@ export default function ReconciliationPage() {
                 <div className="flex flex-col items-center gap-4">
                   <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
                   <div>
-                    <p className="text-sm font-bold text-slate-900">Processing {fileName}</p>
+                    <p className="text-sm font-bold text-slate-700">Processing {fileName}</p>
                     <p className="text-xs text-slate-500 mt-1">Parsing CSV and running reconciliation...</p>
                   </div>
                 </div>
@@ -225,7 +224,7 @@ export default function ReconciliationPage() {
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900">
+                    <p className="text-sm font-bold text-slate-700">
                       {isDragging ? "Drop CSV file here" : "Drag & drop your CSV file here"}
                     </p>
                     <p className="text-xs text-slate-500 mt-1">
@@ -247,9 +246,9 @@ export default function ReconciliationPage() {
 
           {/* Summary Cards */}
           {summary && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 animate-in fade-in duration-500">
               {[
-                { label: "Total Rows", value: summary.totalRows, color: "bg-slate-50 border-slate-200", text: "text-slate-900" },
+                { label: "Total Rows", value: summary.totalRows, color: "bg-slate-50 border-slate-200", text: "text-slate-700" },
                 { label: "Matched", value: summary.matched, color: "bg-emerald-50 border-emerald-200", text: "text-emerald-700" },
                 { label: "Already Exists", value: summary.alreadyExists, color: "bg-blue-50 border-blue-200", text: "text-blue-700" },
                 { label: "Unmatched", value: summary.unmatched, color: "bg-amber-50 border-amber-200", text: "text-amber-700" },
@@ -268,7 +267,7 @@ export default function ReconciliationPage() {
 
           {/* Results Table */}
           {summary && results.length > 0 && (
-            <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
+            <div className="bg-white border border-slate-200 rounded-md overflow-hidden animate-in slide-in-from-bottom duration-500">
               {/* Filter Tabs */}
               <div className="px-4 pt-4 flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mr-2">Filter:</span>
@@ -278,7 +277,7 @@ export default function ReconciliationPage() {
                     onClick={() => setFilter(f)}
                     className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg border transition-colors ${
                       filter === f
-                        ? "bg-slate-900 text-white border-slate-900"
+                        ? "bg-blue-600 text-white border-blue-500 shadow-sm"
                         : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
                     }`}
                   >
@@ -307,14 +306,14 @@ export default function ReconciliationPage() {
                         <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                           <td className="px-4 py-3 text-slate-400 font-mono text-xs">{r.row}</td>
                           <td className="px-4 py-3 font-mono text-xs text-slate-700 max-w-[200px] truncate">{r.externalId}</td>
-                          <td className="px-4 py-3 text-right font-bold text-slate-900">₹{r.amount.toLocaleString("en-IN")}</td>
+                          <td className="px-4 py-3 text-right font-bold text-slate-700">₹{r.amount.toLocaleString("en-IN")}</td>
                           <td className="px-4 py-3 text-center">
                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${cfg.bg} ${cfg.color}`}>
                               <IconComp className="w-3 h-3" />
                               {cfg.label}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-xs text-slate-500 max-w-[250px] truncate">{r.detail}</td>
+                          <td className="px-4 py-3 text-xs text-slate-555 max-w-[250px] truncate">{r.detail}</td>
                         </tr>
                       );
                     })}
@@ -334,7 +333,7 @@ export default function ReconciliationPage() {
           {/* Info Card */}
           {!summary && !isUploading && (
             <div className="bg-white border border-slate-200 rounded-md p-6">
-              <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-705 mb-3 flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-slate-400" />
                 How It Works
               </h3>
@@ -347,10 +346,10 @@ export default function ReconciliationPage() {
                 ].map((item) => (
                   <div key={item.step} className="flex items-start gap-4">
                     <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-black text-slate-500">{item.step}</span>
+                      <span className="text-xs font-black text-slate-650">{item.step}</span>
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-900">{item.title}</p>
+                      <p className="text-sm font-bold text-slate-700">{item.title}</p>
                       <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
                     </div>
                   </div>
@@ -363,7 +362,7 @@ export default function ReconciliationPage() {
         /* History View */
         <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-            <h3 className="text-sm font-bold text-slate-900">Reconciliation Audit Trail</h3>
+            <h3 className="text-sm font-bold text-slate-700">Reconciliation Audit Trail</h3>
             <button 
               onClick={fetchHistory}
               disabled={isLoadingHistory}
@@ -398,7 +397,7 @@ export default function ReconciliationPage() {
                       <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
                         {new Date(item.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-xs font-bold text-slate-900">{item.staffEmail}</td>
+                      <td className="px-4 py-3 text-xs font-bold text-slate-700">{item.staffEmail}</td>
                       <td className="px-4 py-3 text-xs text-slate-600 font-mono truncate max-w-[150px]">{item.fileName}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-1">
@@ -407,7 +406,7 @@ export default function ReconciliationPage() {
                           <span className="px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-bold" title="Unmatched">U: {item.unmatched}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-right font-black text-slate-900">{item.totalRows}</td>
+                      <td className="px-4 py-3 text-right font-black text-slate-700">{item.totalRows}</td>
                     </tr>
                   ))
                 )}

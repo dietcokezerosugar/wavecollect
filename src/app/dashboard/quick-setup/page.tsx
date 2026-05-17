@@ -110,20 +110,20 @@ export default function QuickSetup() {
                  <Zap size={10} fill="currentColor" /> Express Onboarding
               </div>
            </div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tight">Ultimate Quick Setup</h1>
+           <h1 className="text-4xl font-black text-slate-700 tracking-tight">Ultimate Quick Setup</h1>
            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Configure your entire gateway in 60 seconds</p>
         </div>
         
         <div className="flex p-1 bg-slate-100 rounded-md border border-slate-200 shadow-inner">
            <button 
              onClick={() => setActiveTab("CONFIG")}
-             className={`px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'CONFIG' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+             className={`px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'CONFIG' ? 'bg-white text-slate-750 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
            >
              Configuration
            </button>
            <button 
              onClick={() => setActiveTab("DOCS")}
-             className={`px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'DOCS' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+             className={`px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'DOCS' ? 'bg-white text-slate-755 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
            >
              Documentation
            </button>
@@ -149,7 +149,7 @@ export default function QuickSetup() {
                         <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100">
                            <Globe size={20} />
                         </div>
-                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Global Endpoints</h3>
+                        <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Global Endpoints</h3>
                      </div>
                      <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
@@ -158,7 +158,7 @@ export default function QuickSetup() {
                              value={webhookUrl}
                              onChange={(e) => setWebhookUrl(e.target.value)}
                              placeholder="https://your-api.com/callback"
-                             className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                             className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
                            />
                         </div>
                         <div className="space-y-2">
@@ -167,7 +167,7 @@ export default function QuickSetup() {
                              value={redirectUrl}
                              onChange={(e) => setRedirectUrl(e.target.value)}
                              placeholder="https://yoursite.com/success"
-                             className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                             className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
                            />
                         </div>
                      </div>
@@ -182,7 +182,7 @@ export default function QuickSetup() {
                            <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-md flex items-center justify-center border border-emerald-100">
                               <ShieldCheck size={20} />
                            </div>
-                           <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Security Access</h3>
+                           <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Security Access</h3>
                         </div>
                         <div className="p-6 bg-slate-50 rounded-lg border border-slate-200 space-y-4">
                            <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
@@ -199,7 +199,7 @@ export default function QuickSetup() {
                            ) : (
                              <button 
                                onClick={applyWhitelist}
-                               className="w-full py-4 bg-slate-900 text-white rounded-md text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10"
+                               className="w-full py-4 bg-blue-600 text-white rounded-md text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20"
                              >
                                Apply for IP Whitelist
                              </button>
@@ -212,24 +212,24 @@ export default function QuickSetup() {
                            <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-md flex items-center justify-center border border-amber-100">
                               <Gift size={20} />
                            </div>
-                           <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Partnership</h3>
+                           <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest">Partnership</h3>
                         </div>
                         <div className="space-y-4">
                            {agentInfo ? (
                              <div className="p-6 bg-blue-50 border border-blue-100 rounded-lg flex flex-col items-center justify-center text-center space-y-2">
-                                <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Linked Agent</p>
-                                <p className="text-sm font-black text-blue-900">{agentInfo.name}</p>
+                                 <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Linked Agent</p>
+                                 <p className="text-sm font-black text-blue-900">{agentInfo.name}</p>
                              </div>
                            ) : (
                              <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Referral Code</label>
-                                <input 
-                                  value={referralCode}
-                                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                                  placeholder="WAVE-PARTNER-123"
-                                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
-                                />
-                             </div>
+                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Referral Code</label>
+                                 <input 
+                                   value={referralCode}
+                                   onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                                   placeholder="WAVE-PARTNER-123"
+                                   className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none"
+                                 />
+                              </div>
                            )}
                         </div>
                      </div>
@@ -250,15 +250,14 @@ export default function QuickSetup() {
 
             {/* Right Column: Steps & Preview */}
             <div className="lg:col-span-5 space-y-8">
-               <div className="bg-slate-900 rounded-[40px] p-10 text-white space-y-8 shadow-2xl shadow-slate-900/20 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+               <div className="bg-white rounded-[40px] p-10 text-slate-700 border border-slate-200 space-y-8 shadow-sm">
                   <div className="relative z-10 space-y-6">
-                     <h3 className="text-xl font-black tracking-tight">Onboarding Progress</h3>
+                     <h3 className="text-xl font-black tracking-tight text-slate-700">Onboarding Progress</h3>
                      <div className="space-y-4">
                         <ProgressStep title="Global Endpoints" completed={!!webhookUrl && !!redirectUrl} />
                         <ProgressStep title="Security Whitelist" completed={ipStatus === 'APPROVED'} />
                         <ProgressStep title="Referral Binding" completed={!!agentInfo} />
-                        <ProgressStep title="First Bot Linked" completed={true} /> {/* Placeholder for accounts */}
+                        <ProgressStep title="First Bot Linked" completed={true} />
                      </div>
                   </div>
                </div>
@@ -268,7 +267,7 @@ export default function QuickSetup() {
                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active API Endpoint</h3>
                      <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black">STABLE</span>
                   </div>
-                  <div className="p-5 bg-slate-50 rounded-md font-mono text-xs text-slate-600 border border-slate-200 break-all select-all cursor-pointer hover:bg-slate-100 transition-colors">
+                  <div className="p-5 bg-slate-50 rounded-md font-mono text-xs text-slate-700 border border-slate-200 break-all select-all cursor-pointer hover:bg-slate-100 transition-colors">
                      https://api.payxmint.com/v1/create-intent
                   </div>
                   <p className="mt-4 text-[10px] font-bold text-slate-400 text-center leading-relaxed">
@@ -298,7 +297,7 @@ export default function QuickSetup() {
                 </aside>
                 <div className="lg:col-span-3 p-12 space-y-8 max-h-[800px] overflow-y-auto custom-scrollbar">
                    <div className="space-y-4">
-                      <h2 className="text-3xl font-black text-slate-900 tracking-tight">API Integration Overview</h2>
+                      <h2 className="text-3xl font-black text-slate-700 tracking-tight">API Integration Overview</h2>
                       <p className="text-slate-500 font-medium leading-relaxed">
                          PayxMint provides a high-fidelity, dual-engine UPI automation gateway. Integration requires 3 main steps:
                       </p>
@@ -308,10 +307,10 @@ export default function QuickSetup() {
                       <div className="p-8 bg-slate-50 rounded-lg border border-slate-200 space-y-4">
                          <div className="flex items-center gap-3">
                             <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-lg shadow-blue-600/20">1</span>
-                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Create Payment Intent</h4>
+                            <h4 className="text-sm font-black text-slate-700 uppercase tracking-widest">Create Payment Intent</h4>
                          </div>
-                         <div className="bg-slate-900 rounded-md p-6 font-mono text-[11px] text-blue-200 overflow-x-auto">
-                            <span className="text-emerald-400">POST</span> /v1/create-intent<br/>
+                         <div className="bg-slate-50 rounded-md p-6 font-mono text-[11px] text-blue-900 border border-slate-200 overflow-x-auto">
+                            <span className="text-emerald-600 font-bold">POST</span> /v1/create-intent<br/>
                             {'{'} <br/>
                             &nbsp;&nbsp;"amount": 500.00,<br/>
                             &nbsp;&nbsp;"order_id": "ORD_12345",<br/>
@@ -323,12 +322,12 @@ export default function QuickSetup() {
                       <div className="p-8 bg-slate-50 rounded-lg border border-slate-200 space-y-4">
                          <div className="flex items-center gap-3">
                             <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-lg shadow-blue-600/20">2</span>
-                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Receive Webhook</h4>
+                            <h4 className="text-sm font-black text-slate-700 uppercase tracking-widest">Receive Webhook</h4>
                          </div>
                          <p className="text-[11px] font-medium text-slate-500 leading-relaxed px-1">
                             We will POST to your configured Webhook URL once the transaction is verified on the GPay node.
                          </p>
-                         <div className="bg-slate-900 rounded-md p-6 font-mono text-[11px] text-blue-200 overflow-x-auto">
+                         <div className="bg-slate-50 rounded-md p-6 font-mono text-[11px] text-blue-900 border border-slate-200 overflow-x-auto">
                             {'{'} <br/>
                             &nbsp;&nbsp;"status": "SUCCESS",<br/>
                             &nbsp;&nbsp;"order_id": "ORD_12345",<br/>
@@ -348,27 +347,27 @@ export default function QuickSetup() {
 
 function ProgressStep({ title, completed }: { title: string, completed: boolean }) {
   return (
-    <div className="flex items-center justify-between p-4 bg-white/5 rounded-md border border-white/5">
+    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-md border border-slate-100">
        <div className="flex items-center gap-3">
           {completed ? (
             <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                <CheckCircle2 size={12} className="text-white" />
             </div>
           ) : (
-            <div className="w-5 h-5 bg-slate-800 rounded-full flex items-center justify-center">
-               <div className="w-1.5 h-1.5 bg-slate-600 rounded-full" />
+            <div className="w-5 h-5 bg-slate-200 rounded-full flex items-center justify-center">
+               <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
             </div>
           )}
-          <span className={`text-[11px] font-bold ${completed ? 'text-white' : 'text-slate-500'}`}>{title}</span>
+          <span className={`text-[11px] font-bold ${completed ? 'text-slate-700' : 'text-slate-400'}`}>{title}</span>
        </div>
-       {completed && <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Done</span>}
+       {completed && <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Done</span>}
     </div>
   );
 }
 
 function DocNav({ label, active = false }: { label: string, active?: boolean }) {
   return (
-    <button className={`w-full text-left px-4 py-3 rounded-md text-[11px] font-bold transition-all ${active ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-400 hover:bg-slate-200/50 hover:text-slate-600'}`}>
+    <button className={`w-full text-left px-4 py-3 rounded-md text-[11px] font-bold transition-all ${active ? 'bg-white text-slate-750 shadow-sm border border-slate-200' : 'text-slate-400 hover:bg-slate-200/50 hover:text-slate-600'}`}>
        {label}
     </button>
   );
