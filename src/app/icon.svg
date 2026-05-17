@@ -1,0 +1,17 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="payxmintBlue" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2F9BFF"/>
+      <stop offset="1" stop-color="#0072FF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Circle -->
+  <circle cx="64" cy="64" r="60" fill="url(#payxmintBlue)"/>
+
+  <!-- P -->
+  <path
+    d="M48 28H71C87 28 97 38 97 53C97 69 86 79 69 79H59V104H48V28ZM69 69C79 69 86 63 86 53C86 43 79 38 69 38H59V69H69Z"
+    fill="white"
+  />
+</svg>
