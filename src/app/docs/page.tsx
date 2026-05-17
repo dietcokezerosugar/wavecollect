@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { 
   Code, Copy, Check, Terminal, Shield, 
-  HelpCircle, ArrowRight, Zap, ExternalLink, Menu, X
+  HelpCircle, ArrowRight, Zap, ExternalLink, Menu, X, Key, ShieldCheck
 } from "lucide-react";
 
-// Custom Interactive Code Block Component
+// Premium Interactive Code Block Component
 function CodeBlock({ code, language = "JSON" }: { code: string, language?: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -19,9 +19,9 @@ function CodeBlock({ code, language = "JSON" }: { code: string, language?: strin
   };
 
   return (
-    <div className="relative my-4 rounded-xl overflow-hidden border border-slate-200/80 bg-slate-900 shadow-md">
-      <div className="flex items-center justify-between px-4 py-2 bg-slate-800 border-b border-slate-700/50">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">{language}</span>
+    <div className="relative my-4 rounded-xl overflow-hidden border border-slate-700/50 bg-[#0F172A] shadow-lg shadow-slate-900/10">
+      <div className="flex items-center justify-between px-4 py-2 bg-[#1E293B] border-b border-slate-800">
+        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono">{language}</span>
         <button 
           onClick={copyToClipboard} 
           className="text-slate-400 hover:text-white transition-colors p-1.5 hover:bg-slate-700 rounded-lg flex items-center gap-1"
@@ -29,18 +29,18 @@ function CodeBlock({ code, language = "JSON" }: { code: string, language?: strin
           {copied ? (
             <>
               <Check size={12} className="text-emerald-400" />
-              <span className="text-[10px] font-bold text-emerald-400 uppercase">Copied</span>
+              <span className="text-[10px] font-black text-emerald-400 uppercase">Copied</span>
             </>
           ) : (
             <>
               <Copy size={12} />
-              <span className="text-[10px] font-bold uppercase">Copy</span>
+              <span className="text-[10px] font-black uppercase">Copy</span>
             </>
           )}
         </button>
       </div>
-      <div className="p-4 overflow-x-auto bg-slate-950/80">
-        <pre className="text-[13px] font-mono leading-relaxed text-slate-350">
+      <div className="p-4 overflow-x-auto bg-[#090D16]">
+        <pre className="text-[13px] font-mono leading-relaxed text-slate-300">
           {code}
         </pre>
       </div>
@@ -48,7 +48,7 @@ function CodeBlock({ code, language = "JSON" }: { code: string, language?: strin
   );
 }
 
-// Navigation sidebar configuration matching reference sections
+// Navigation sidebar configuration matching actual endpoints
 const SECTIONS = [
   {
     group: "Overview",
@@ -60,8 +60,8 @@ const SECTIONS = [
   {
     group: "Collections API",
     items: [
-      { id: "initiate_payment", label: "1. Initiate Payment" },
-      { id: "payment_status", label: "2. Payment Status" },
+      { id: "create_intent", label: "1. Initiate Payment" },
+      { id: "check_status", label: "2. Payment Status" },
       { id: "payment_webhook", label: "3. Process Webhook" },
     ]
   },
@@ -109,25 +109,25 @@ export default function DocsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 font-sans text-slate-700 selection:bg-blue-50 selection:text-blue-900">
+    <div className="flex flex-col min-h-screen bg-[#F8FAFC] font-sans text-slate-650 selection:bg-blue-100 selection:text-blue-900">
       
-      {/* Sleek Modern Header */}
+      {/* Sleek Modern Header with Brand Theme */}
       <header className="h-16 bg-white/90 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-[100] px-6 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2.5">
             <Logo height={24} />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-slate-100 text-slate-500 px-2 py-0.5 rounded border border-slate-200">Devs</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-blue-50 text-blue-600 px-2 py-0.5 rounded border border-blue-100 font-mono">Devs</span>
           </Link>
-          <div className="hidden md:flex h-6 w-px bg-slate-200 mx-2" />
+          <div className="hidden md:flex h-6 w-px bg-slate-250 mx-2" />
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/dashboard" className="text-xs font-black text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">Dashboard</Link>
+            <Link href="/dashboard" className="text-xs font-black text-slate-500 hover:text-blue-700 transition-colors uppercase tracking-widest">Dashboard</Link>
             <Link href="/docs" className="text-xs font-black text-blue-600 uppercase tracking-widest border-b-2 border-blue-600 py-5 translate-y-[2px]">Documentation</Link>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100 shadow-sm text-xs font-bold">
-            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg border border-blue-100 shadow-sm text-xs font-bold">
+            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
             <span>API Gateway Online</span>
           </div>
           <button className="lg:hidden p-2 text-slate-500 hover:text-slate-800" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -155,10 +155,10 @@ export default function DocsPage() {
                     <button
                       key={item.id}
                       onClick={() => scrollTo(item.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-150 text-[13px] font-medium flex items-center justify-between ${
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-150 text-[13px] font-semibold flex items-center justify-between ${
                         activeSection === item.id 
-                          ? "bg-blue-50 text-blue-600 font-bold" 
-                          : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                          ? "bg-blue-50/70 text-blue-600 font-black" 
+                          : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/20"
                       }`}
                     >
                       <span>{item.label}</span>
@@ -170,14 +170,14 @@ export default function DocsPage() {
             ))}
           </div>
 
-          {/* Quick Help Box */}
-          <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-200/80">
-            <div className="flex items-center gap-2 mb-2 text-slate-850">
+          {/* Help Box */}
+          <div className="mt-8 p-4 bg-slate-50 border border-slate-200/80 rounded-xl">
+            <div className="flex items-center gap-2 mb-2 text-slate-800">
               <Terminal size={14} className="text-blue-600" />
-              <span className="text-[10px] font-black uppercase tracking-wider">Dev Help</span>
+              <span className="text-[10px] font-black uppercase tracking-wider">Dev Operations</span>
             </div>
             <p className="text-[11px] leading-relaxed font-semibold text-slate-500">
-              Need assistance? Drop a line to our technical operations center at <a href="mailto:infra@payxmint.com" className="text-blue-600 hover:underline">infra@payxmint.com</a>.
+              Need programmatic help? Contact our engineering team at <a href="mailto:infra@payxmint.com" className="text-blue-600 hover:underline">infra@payxmint.com</a>.
             </p>
           </div>
         </aside>
@@ -189,11 +189,13 @@ export default function DocsPage() {
             {/* Section: Introduction */}
             <section id="intro" className="mb-16 scroll-mt-24">
               <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-4 flex items-center gap-2.5">
-                <Zap className="text-blue-600 w-8 h-8 fill-current" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2F9BFF] to-[#0072FF] flex items-center justify-center text-white shadow-md shadow-blue-500/10">
+                  <Zap size={16} className="fill-current" />
+                </div>
                 Developer Integration Reference
               </h1>
               <p className="text-slate-500 font-medium text-[15px] leading-relaxed max-w-3xl">
-                Welcome to the simple one-page developer documentation. Use this technical reference to integrate collections and payout automation into your system securely and efficiently.
+                Welcome to the official PayxMint API documentation. Use this reference to integrate high-fidelity UPI automated payments and payouts securely into your core applications.
               </p>
             </section>
 
@@ -201,17 +203,22 @@ export default function DocsPage() {
             <section id="base_url" className="mb-16 scroll-mt-24 border-t border-slate-100 pt-10">
               <h2 className="text-lg font-black text-slate-900 mb-3">API Environment Configuration</h2>
               <p className="text-slate-500 font-medium text-[14px] mb-4">
-                Use the following endpoints to initiate requests. Ensure that you authenticate all API requests by providing your <code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded text-xs font-mono">public_key</code>.
+                Authenticate all requests by including your secret API key in the <code className="text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded text-xs font-mono">Authorization</code> header.
               </p>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
-                <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Sandbox Endpoint</span>
-                  <p className="text-xs font-mono font-bold text-slate-700 mt-1">https://sandbox.payxmint.com/api/v1</p>
+              <div className="max-w-xl my-6">
+                <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#2F9BFF] to-[#0072FF]" />
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Production API Base Endpoint</span>
+                  <p className="text-xs font-mono font-bold text-slate-800 mt-1 select-all">https://api.payxmint.com/api/v1</p>
                 </div>
-                <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Production Endpoint</span>
-                  <p className="text-xs font-mono font-bold text-slate-700 mt-1">https://api.payxmint.com/api/v1</p>
+              </div>
+
+              <div className="my-6 p-4 bg-blue-50 border border-blue-100 rounded-xl flex gap-3 text-xs">
+                <Key className="text-blue-600 w-5 h-5 shrink-0 mt-0.5" />
+                <div className="font-semibold text-blue-900">
+                  <span className="font-black uppercase tracking-wide block mb-0.5 text-[10px]">Header Authentication Pattern</span>
+                  Pass your key as <code className="bg-blue-100 px-1 py-0.5 rounded font-mono font-bold">Authorization: Bearer YOUR_API_KEY</code> on every outgoing HTTP request.
                 </div>
               </div>
             </section>
@@ -223,71 +230,71 @@ export default function DocsPage() {
             </div>
 
             {/* 1. Initiate Payment */}
-            <section id="initiate_payment" className="mb-16 scroll-mt-24">
+            <section id="create_intent" className="mb-16 scroll-mt-24">
               <div className="flex items-center gap-3 mb-3">
-                <span className="px-2 py-0.5 bg-emerald-600 text-white font-mono text-[10px] font-bold rounded">POST</span>
-                <h3 className="text-base font-black text-slate-900">Initiate Payment</h3>
+                <span className="px-2 py-0.5 bg-blue-650 text-white font-mono text-[10px] font-bold rounded">POST</span>
+                <h3 className="text-base font-black text-slate-900">1. Initiate Payment (/create-intent)</h3>
               </div>
               <p className="text-slate-500 text-[13.5px] font-medium mb-4">
-                Creates a new payment intent and returns a secure payment link URL to display to your customer.
+                Creates a new dynamic payment intent and returns the checkout URL to showcase to your user, alongside high-fidelity raw UPI deep links.
               </p>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                 <div>
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Endpoint URL</h4>
-                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4">
-                    {"<API_BASE_URL>"}/payment/initiate
+                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4 font-semibold">
+                    {"https://api.payxmint.com/api/v1/create-intent"}
                   </div>
 
-                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Parameters</h4>
-                  <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Body Payload</h4>
+                  <div className="border border-slate-200 rounded-xl overflow-hidden text-xs bg-white">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50 border-b border-slate-250">
-                          <th className="p-3 font-bold text-slate-600">Field</th>
-                          <th className="p-3 font-bold text-slate-600">Type</th>
-                          <th className="p-3 font-bold text-slate-600">Status</th>
+                        <tr className="bg-slate-50 border-b border-slate-200">
+                          <th className="p-3 font-bold text-slate-650">Field</th>
+                          <th className="p-3 font-bold text-slate-650">Type</th>
+                          <th className="p-3 font-bold text-slate-650">Status</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
-                        <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">public_key</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
-                          <td className="p-3 text-red-500">Required</td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">merchant_txn_id</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
-                          <td className="p-3 text-red-500">Required</td>
-                        </tr>
+                      <tbody className="divide-y divide-slate-100 font-semibold text-slate-600">
                         <tr>
                           <td className="p-3 font-mono text-blue-600 font-bold">amount</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
+                          <td className="p-3 text-slate-500 font-mono">string/number</td>
                           <td className="p-3 text-red-500">Required</td>
+                        </tr>
+                        <tr>
+                          <td className="p-3 font-mono text-blue-600 font-bold">order_id</td>
+                          <td className="p-3 text-slate-500 font-mono">string</td>
+                          <td className="p-3 text-red-500">Required (Unique Merchant ID)</td>
+                        </tr>
+                        <tr>
+                          <td className="p-3 font-mono text-blue-600 font-bold">customer_mobile</td>
+                          <td className="p-3 text-slate-500 font-mono">string</td>
+                          <td className="p-3 text-slate-400 font-normal">Optional</td>
+                        </tr>
+                        <tr>
+                          <td className="p-3 font-mono text-blue-600 font-bold">customer_email</td>
+                          <td className="p-3 text-slate-500 font-mono">string</td>
+                          <td className="p-3 text-slate-400 font-normal">Optional</td>
+                        </tr>
+                        <tr>
+                          <td className="p-3 font-mono text-blue-600 font-bold">customer_ip</td>
+                          <td className="p-3 text-slate-500 font-mono">string</td>
+                          <td className="p-3 text-slate-400 font-normal">Optional</td>
+                        </tr>
+                        <tr>
+                          <td className="p-3 font-mono text-blue-600 font-bold">customer_device_id</td>
+                          <td className="p-3 text-slate-500 font-mono">string</td>
+                          <td className="p-3 text-slate-400 font-normal">Optional</td>
                         </tr>
                         <tr>
                           <td className="p-3 font-mono text-blue-600 font-bold">redirect_url</td>
                           <td className="p-3 text-slate-500 font-mono">string</td>
-                          <td className="p-3 text-red-500">Required</td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">buyer_first_name</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
                           <td className="p-3 text-slate-400 font-normal">Optional</td>
                         </tr>
                         <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">buyer_last_name</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
-                          <td className="p-3 text-slate-400 font-normal">Optional</td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">buyer_phone</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
-                          <td className="p-3 text-slate-400 font-normal">Optional</td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">buyer_email</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
+                          <td className="p-3 font-mono text-blue-600 font-bold">metadata</td>
+                          <td className="p-3 text-slate-500 font-mono">object</td>
                           <td className="p-3 text-slate-400 font-normal">Optional</td>
                         </tr>
                       </tbody>
@@ -300,16 +307,14 @@ export default function DocsPage() {
                   <CodeBlock 
                     language="Bash" 
                     code={`curl --request POST \\
-  --url <API_BASE_URL>/payment/initiate \\
+  --url https://api.payxmint.com/api/v1/create-intent \\
+  --header 'Authorization: Bearer YOUR_API_KEY' \\
   --header 'Content-Type: application/json' \\
   --data '{
-    "public_key": "YOUR_PUBLIC_KEY",
-    "merchant_txn_id": "pay_202506038627",
-    "buyer_first_name": "Amit",
-    "buyer_last_name": "Bansal",
-    "buyer_phone": "9898989898",
-    "buyer_email": "amit_bansal@email.com",
     "amount": "5000.00",
+    "order_id": "pay_202506038627",
+    "customer_mobile": "9898989898",
+    "customer_email": "amit_bansal@email.com",
     "redirect_url": "https://merchant.site/thankyou"
   }'`}
                   />
@@ -318,19 +323,18 @@ export default function DocsPage() {
                   <CodeBlock 
                     language="JSON" 
                     code={`{
-  "query": "success",
-  "code": 200,
-  "message": "Payment request created",
-  "timestamp_create": "03-06-2025 09:47:48 PM",
-  "merchant_txn_id": "pay_202506038627",
-  "amount": "5000.00",
-  "buyer_first_name": "Amit",
-  "buyer_last_name": "Bansal",
-  "buyer_phone": "9898989898",
-  "buyer_email": "amit_bansal@email.com",
-  "redirect_url": "https://merchant.site/thankyou",
-  "payment_link": "https://gateway.site/checkout/pay_202506038627",
-  "payment_status": "pending"
+  "id": "intent_wmK6wBC7BF0N6Rb5",
+  "object": "payment_intent",
+  "amount": 5000,
+  "currency": "INR",
+  "status": "PENDING",
+  "order_id": "pay_202506038627",
+  "checkout_url": "https://payxmint.com/pay/tok_202506038627",
+  "payment_token": "tok_202506038627",
+  "upi_link": "upi://pay?pa=payxmint@sbi&pn=PayxMint...",
+  "qr_data": "upi://pay?pa=payxmint@sbi...",
+  "metadata": {},
+  "created": 1748553768
 }`}
                   />
                 </div>
@@ -338,45 +342,45 @@ export default function DocsPage() {
             </section>
 
             {/* 2. Payment Status */}
-            <section id="payment_status" className="mb-16 scroll-mt-24 border-t border-slate-100 pt-10">
+            <section id="check_status" className="mb-16 scroll-mt-24 border-t border-slate-100 pt-10">
               <div className="flex items-center gap-3 mb-3">
-                <span className="px-2 py-0.5 bg-emerald-600 text-white font-mono text-[10px] font-bold rounded">POST</span>
-                <h3 className="text-base font-black text-slate-900">Payment Status</h3>
+                <span className="px-2 py-0.5 bg-blue-650 text-white font-mono text-[10px] font-bold rounded">POST</span>
+                <h3 className="text-base font-black text-slate-900">2. Payment Status (/check-status)</h3>
               </div>
               <p className="text-slate-500 text-[13.5px] font-medium mb-4">
-                Queries and retrieves the current transaction metadata, verification status, and processing logs for an intent.
+                Queries and retrieves the exact transaction metadata, settlement details, and collection status using your <code className="text-blue-600 font-bold bg-blue-50 px-1 py-0.5 rounded text-xs font-mono">order_id</code>.
               </p>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                 <div>
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Endpoint URL</h4>
-                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4">
-                    {"<API_BASE_URL>"}/payment/status
+                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4 font-semibold">
+                    {"https://api.payxmint.com/api/v1/check-status"}
                   </div>
 
-                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Parameters</h4>
-                  <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Body Payload</h4>
+                  <div className="border border-slate-200 rounded-xl overflow-hidden text-xs bg-white">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50 border-b border-slate-250">
-                          <th className="p-3 font-bold text-slate-600">Field</th>
-                          <th className="p-3 font-bold text-slate-600">Type</th>
-                          <th className="p-3 font-bold text-slate-600">Status</th>
+                        <tr className="bg-slate-50 border-b border-slate-200">
+                          <th className="p-3 font-bold text-slate-650">Field</th>
+                          <th className="p-3 font-bold text-slate-650">Type</th>
+                          <th className="p-3 font-bold text-slate-650">Status</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
+                      <tbody className="divide-y divide-slate-100 font-semibold text-slate-600">
                         <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">public_key</td>
+                          <td className="p-3 font-mono text-blue-600 font-bold">order_id</td>
                           <td className="p-3 text-slate-500 font-mono">string</td>
-                          <td className="p-3 text-red-500">Required</td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">merchant_txn_id</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
-                          <td className="p-3 text-red-500">Required</td>
+                          <td className="p-3 text-red-500">Required (Unique Merchant ID)</td>
                         </tr>
                       </tbody>
                     </table>
+                  </div>
+                  
+                  <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-250 text-xs text-slate-500 leading-relaxed font-semibold">
+                    💡 **Query Alternative**: You can also use HTTP <code className="text-blue-600 font-bold bg-blue-50 px-1 py-0.5 rounded font-mono">GET</code> to check status by appending order_id to search params: <br />
+                    <code className="block mt-1 font-mono text-[11px] select-all bg-white p-1 rounded border border-slate-200 break-all text-slate-700">https://api.payxmint.com/api/v1/check-status?order_id=pay_202506038627</code>
                   </div>
                 </div>
 
@@ -385,11 +389,11 @@ export default function DocsPage() {
                   <CodeBlock 
                     language="Bash" 
                     code={`curl --request POST \\
-  --url <API_BASE_URL>/payment/status \\
+  --url https://api.payxmint.com/api/v1/check-status \\
+  --header 'Authorization: Bearer YOUR_API_KEY' \\
   --header 'Content-Type: application/json' \\
   --data '{
-    "public_key": "YOUR_PUBLIC_KEY",
-    "merchant_txn_id": "pay_202506038627"
+    "order_id": "pay_202506038627"
   }'`}
                   />
 
@@ -397,27 +401,24 @@ export default function DocsPage() {
                   <CodeBlock 
                     language="JSON" 
                     code={`{
-  "query": "success",
-  "code": 200,
-  "message": "Collection details found",
-  "created": "03-06-2025 09:40:24 PM",
-  "updated": "03-06-2025 09:40:51 PM",
-  "device": "mobile",
-  "mode": "upi",
-  "gateway": "smart_collect",
-  "platform_txn_id": "pay_202506035445",
-  "gateway_txn_id": "pay_202506035445",
-  "bank_txn_id": "5477419633",
-  "buyer_first_name": "Ajay",
-  "buyer_last_name": "Bansal",
-  "buyer_phone": "9898989898",
-  "buyer_email": "ajay.b@email.com",
-  "amount": "799.00",
-  "fee": "22.40",
-  "net_amount": "776.60",
-  "redirect_url": "https://merchant.site/thankyou",
-  "remark": "submitted",
-  "status": "success"
+  "id": "intent_wmK6wBC7BF0N6Rb5",
+  "object": "payment_intent",
+  "amount": 799,
+  "currency": "INR",
+  "status": "SUCCESS",
+  "order_id": "pay_202506038627",
+  "metadata": {},
+  "payer": {
+    "name": "Ajay Bansal",
+    "upi": "ajay.b@ybl"
+  },
+  "settlement": {
+    "utr": "5477419633",
+    "txn_id": "pay_202506035445",
+    "timestamp": "2025-06-03T21:40:51.000Z"
+  },
+  "created": 1748553768,
+  "expire_at": 1748554768
 }`}
                   />
                 </div>
@@ -427,36 +428,36 @@ export default function DocsPage() {
             {/* 3. Process Webhook Data */}
             <section id="payment_webhook" className="mb-16 scroll-mt-24 border-t border-slate-100 pt-10">
               <div className="flex items-center gap-3 mb-3">
-                <span className="px-2 py-0.5 bg-blue-600 text-white font-mono text-[10px] font-bold rounded">ENGINE</span>
-                <h3 className="text-base font-black text-slate-900">Process Webhook Data (Payment)</h3>
+                <span className="px-2 py-0.5 bg-[#002C8A] text-white font-mono text-[10px] font-bold rounded">SECURITY</span>
+                <h3 className="text-base font-black text-slate-900">3. Process Webhook Data (Payment)</h3>
               </div>
               <p className="text-slate-500 text-[13.5px] font-medium mb-4">
-                To guarantee secure message processing, verify the HMAC-SHA256 signature calculated from the raw body against the HTTP headers.
+                To guarantee secure event delivery, calculate the HMAC-SHA256 hex signature directly from the raw incoming body string against your webhook secret.
               </p>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                 <div>
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Cryptographic Headers</h4>
                   <div className="space-y-2 mb-4 font-mono text-xs">
-                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg flex items-center justify-between">
-                      <span className="font-bold text-slate-700">X-Timestamp</span>
-                      <span className="text-slate-400">Epoch Unix Timestamp</span>
+                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg flex items-center justify-between font-semibold">
+                      <span className="text-slate-800">X-PayxMint-Event</span>
+                      <span className="text-slate-400">collection_notification</span>
                     </div>
-                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg flex items-center justify-between">
-                      <span className="font-bold text-slate-700">X-Signature</span>
-                      <span className="text-slate-400">Base64 Encoded Hashed Payload</span>
+                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg flex items-center justify-between font-semibold">
+                      <span className="text-slate-800">X-PayxMint-Signature</span>
+                      <span className="text-slate-400">Hex-encoded HMAC-SHA256</span>
                     </div>
                   </div>
 
-                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1">Signature Verification Algorithm</h4>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1">Verification Implementation (NodeJS)</h4>
                   <CodeBlock 
                     language="Javascript" 
-                    code={`// Define the secret key
-secret_key = 'secret_key'
+                    code={`// Define your webhook signing secret (from Settings dashboard)
+webhook_secret = 'your_webhook_secret'
 
-// Read HTTP headers from the request
-timestamp = getHeader('X-Timestamp')
-signature = getHeader('X-Signature')
+// Read webhook HTTP signature header from the request
+signature = getHeader('X-PayxMint-Signature')
+event_type = getHeader('X-PayxMint-Event')
 
 // Read raw request body
 raw_body = getRawBody()
@@ -467,26 +468,25 @@ response = {
   'message': ''
 }
 
-// Ensure required values are present
-if timestamp and signature and raw_body:
-  signed_payload = timestamp + '.' + raw_body
-  expected_signature = base64encode(HMAC_SHA256(signed_payload, secret_key))
+if signature and raw_body:
+  // Calculate expected signature using HMAC-SHA256 hex digest
+  expected_signature = HMAC_SHA256(raw_body, webhook_secret).toHex()
   
   if secureCompare(expected_signature, signature):
     response['status'] = 'success'
-    response['message'] = 'Webhook verified and accepted'
+    response['message'] = 'Webhook verified successfully'
   else:
     response['message'] = 'Invalid signature'
 else:
-  response['message'] = 'Missing timestamp, signature, or body'
+  response['message'] = 'Missing signature header or raw request body'
 
-// Send JSON response back to the sender
-sendJSONResponse(response)`}
+// Send JSON response back with HTTP status 200 to acknowledge receipt
+sendJSONResponse(response, 200)`}
                   />
                 </div>
 
                 <div>
-                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1">Sample Payment Webhook Payload</h4>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1">Sample Webhook Notification Payload</h4>
                   <CodeBlock 
                     language="JSON" 
                     code={`{
@@ -524,8 +524,8 @@ sendJSONResponse(response)`}
             {/* 4. Payout Balance */}
             <section id="payout_balance" className="mb-16 scroll-mt-24">
               <div className="flex items-center gap-3 mb-3">
-                <span className="px-2 py-0.5 bg-emerald-600 text-white font-mono text-[10px] font-bold rounded">POST</span>
-                <h3 className="text-base font-black text-slate-900">Payout Balance</h3>
+                <span className="px-2 py-0.5 bg-blue-650 text-white font-mono text-[10px] font-bold rounded">POST</span>
+                <h3 className="text-base font-black text-slate-900 font-black">4. Payout Balance (/payout/balance)</h3>
               </div>
               <p className="text-slate-500 text-[13.5px] font-medium mb-4">
                 Queries and retrieves the current net settlement ledger balance available inside your merchant account.
@@ -534,25 +534,26 @@ sendJSONResponse(response)`}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                 <div>
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Endpoint URL</h4>
-                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4">
-                    {"<API_BASE_URL>"}/payout/balance
+                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4 font-semibold">
+                    {"https://api.payxmint.com/api/v1/payout/balance"}
                   </div>
 
-                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Parameters</h4>
-                  <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Body Payload</h4>
+                  <div className="border border-slate-200 rounded-xl overflow-hidden text-xs bg-white">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50 border-b border-slate-250">
-                          <th className="p-3 font-bold text-slate-600">Field</th>
-                          <th className="p-3 font-bold text-slate-600">Type</th>
-                          <th className="p-3 font-bold text-slate-600">Status</th>
+                        <tr className="bg-slate-50 border-b border-slate-200">
+                          <th className="p-3 font-bold text-slate-650">Field</th>
+                          <th className="p-3 font-bold text-slate-650">Type</th>
+                          <th className="p-3 font-bold text-slate-650">Status</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
+                      <tbody className="divide-y divide-slate-100 font-semibold text-slate-600">
+                        {/* No payload fields required, auth-header key identifies merchant */}
                         <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">public_key</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
-                          <td className="p-3 text-red-500">Required</td>
+                          <td className="p-3 font-mono text-slate-400">-</td>
+                          <td className="p-3 text-slate-400">-</td>
+                          <td className="p-3 text-slate-400 font-normal">Identified by Authorization Header Key</td>
                         </tr>
                       </tbody>
                     </table>
@@ -564,11 +565,9 @@ sendJSONResponse(response)`}
                   <CodeBlock 
                     language="Bash" 
                     code={`curl --request POST \\
-  --url <API_BASE_URL>/payout/balance \\
-  --header 'Content-Type: application/json' \\
-  --data '{
-    "public_key": "YOUR_PUBLIC_KEY"
-  }'`}
+  --url https://api.payxmint.com/api/v1/payout/balance \\
+  --header 'Authorization: Bearer YOUR_API_KEY' \\
+  --header 'Content-Type: application/json'`}
                   />
 
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1 mt-4">Sample Response</h4>
@@ -590,8 +589,8 @@ sendJSONResponse(response)`}
             {/* 5. Payout Initiate */}
             <section id="payout_initiate" className="mb-16 scroll-mt-24 border-t border-slate-100 pt-10">
               <div className="flex items-center gap-3 mb-3">
-                <span className="px-2 py-0.5 bg-emerald-600 text-white font-mono text-[10px] font-bold rounded">POST</span>
-                <h3 className="text-base font-black text-slate-900">Payout Initiate</h3>
+                <span className="px-2 py-0.5 bg-blue-650 text-white font-mono text-[10px] font-bold rounded">POST</span>
+                <h3 className="text-base font-black text-slate-900 font-black">5. Payout Initiate (/payout/initiate)</h3>
               </div>
               <p className="text-slate-500 text-[13.5px] font-medium mb-4">
                 Creates a new payout transaction to transfer funds directly to any bank account via IMPS, NEFT, or RTGS.
@@ -600,26 +599,21 @@ sendJSONResponse(response)`}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                 <div>
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Endpoint URL</h4>
-                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4">
-                    {"<API_BASE_URL>"}/payout/initiate
+                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4 font-semibold">
+                    {"https://api.payxmint.com/api/v1/payout/initiate"}
                   </div>
 
-                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Parameters</h4>
-                  <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Body Payload</h4>
+                  <div className="border border-slate-200 rounded-xl overflow-hidden text-xs bg-white">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50 border-b border-slate-250">
-                          <th className="p-3 font-bold text-slate-600">Field</th>
-                          <th className="p-3 font-bold text-slate-600">Type</th>
-                          <th className="p-3 font-bold text-slate-600">Status</th>
+                        <tr className="bg-slate-50 border-b border-slate-200">
+                          <th className="p-3 font-bold text-slate-650">Field</th>
+                          <th className="p-3 font-bold text-slate-650">Type</th>
+                          <th className="p-3 font-bold text-slate-650">Status</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
-                        <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">public_key</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
-                          <td className="p-3 text-red-500">Required</td>
-                        </tr>
+                      <tbody className="divide-y divide-slate-100 font-semibold text-slate-600">
                         <tr>
                           <td className="p-3 font-mono text-blue-600 font-bold">merchant_txn_id</td>
                           <td className="p-3 text-slate-500 font-mono">string</td>
@@ -660,10 +654,10 @@ sendJSONResponse(response)`}
                   <CodeBlock 
                     language="Bash" 
                     code={`curl --request POST \\
-  --url <API_BASE_URL>/payout/initiate \\
+  --url https://api.payxmint.com/api/v1/payout/initiate \\
+  --header 'Authorization: Bearer YOUR_API_KEY' \\
   --header 'Content-Type: application/json' \\
   --data '{
-    "public_key": "YOUR_PUBLIC_KEY",
     "merchant_txn_id": "pay_202506031327",
     "payout_mode": "imps",
     "account_name": "Beneficiary name",
@@ -701,36 +695,31 @@ sendJSONResponse(response)`}
             {/* 6. Payout Status */}
             <section id="payout_status" className="mb-16 scroll-mt-24 border-t border-slate-100 pt-10">
               <div className="flex items-center gap-3 mb-3">
-                <span className="px-2 py-0.5 bg-emerald-600 text-white font-mono text-[10px] font-bold rounded">POST</span>
-                <h3 className="text-base font-black text-slate-900">Payout Status</h3>
+                <span className="px-2 py-0.5 bg-blue-650 text-white font-mono text-[10px] font-bold rounded">POST</span>
+                <h3 className="text-base font-black text-slate-900 font-black">6. Payout Status (/payout/status)</h3>
               </div>
               <p className="text-slate-500 text-[13.5px] font-medium mb-4">
-                Queries and retrieves the current metadata, verification status, and transaction references for a payout request.
+                Queries and retrieves the exact metadata, settlement verification, and transaction reference for a payout order.
               </p>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                 <div>
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Endpoint URL</h4>
-                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4">
-                    {"<API_BASE_URL>"}/payout/status
+                  <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4 font-semibold">
+                    {"https://api.payxmint.com/api/v1/payout/status"}
                   </div>
 
-                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Parameters</h4>
-                  <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Body Payload</h4>
+                  <div className="border border-slate-200 rounded-xl overflow-hidden text-xs bg-white">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50 border-b border-slate-250">
-                          <th className="p-3 font-bold text-slate-600">Field</th>
-                          <th className="p-3 font-bold text-slate-600">Type</th>
-                          <th className="p-3 font-bold text-slate-600">Status</th>
+                        <tr className="bg-slate-50 border-b border-slate-200">
+                          <th className="p-3 font-bold text-slate-650">Field</th>
+                          <th className="p-3 font-bold text-slate-650">Type</th>
+                          <th className="p-3 font-bold text-slate-650">Status</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
-                        <tr>
-                          <td className="p-3 font-mono text-blue-600 font-bold">public_key</td>
-                          <td className="p-3 text-slate-500 font-mono">string</td>
-                          <td className="p-3 text-red-500">Required</td>
-                        </tr>
+                      <tbody className="divide-y divide-slate-100 font-semibold text-slate-600">
                         <tr>
                           <td className="p-3 font-mono text-blue-600 font-bold">merchant_txn_id</td>
                           <td className="p-3 text-slate-500 font-mono">string</td>
@@ -746,10 +735,10 @@ sendJSONResponse(response)`}
                   <CodeBlock 
                     language="Bash" 
                     code={`curl --request POST \\
-  --url <API_BASE_URL>/payout/status \\
+  --url https://api.payxmint.com/api/v1/payout/status \\
+  --header 'Authorization: Bearer YOUR_API_KEY' \\
   --header 'Content-Type: application/json' \\
   --data '{
-    "public_key": "YOUR_PUBLIC_KEY",
     "merchant_txn_id": "pay_202506031327"
   }'`}
                   />
@@ -769,7 +758,7 @@ sendJSONResponse(response)`}
   "bank_name": "State Bank of India",
   "branch_name": "TRADE CPC",
   "account_name": "Beneficiary name",
-  "account_number": "919898989898",
+  "account_number": "9198989898",
   "ifsc": "SBIN0005050",
   "amount": "20000",
   "fee": "11.8",
