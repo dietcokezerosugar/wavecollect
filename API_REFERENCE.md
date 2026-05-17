@@ -3,7 +3,7 @@
 All API requests must be made over HTTPS. The base URL depends on your environment.
 
 ## Authentication
-Merchant APIs require an `x-api-key` header.
+Merchant APIs require an `Authorization` header in the format `Bearer YOUR_API_KEY`.
 Admin APIs require a session cookie (NextAuth).
 
 ---
@@ -14,7 +14,7 @@ Admin APIs require a session cookie (NextAuth).
 `POST /api/v1/create-intent`
 
 **Headers:**
-- `x-api-key`: Your Merchant API Key
+- `Authorization`: `Bearer your_api_key`
 - `Content-Type`: application/json
 
 **Body:**
@@ -48,7 +48,7 @@ Admin APIs require a session cookie (NextAuth).
 When a payment is matched, WaveCollect sends a POST request to your configured `webhookUrl`.
 
 **Headers:**
-- `X-Wave-Signature`: HMAC-SHA256 signature
+- `X-PayxMint-Signature`: HMAC-SHA256 signature
 - `Content-Type`: application/json
 
 **Payload:**

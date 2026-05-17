@@ -221,7 +221,7 @@ export default function SettingsPage() {
                       </button>
                    </div>
                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter px-1">
-                      Use this secret to verify the <code className="text-blue-600">X-Wave-Signature</code> header in incoming webhooks.
+                      Use this secret to verify the <code className="text-blue-600">X-PayxMint-Signature</code> header in incoming webhooks.
                    </p>
                 </div>
                 {/* Managed Infrastructure */}
