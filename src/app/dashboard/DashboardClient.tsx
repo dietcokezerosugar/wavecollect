@@ -1,23 +1,31 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Clock } from "lucide-react";
+import { 
+  History, 
+  ShieldCheck, 
+  Zap, 
+  ArrowUpRight, 
+  Wallet, 
+  ArrowDownRight, 
+  TrendingUp,
+  LayoutDashboard,
+  Clock,
+  CheckCircle2,
+  RefreshCw,
+  ShieldAlert,
+  LogOut
+} from "lucide-react";
+import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
+import { MobileDashboard } from "@/components/mobile/MobileDashboard";
 
 export default function DashboardClient({ initialMerchant, initialLedgerEntries }: any) {
+  const { data: session } = useSession();
   const [merchant, setMerchant] = useState(initialMerchant);
   const [ledgerEntries, setLedgerEntries] = useState(initialLedgerEntries);
   const [recentIntents, setRecentIntents] = useState<any[]>([]);
   const [isLive, setIsLive] = useState(true);
-  const [activeTab, setActiveTab] = useState<"collection" | "payout">("collection");
-  const [greeting, setGreeting] = useState("Good morning");
-
-  // Determine Greeting dynamically
-  useEffect(() => {
-    const hrs = new Date().getHours();
-    if (hrs < 12) setGreeting("Good morning");
-    else if (hrs < 17) setGreeting("Good afternoon");
-    else setGreeting("Good evening");
-  }, []);
 
   const fetchLiveActivity = async () => {
     try {
@@ -33,310 +41,236 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
     fetchLiveActivity();
     let interval: NodeJS.Timeout;
     if (isLive) {
-      interval = setInterval(fetchLiveActivity, 8000);
+      interval = setInterval(fetchLiveActivity, 5000);
     }
     return () => clearInterval(interval);
   }, [isLive]);
 
-  // Collection Analytics Calculations
-  const successfulIntents = recentIntents.filter(i => i.status === 'SUCCESS');
-  const todayCollectionVolume = successfulIntents.reduce((acc, curr) => acc + Number(curr.amount), 0);
-  const todayCollectionCount = successfulIntents.length;
+  const successfulTxns = recentIntents.filter(i => i.status === 'SUCCESS').length;
+  const totalVolume = recentIntents.filter(i => i.status === 'SUCCESS').reduce((acc, curr) => acc + curr.amount, 0);
 
-  const weekCollectionVolume = 8.79 + todayCollectionVolume;
-  const weekCollectionCount = 5 + todayCollectionCount;
+  const trialEndsAt = merchant.trialEndsAt ? new Date(merchant.trialEndsAt) : null;
+  const isTrialActive = trialEndsAt && trialEndsAt > new Date();
+  const trialDaysRemaining = trialEndsAt ? Math.ceil((trialEndsAt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
-  const monthCollectionVolume = 64.73 + todayCollectionVolume;
-  const monthCollectionCount = 18 + todayCollectionCount;
+  return (
+    <div className="space-y-6 md:space-y-8 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      
+      {/* Trial Status Banner */}
+      {isTrialActive ? (
+        <div className="bg-emerald-50 border border-emerald-100 rounded-md p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+           <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-emerald-500 rounded-md flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                 <Zap size={20} />
+              </div>
+              <div>
+                 <p className="text-sm font-black text-emerald-900 leading-tight">Free Trial Active</p>
+                 <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">
+                    Settlement fees waived for the next {trialDaysRemaining} days
+                 </p>
+              </div>
+           </div>
+           <Link href="/docs" className="text-[10px] font-black text-emerald-700 uppercase tracking-widest bg-white/50 px-4 py-2 rounded-lg hover:bg-white transition-all">
+              Learn Integration
+           </Link>
+        </div>
+      ) : trialEndsAt && trialEndsAt < new Date() && (
+        <div className="bg-amber-50 border border-amber-200 rounded-md p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+           <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-amber-500 rounded-md flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+                 <ShieldAlert size={20} />
+              </div>
+              <div>
+                 <p className="text-sm font-black text-amber-900 leading-tight">Trial Period Expired</p>
+                 <p className="text-[11px] font-bold text-amber-600 uppercase tracking-widest mt-0.5">
+                    Please recharge your wallet to continue using the settlement engine
+                 </p>
+              </div>
+           </div>
+           <Link href="/dashboard/recharge" className="text-[10px] font-black text-amber-700 uppercase tracking-widest bg-white/50 px-4 py-2 rounded-lg hover:bg-white transition-all">
+              Recharge Now
+           </Link>
+        </div>
+      )}
 
-  // Format Date to: DD-MM-YYYY hh:mm:ss A
-  const formatTimestamp = (dateString: string) => {
-    const d = new Date(dateString);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    
-    let hours = d.getHours();
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    const seconds = String(d.getSeconds()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    const formattedHours = String(hours).padStart(2, '0');
+      <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+             <LayoutDashboard className="text-blue-600" /> Command Center
+          </h1>
+          <div className="flex items-center gap-3 mt-1">
+             <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest leading-none">Merchant: {merchant.name}</p>
+             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">Live Monitoring</span>
+             <div className="h-4 w-[1px] bg-slate-200 mx-2" />
+             <button 
+               onClick={() => signOut({ callbackUrl: "/login" })}
+               className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-rose-600 transition-colors uppercase tracking-widest"
+             >
+               <LogOut size={12} />
+               Log Out
+             </button>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+           <button 
+             onClick={() => setIsLive(!isLive)}
+             className={`px-3 py-2 rounded-md text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 shadow-sm ${isLive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
+           >
+              {isLive ? <RefreshCw className="animate-spin" size={12} /> : <Clock size={12} />}
+              {isLive ? 'Real-time On' : 'Paused'}
+           </button>
+           <Link href="/dashboard/recharge" className="px-5 py-2.5 bg-blue-600 text-white rounded-md font-black text-[11px] uppercase tracking-widest shadow-md shadow-blue-600/20 active:scale-95 transition-all">
+              + Recharge Wallet
+           </Link>
+        </div>
+      </div>
 
-    return `${day}-${month}-${year} ${formattedHours}:${minutes}:${seconds} ${ampm}`;
+      {/* Financial Health Grid */}
+      <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <DashboardCard 
+          label="Wallet Balance" 
+          value={`₹${merchant.walletBalance.toLocaleString()}`} 
+          sub="Available for fees" 
+          icon={<Wallet />} 
+          color="emerald" 
+        />
+        <DashboardCard 
+          label="Recent Success" 
+          value={`₹${totalVolume.toLocaleString()}`} 
+          sub={`${successfulTxns} Verified Today`} 
+          icon={<TrendingUp />} 
+          color="blue" 
+        />
+        <DashboardCard 
+          label="Gateway Nodes" 
+          value={merchant._count.gpayAccounts} 
+          sub="Active bot fleet" 
+          icon={<Zap />} 
+          color="amber" 
+        />
+        <DashboardCard 
+          label="Commission" 
+          value={`${merchant.commissionRate}%`} 
+          sub="Platform processing fee" 
+          icon={<ShieldCheck />} 
+          color="purple" 
+        />
+      </div>
+
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Real-Time Activity Feed */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between px-2">
+            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+               <History className="text-blue-600" size={14} /> Real-Time Activity
+            </h3>
+            <Link href="/dashboard/transactions" className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">
+              Full Ledger View
+            </Link>
+          </div>
+          
+          <div className="bg-white rounded-md border border-slate-200 overflow-x-auto divide-y divide-slate-100 shadow-sm min-h-[400px]">
+             <div className="min-w-[600px]">
+            {recentIntents.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 border border-slate-100">
+                   <Clock size={32} />
+                </div>
+                <p className="text-slate-400 italic text-[11px] font-bold uppercase tracking-widest">
+                  Listening for incoming transactions...
+                </p>
+              </div>
+            ) : (
+              recentIntents.map((intent) => (
+                <div key={intent.id} className="p-5 flex items-center justify-between gap-4 hover:bg-slate-50/50 transition-all group">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center border shadow-sm ${
+                      intent.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
+                      intent.status === "DETECTED_UNMATCHED" ? "bg-amber-50 text-amber-600 border-amber-100" :
+                      intent.status === "PENDING" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-200"
+                    }`}>
+                      {intent.status === "SUCCESS" ? <CheckCircle2 size={18} /> : intent.status === "DETECTED_UNMATCHED" ? <ShieldAlert size={18} /> : <Clock size={18} />}
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-slate-900 leading-tight">{intent.referenceId}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                          {new Date(intent.createdAt).toLocaleTimeString()}
+                        </p>
+                        {(intent.transaction || intent.utr) && (
+                          <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-widest ${intent.status === 'DETECTED_UNMATCHED' ? 'text-amber-600 bg-amber-50 border-amber-100' : 'text-emerald-600 bg-emerald-50 border-emerald-100'}`}>
+                             UTR: {intent.transaction?.utr || intent.utr || 'DETECTED'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-black text-slate-900">₹{intent.amount.toLocaleString()}</p>
+                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border mt-1 inline-block ${
+                       intent.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                       intent.status === "DETECTED_UNMATCHED" ? "bg-amber-50 text-amber-600 border-amber-100" :
+                       intent.status === "PENDING" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-200"
+                    }`}>
+                      {intent.status === "DETECTED_UNMATCHED" ? "ORPHAN DETECTED" : intent.status}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
+            </div>
+          </div>
+        </div>
+
+        {/* Mini Ledger Widget (Static Sidebar) */}
+        <div className="space-y-4">
+           <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-2">Wallet Ledger</h3>
+           <div className="bg-white rounded-md border border-slate-200 p-6 shadow-sm">
+              <div className="space-y-4">
+                 {ledgerEntries.map((entry: any) => (
+                    <div key={entry.id} className="flex items-center justify-between pb-4 border-b border-slate-100 last:border-0 last:pb-0">
+                       <div className="flex items-center gap-3">
+                          <div className={`p-1.5 rounded-lg border ${entry.type === 'CREDIT' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                             {entry.type === 'CREDIT' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                          </div>
+                          <div>
+                             <p className="text-[11px] font-bold text-slate-900 leading-tight">{entry.description}</p>
+                             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{new Date(entry.createdAt).toLocaleDateString()}</p>
+                          </div>
+                       </div>
+                       <p className={`text-xs font-black ${entry.type === 'CREDIT' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {entry.type === 'CREDIT' ? '+' : '-'}₹{entry.amount}
+                       </p>
+                    </div>
+                 ))}
+                 {ledgerEntries.length === 0 && <p className="text-center text-[10px] font-black text-slate-400 uppercase py-8">No fees recorded</p>}
+              </div>
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DashboardCard({ label, value, sub, icon, color }: any) {
+  const colors: any = {
+    blue: "text-blue-600 bg-blue-50 border-blue-100",
+    emerald: "text-emerald-600 bg-emerald-50 border-emerald-100",
+    amber: "text-amber-600 bg-amber-50 border-amber-100",
+    purple: "text-blue-600 bg-blue-50 border-blue-100",
   };
 
   return (
-    <div className="space-y-8 pb-12 animate-in fade-in duration-500 font-sans">
-      
-      {/* Dynamic Greeting */}
-      <div>
-        <h1 className="text-blue-900 text-sm font-semibold tracking-tight">
-          {greeting}
-        </h1>
-      </div>
-
-      {/* Collection Insights Section */}
-      <div className="space-y-3">
-        <h3 className="text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-          Collection insights
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Today Card */}
-          <div className="bg-white border border-blue-50/50 rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.005)] flex flex-col justify-between min-h-[105px] relative group">
-            <div>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Today</p>
-              <p className="text-blue-600 text-xl font-bold mt-1 tracking-tight">
-                ₹{todayCollectionVolume.toFixed(2)}
-              </p>
-            </div>
-            <p className="text-slate-400 text-[10px] font-semibold mt-2">
-              {todayCollectionCount} transactions
-            </p>
-            <button className="absolute top-4 right-4 bg-white hover:bg-blue-50/30 border border-blue-100 text-blue-600 rounded-lg px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider shadow-xs transition-colors">
-              Balance
-            </button>
-          </div>
-
-          {/* Yesterday Card */}
-          <div className="bg-white border border-blue-50/50 rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.005)] flex flex-col justify-between min-h-[105px]">
-            <div>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Yesterday</p>
-              <p className="text-slate-500 text-xl font-bold mt-1 tracking-tight">₹0.00</p>
-            </div>
-            <p className="text-slate-400 text-[10px] font-semibold mt-2">0 transactions</p>
-          </div>
-
-          {/* Week Card */}
-          <div className="bg-white border border-blue-50/50 rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.005)] flex flex-col justify-between min-h-[105px]">
-            <div>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Week</p>
-              <p className="text-slate-600 text-xl font-bold mt-1 tracking-tight">
-                ₹{weekCollectionVolume.toFixed(2)}
-              </p>
-            </div>
-            <p className="text-slate-400 text-[10px] font-semibold mt-2">
-              {weekCollectionCount} transactions
-            </p>
-          </div>
-
-          {/* Month Card */}
-          <div className="bg-white border border-blue-50/50 rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.005)] flex flex-col justify-between min-h-[105px]">
-            <div>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Month</p>
-              <p className="text-slate-600 text-xl font-bold mt-1 tracking-tight">
-                ₹{monthCollectionVolume.toFixed(2)}
-              </p>
-            </div>
-            <p className="text-slate-400 text-[10px] font-semibold mt-2">
-              {monthCollectionCount} transactions
-            </p>
-          </div>
+    <div className={`bg-white rounded-md border border-slate-200 p-6 shadow-sm hover:border-slate-300 transition-all group relative overflow-hidden`}>
+      <div className="flex flex-col gap-4 relative z-10">
+        <div className={`w-12 h-12 rounded-md flex items-center justify-center border shadow-sm ${colors[color]}`}>
+          {React.cloneElement(icon as React.ReactElement<any>, { size: 20 })}
         </div>
-      </div>
-
-      {/* Payout Insights Section */}
-      <div className="space-y-3">
-        <h3 className="text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-          Payout insights
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Today Card */}
-          <div className="bg-white border border-blue-50/50 rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.005)] flex flex-col justify-between min-h-[105px] relative">
-            <div>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Today</p>
-              <p className="text-slate-500 text-xl font-bold mt-1 tracking-tight">₹0.00</p>
-            </div>
-            <p className="text-slate-400 text-[10px] font-semibold mt-2">0 transactions</p>
-            <button className="absolute top-4 right-4 bg-white hover:bg-blue-50/30 border border-blue-100 text-blue-600 rounded-lg px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider shadow-xs transition-colors">
-              Balance
-            </button>
-          </div>
-
-          {/* Yesterday Card */}
-          <div className="bg-white border border-blue-50/50 rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.005)] flex flex-col justify-between min-h-[105px]">
-            <div>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Yesterday</p>
-              <p className="text-slate-500 text-xl font-bold mt-1 tracking-tight">₹0.00</p>
-            </div>
-            <p className="text-slate-400 text-[10px] font-semibold mt-2">0 transactions</p>
-          </div>
-
-          {/* Week Card */}
-          <div className="bg-white border border-blue-50/50 rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.005)] flex flex-col justify-between min-h-[105px]">
-            <div>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Week</p>
-              <p className="text-slate-650 text-xl font-bold mt-1 tracking-tight">₹12.96</p>
-            </div>
-            <p className="text-slate-400 text-[10px] font-semibold mt-2">1 transactions</p>
-          </div>
-
-          {/* Month Card */}
-          <div className="bg-white border border-blue-50/50 rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.005)] flex flex-col justify-between min-h-[105px]">
-            <div>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Month</p>
-              <p className="text-slate-650 text-xl font-bold mt-1 tracking-tight">₹12.96</p>
-            </div>
-            <p className="text-slate-400 text-[10px] font-semibold mt-2">1 transactions</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Transactions Section */}
-      <div className="space-y-4 pt-2">
-        <h3 className="text-blue-900 text-sm font-semibold tracking-tight">
-          Recent transactions
-        </h3>
-
-        {/* Tab Controllers with horizontal blue bar line layout */}
-        <div className="relative border-b border-blue-50/50 flex items-center gap-12">
-          <button
-            onClick={() => setActiveTab("collection")}
-            className={`pb-3 text-xs font-bold transition-all relative z-10 ${
-              activeTab === "collection" 
-                ? "text-blue-600 font-extrabold" 
-                : "text-slate-400 hover:text-blue-500"
-            }`}
-          >
-            Collection
-            {activeTab === "collection" && (
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-blue-600 rounded-full animate-in fade-in" />
-            )}
-          </button>
-          
-          <button
-            onClick={() => setActiveTab("payout")}
-            className={`pb-3 text-xs font-bold transition-all relative z-10 ${
-              activeTab === "payout" 
-                ? "text-blue-600 font-extrabold" 
-                : "text-slate-400 hover:text-blue-500"
-            }`}
-          >
-            Payout
-            {activeTab === "payout" && (
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-blue-600 rounded-full animate-in fade-in" />
-            )}
-          </button>
-
-          {/* Real-time live status indicator inside tab header */}
-          <div className="absolute right-0 bottom-3 flex items-center gap-2">
-            <span className="text-[10px] font-semibold text-slate-400">
-              {isLive ? "Live" : "Paused"}
-            </span>
-            <div className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-blue-500 animate-pulse" : "bg-slate-350"}`} />
-          </div>
-        </div>
-
-        {/* High-fidelity minimal Table */}
-        <div className="bg-white border border-blue-50/50 rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.005)]">
-          <div className="overflow-x-auto">
-            {activeTab === "collection" ? (
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-blue-50/30 bg-blue-50/5">
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Timestamp</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Platform Txn ID</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Buyer name</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Buyer phone</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Buyer email</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Amount</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-blue-50/20">
-                  {recentIntents.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center text-slate-450 text-xs font-semibold uppercase tracking-wider italic">
-                        <Clock className="w-5 h-5 mx-auto mb-2 text-blue-300 animate-pulse" />
-                        Listening for incoming transactions...
-                      </td>
-                    </tr>
-                  ) : (
-                    recentIntents.map((intent) => {
-                      const isSuccess = intent.status === "SUCCESS";
-                      const buyerName = intent.metadata?.payerName || intent.payerName || "Not available";
-                      const buyerPhone = intent.customerMobile || "Not available";
-                      const buyerEmail = intent.customerEmail || "Not available";
-
-                      return (
-                        <tr key={intent.id} className="hover:bg-blue-50/10 transition-colors">
-                          <td className="px-6 py-4 text-xs font-medium text-slate-500 whitespace-nowrap">
-                            {formatTimestamp(intent.createdAt)}
-                          </td>
-                          <td className="px-6 py-4 text-xs font-semibold text-blue-600 hover:underline cursor-pointer whitespace-nowrap">
-                            {intent.referenceId}
-                          </td>
-                          <td className="px-6 py-4 text-xs font-medium text-slate-650 whitespace-nowrap">{buyerName}</td>
-                          <td className="px-6 py-4 text-xs font-medium text-slate-500 whitespace-nowrap">{buyerPhone}</td>
-                          <td className="px-6 py-4 text-xs font-medium text-slate-500 whitespace-nowrap">{buyerEmail}</td>
-                          <td className="px-6 py-4 text-xs font-bold text-slate-700 whitespace-nowrap">
-                            ₹{Number(intent.amount).toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                              isSuccess 
-                                ? "bg-blue-50 text-blue-600" 
-                                : "bg-rose-50/60 text-rose-600"
-                            }`}>
-                              {isSuccess ? "Success" : "Failed"}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            ) : (
-              // Payout Ledger View
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-blue-50/30 bg-blue-50/5">
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Timestamp</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Reference ID</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Description</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-blue-50/20">
-                  {ledgerEntries.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-slate-400 text-xs font-semibold uppercase tracking-wider">
-                        No payouts or settlements processed.
-                      </td>
-                    </tr>
-                  ) : (
-                    ledgerEntries.map((entry: any) => (
-                      <tr key={entry.id} className="hover:bg-blue-50/10 transition-colors">
-                        <td className="px-6 py-4 text-xs font-medium text-slate-500 whitespace-nowrap">
-                          {formatTimestamp(entry.createdAt)}
-                        </td>
-                        <td className="px-6 py-4 text-xs font-semibold text-blue-600 hover:underline cursor-pointer whitespace-nowrap">
-                          SET-{entry.id.substring(0, 8).toUpperCase()}
-                        </td>
-                        <td className="px-6 py-4 text-xs font-medium text-slate-650">{entry.description}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-block px-2.5 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider ${
-                            entry.type === 'CREDIT' ? 'bg-blue-50 text-blue-600' : 'bg-rose-50/60 text-rose-600'
-                          }`}>
-                            {entry.type}
-                          </span>
-                        </td>
-                        <td className={`px-6 py-4 text-xs font-bold whitespace-nowrap ${
-                          entry.type === 'CREDIT' ? 'text-blue-600' : 'text-rose-600'
-                        }`}>
-                          {entry.type === 'CREDIT' ? '+' : '-'}₹{Number(entry.amount).toFixed(2)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            )}
-          </div>
+        <div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">{label}</p>
+          <p className="text-3xl font-black text-slate-900 tracking-tighter leading-none">{value}</p>
+          <p className="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-tight leading-none">{sub}</p>
         </div>
       </div>
     </div>

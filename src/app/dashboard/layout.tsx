@@ -4,24 +4,24 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   LayoutDashboard, 
-  UserPlus, 
-  Users, 
+  Key, 
   Link as LinkIcon, 
-  Send, 
-  Coins, 
-  AlertCircle, 
-  RefreshCw, 
-  CreditCard, 
-  Layers, 
-  FileText, 
-  Code, 
-  Sliders, 
-  User, 
-  LogOut,
+  History, 
+  Terminal, 
+  Webhook, 
+  Settings,
+  Zap,
   ChevronRight,
   Menu,
   X,
-  Search
+  MoreHorizontal,
+  BarChart3,
+  Plus,
+  Search,
+  Book,
+  ShieldCheck,
+  Wallet,
+  LogOut
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,22 +39,34 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
 
-  // Unified Menu Items exactly matching the user's minimal screenshot
-  const navItems = [
-    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard", shortcut: "D" },
-    { label: "Create staff", icon: UserPlus, href: "/staff/pool", shortcut: "C" },
-    { label: "All staffs", icon: Users, href: "/staff/accounts", shortcut: "S" },
-    { label: "Payment link", icon: LinkIcon, href: "/dashboard/payment-links", shortcut: "P" },
-    { label: "Telegram collect", icon: Send, href: "/dashboard/quick-setup", shortcut: "T" },
-    { label: "Collections", icon: Coins, href: "/dashboard/transactions", shortcut: "O" },
-    { label: "Disputes", icon: AlertCircle, href: "/dashboard/settings", shortcut: "I" },
-    { label: "Settlements", icon: RefreshCw, href: "/dashboard/recharge", shortcut: "E" },
-    { label: "Payouts", icon: CreditCard, href: "/dashboard/merchant-accounts", shortcut: "A" },
-    { label: "Bulk payout", icon: Layers, href: "/dashboard/merchant-accounts", shortcut: "B" },
-    { label: "Reports", icon: FileText, href: "/dashboard/analytics", shortcut: "R" },
-    { label: "Developer", icon: Code, href: "/dashboard/api-keys", shortcut: "V" },
-    { label: "Management", icon: Sliders, href: "/dashboard/settings", shortcut: "M" },
-    { label: "Profile", icon: User, href: "/dashboard/settings", shortcut: "F" },
+  const mainNavItems = [
+    { label: "Home", icon: LayoutDashboard, href: "/dashboard", shortcut: "H" },
+    { label: "Accounts", icon: Key, href: "/dashboard/merchant-accounts", shortcut: "C" },
+    { label: "Activity", icon: History, href: "/dashboard/transactions", shortcut: "T" },
+    { label: "Wallet", icon: Wallet, href: "/dashboard/recharge", shortcut: "W" },
+    { label: "Links", icon: LinkIcon, href: "/dashboard/payment-links", shortcut: "P" },
+  ];
+
+  const secondaryNavItems = [
+    { label: "Quick Setup", icon: Zap, href: "/dashboard/quick-setup", shortcut: "Q" },
+    { label: "API Keys", icon: Key, href: "/dashboard/api-keys", shortcut: "K" },
+    { label: "API Logs", icon: Terminal, href: "/dashboard/logs", shortcut: "L" },
+    { label: "IP Whitelist", icon: ShieldCheck, href: "/dashboard/ip-whitelist", shortcut: "I" },
+    { label: "Webhooks", icon: Webhook, href: "/dashboard/webhooks", shortcut: "W" },
+    { label: "Docs", icon: Book, href: "/docs", shortcut: "D" },
+    { label: "Settings", icon: Settings, href: "/dashboard/settings", shortcut: "S" },
+  ];
+
+  const actions = [
+    { label: "Create Payment Link", icon: Plus, href: "/dashboard/payment-links?action=new", shortcut: "N" },
+    { label: "Add Merchant Account", icon: Key, href: "/dashboard/merchant-accounts?action=new", shortcut: "M" },
+  ];
+
+  const allItems = [
+    ...mainNavItems,
+    ...secondaryNavItems,
+    ...actions,
+    { label: "Analytics", icon: BarChart3, href: "/dashboard/analytics", shortcut: "A" }
   ];
 
   const [systemStatus, setSystemStatus] = useState<"online" | "idle" | "error">("idle");
@@ -62,19 +74,36 @@ export default function DashboardLayout({
   // Handle Command Palette & Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Toggle Palette: Ctrl+K or Cmd+K
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         setIsCommandPaletteOpen(prev => !prev);
       }
+
+      // Escape to close
       if (e.key === 'Escape') {
         setIsCommandPaletteOpen(false);
       }
+
+      // Quick Nav: G + [Key]
+      if (e.key.toLowerCase() === 'g' && !isCommandPaletteOpen && !(e.target instanceof HTMLInputElement)) {
+        const nextKeyHandler = (nextE: KeyboardEvent) => {
+          const item = allItems.find(i => i.shortcut?.toLowerCase() === nextE.key.toLowerCase());
+          if (item) {
+            router.push(item.href);
+            window.removeEventListener('keydown', nextKeyHandler);
+          }
+        };
+        window.addEventListener('keydown', nextKeyHandler, { once: true });
+        setTimeout(() => window.removeEventListener('keydown', nextKeyHandler), 1000);
+      }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [router, isCommandPaletteOpen]);
 
-  // Live Node Health Check
+  // Real-time System Health Polling
   useEffect(() => {
     const checkStatus = async () => {
       try {
@@ -90,22 +119,23 @@ export default function DashboardLayout({
         setSystemStatus("idle");
       }
     };
+
     checkStatus();
-    const interval = setInterval(checkStatus, 15000);
+    const interval = setInterval(checkStatus, 8000);
     return () => clearInterval(interval);
   }, []);
 
-  const filteredItems = navItems.filter(item => 
+  const filteredItems = allItems.filter(item => 
     item.label.toLowerCase().includes(commandQuery.toLowerCase())
   );
 
   const getPageTitle = () => {
-    return navItems.find(i => i.href === pathname)?.label || "Dashboard";
+    return allItems.find(i => i.href === pathname)?.label || "Dashboard";
   };
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] text-slate-700 font-sans antialiased">
-      {/* Command Palette */}
+    <div className="flex min-h-screen bg-[#FDFDFD]">
+      {/* Command Palette Modal */}
       <AnimatePresence>
         {isCommandPaletteOpen && (
           <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4">
@@ -113,51 +143,104 @@ export default function DashboardLayout({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-blue-900/10 backdrop-blur-xs"
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"
               onClick={() => setIsCommandPaletteOpen(false)}
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.98, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: -10 }}
-              className="relative w-full max-w-xl bg-white rounded-2xl shadow-xl border border-blue-50 overflow-hidden"
+              className="relative w-full max-w-xl bg-white rounded-md shadow-2xl border border-slate-200 overflow-hidden"
             >
               <div className="flex items-center px-5 border-b border-slate-100">
-                <Search className="w-4 h-4 text-blue-400" />
+                <Search className="w-4 h-4 text-slate-400" />
                 <input 
                   autoFocus
-                  placeholder="Search dashboard navigation..."
-                  className="w-full px-4 py-5 text-sm outline-none font-medium text-slate-700 placeholder:text-slate-400 bg-transparent"
+                  placeholder="Type a command or search..."
+                  className="w-full px-4 py-5 text-sm outline-none font-medium text-slate-900 placeholder:text-slate-400 bg-transparent"
                   value={commandQuery}
                   onChange={(e) => setCommandQuery(e.target.value)}
                 />
-                <span className="text-[9px] font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded border border-blue-100">ESC</span>
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 border border-slate-200 rounded-md">
+                   <span className="text-[10px] font-black text-slate-500">ESC</span>
+                </div>
               </div>
               
-              <div className="max-h-[50vh] overflow-y-auto p-2">
+              <div className="max-h-[60vh] overflow-y-auto p-2">
                 {filteredItems.length > 0 ? (
-                  <div className="p-1 space-y-1">
-                    {filteredItems.map((item) => (
-                      <button
-                        key={item.label}
-                        onClick={() => {
-                          router.push(item.href);
-                          setIsCommandPaletteOpen(false);
-                        }}
-                        className="w-full flex items-center justify-between px-3 py-3 hover:bg-blue-50/50 rounded-xl transition-all group text-left"
-                      >
-                        <div className="flex items-center gap-3">
-                          <item.icon className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
-                          <span className="text-sm font-semibold text-slate-600 group-hover:text-blue-950">{item.label}</span>
-                        </div>
-                      </button>
-                    ))}
+                  <div className="space-y-4">
+                    {/* Navigation Section */}
+                    <div>
+                      <p className="px-3 py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Navigation</p>
+                      {filteredItems.filter(i => !actions.some(a => a.label === i.label)).map((item) => (
+                        <button
+                          key={item.label}
+                          onClick={() => {
+                            router.push(item.href);
+                            setIsCommandPaletteOpen(false);
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 rounded-lg transition-all group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-slate-900 transition-colors border border-slate-100">
+                              <item.icon className="w-3.5 h-3.5" />
+                            </div>
+                            <span className="text-[13px] font-bold text-slate-700">{item.label}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <span className="text-[10px] font-black text-slate-300 tracking-widest">G + {item.shortcut}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Actions Section */}
+                    {filteredItems.filter(i => actions.some(a => a.label === i.label)).length > 0 && (
+                      <div>
+                        <p className="px-3 py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Quick Actions</p>
+                        {filteredItems.filter(i => actions.some(a => a.label === i.label)).map((item) => (
+                          <button
+                            key={item.label}
+                            onClick={() => {
+                              router.push(item.href);
+                              setIsCommandPaletteOpen(false);
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-blue-50/50 rounded-lg transition-all group border border-transparent hover:border-blue-100"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                                <item.icon className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-[13px] font-bold text-slate-900">{item.label}</span>
+                            </div>
+                            <div className="px-2 py-0.5 bg-blue-100 text-blue-600 rounded text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                               Action
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="py-12 text-center text-slate-400 text-xs font-bold uppercase tracking-wider">
-                    No results match "{commandQuery}"
+                  <div className="py-12 text-center">
+                    <p className="text-sm text-slate-400 font-medium">No commands found for "{commandQuery}"</p>
                   </div>
                 )}
+              </div>
+
+              <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                 <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                       <div className="w-4 h-4 bg-white border border-slate-200 rounded flex items-center justify-center text-[9px] font-black text-slate-400 shadow-sm">↑</div>
+                       <div className="w-4 h-4 bg-white border border-slate-200 rounded flex items-center justify-center text-[9px] font-black text-slate-400 shadow-sm">↓</div>
+                       <span className="text-[10px] font-bold text-slate-400">Navigate</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                       <div className="px-1.5 h-4 bg-white border border-slate-200 rounded flex items-center justify-center text-[9px] font-black text-slate-400 shadow-sm">ENTER</div>
+                       <span className="text-[10px] font-bold text-slate-400">Select</span>
+                    </div>
+                 </div>
+                 <span className="text-[10px] font-black text-slate-300 uppercase tracking-tighter">Command Palette v1.0</span>
               </div>
             </motion.div>
           </div>
@@ -167,94 +250,161 @@ export default function DashboardLayout({
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="md:hidden fixed inset-0 bg-blue-900/10 z-[60] backdrop-blur-xs transition-opacity"
+          className="md:hidden fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm animate-in fade-in duration-300"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      {/* Side Navigation panel - Desktop & Mobile */}
-      <aside className={`flex flex-col fixed inset-y-0 left-0 w-60 bg-white border-r border-blue-50/60 z-[70] transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        {/* BloomxPe Brand Header */}
-        <div className="h-16 px-6 flex items-center justify-between border-b border-blue-50/40">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-[10px] text-white font-black shadow-sm">
-              B
-            </div>
-            <span className="text-sm font-black text-blue-900 tracking-tight">BloomxPe</span>
-          </Link>
-          <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-1 text-slate-400 hover:text-blue-600">
+      {/* Sleek Minimalist Sidebar - Desktop & Mobile */}
+      <aside className={`flex flex-col fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-100 z-[70] transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="h-14 px-6 flex items-center justify-between border-b border-slate-50">
+          <div className="flex items-center gap-2.5">
+            <Zap className="text-blue-600 w-4 h-4 fill-current" />
+            <span className="text-sm font-black tracking-tight text-slate-900">PayxMint</span>
+          </div>
+          <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-1 text-slate-400 hover:text-slate-900">
             <X className="w-4 h-4" />
           </button>
         </div>
         
-        {/* Navigation list */}
-        <nav className="flex-grow py-4 px-3 overflow-y-auto space-y-0.5 custom-scrollbar">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold tracking-tight transition-all duration-200 ${
-                  isActive 
-                    ? "bg-blue-50 text-blue-600 font-bold" 
-                    : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/30"
-                }`}
-              >
-                <item.icon className={`w-4 h-4 stroke-[1.8] ${isActive ? "text-blue-600" : "text-slate-400"}`} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+        <nav className="flex-grow p-4 space-y-6 overflow-y-auto custom-scrollbar">
+          {/* Intelligence Section */}
+          <div className="space-y-1">
+            <Link
+              href="/dashboard/analytics"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold rounded-lg transition-all ${
+                pathname === "/dashboard/analytics" 
+                  ? "bg-slate-900 text-white shadow-md shadow-slate-900/10" 
+                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              Intelligence Dashboard
+            </Link>
+          </div>
 
-          {/* Sign Out Button directly inside sidebar menu list */}
-          <button 
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold tracking-tight text-slate-500 hover:text-rose-600 hover:bg-rose-50/50 transition-all duration-200 text-left"
-          >
-            <LogOut className="w-4 h-4 stroke-[1.8] text-slate-400 group-hover:text-rose-500" />
-            <span>Logout</span>
-          </button>
+          {/* Main Sections */}
+          <div className="space-y-4">
+             <div>
+               <p className="px-3 text-[9px] font-black text-slate-300 uppercase tracking-widest mb-2">Operations</p>
+               <div className="space-y-0.5">
+                 {mainNavItems.map((item) => (
+                   <Link
+                     key={item.label}
+                     href={item.href}
+                     onClick={() => setIsMobileMenuOpen(false)}
+                     className={`flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold rounded-lg transition-all ${
+                       pathname === item.href 
+                         ? "bg-blue-600 text-white shadow-md shadow-blue-600/10" 
+                         : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                     }`}
+                   >
+                     <item.icon className="w-4 h-4" />
+                     {item.label}
+                   </Link>
+                 ))}
+               </div>
+             </div>
+
+             <div>
+               <p className="px-3 text-[9px] font-black text-slate-300 uppercase tracking-widest mb-2">Platform</p>
+               <div className="space-y-0.5">
+                 {secondaryNavItems.map((item) => (
+                   <Link
+                     key={item.label}
+                     href={item.href}
+                     onClick={() => setIsMobileMenuOpen(false)}
+                     className={`flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold rounded-lg transition-all ${
+                       pathname === item.href 
+                         ? "bg-slate-900 text-white shadow-md shadow-slate-900/10" 
+                         : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                     }`}
+                   >
+                     <item.icon className="w-4 h-4" />
+                     {item.label}
+                   </Link>
+                 ))}
+               </div>
+             </div>
+          </div>
         </nav>
+
+        <div className="p-4 border-t border-slate-50 space-y-2">
+           <button 
+             onClick={() => signOut({ callbackUrl: "/login" })}
+             className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+           >
+             <LogOut className="w-4 h-4" />
+             Sign Out
+           </button>
+           <div className="px-3 py-2.5 rounded-md bg-slate-50 flex items-center justify-between border border-slate-100 shadow-inner">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security</span>
+              <div className={`w-1.5 h-1.5 rounded-full ${
+                systemStatus === 'online' ? 'bg-emerald-500 animate-pulse' : 
+                systemStatus === 'error' ? 'bg-rose-500 animate-pulse' : 'bg-amber-400'
+              }`} />
+           </div>
+        </div>
       </aside>
 
-      {/* Main Page Area */}
-      <div className="flex-1 flex flex-col md:ml-60">
-        {/* Top Header Bar for Desktop only */}
-        <header className="hidden md:flex items-center justify-between h-16 px-8 bg-white border-b border-blue-50/40 sticky top-0 z-40">
-           <div className="flex items-center gap-2 text-xs font-semibold">
+      {/* Main Container */}
+      <div className="flex-1 flex flex-col md:ml-64">
+        {/* Minimalist Desktop Header */}
+        <header className="hidden md:flex items-center justify-between h-14 px-8 bg-white border-b border-slate-100 sticky top-0 z-40">
+           <div className="flex items-center gap-2 text-[11px] font-bold">
               <span className="text-slate-400">Main</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-200" />
-              <span className="text-blue-900 font-bold">{getPageTitle()}</span>
+              <ChevronRight className="w-3 h-3 text-slate-200" />
+              <span className="text-slate-900">{getPageTitle()}</span>
            </div>
            
-           <div className="flex items-center gap-3">
-              <div className={`flex items-center gap-2 px-3 py-1 rounded-full border text-[9px] font-bold uppercase tracking-wider ${
-                systemStatus === 'online' ? 'bg-blue-50 text-blue-600 border-blue-100/50' : 'bg-slate-50 text-slate-500 border-slate-100'
+           <div className="flex items-center gap-4">
+              <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${
+                systemStatus === 'online' ? 'bg-emerald-50/50 border-emerald-100/50' : 
+                systemStatus === 'error' ? 'bg-rose-50/50 border-rose-100/50' : 'bg-slate-50 border-slate-100'
               }`}>
-                 <div className={`w-1.5 h-1.5 rounded-full ${systemStatus === 'online' ? 'bg-blue-500 animate-pulse' : 'bg-slate-400'}`} />
-                 <span>{systemStatus === 'online' ? 'Engine Online' : 'System Idle'}</span>
+                 <div className={`w-1 h-1 rounded-full ${
+                   systemStatus === 'online' ? 'bg-emerald-500' : 
+                   systemStatus === 'error' ? 'bg-rose-500' : 'bg-slate-400'
+                 }`} />
+                 <span className={`text-[9px] font-black uppercase ${
+                   systemStatus === 'online' ? 'text-emerald-600' : 
+                   systemStatus === 'error' ? 'text-rose-600' : 'text-slate-500'
+                 }`}>
+                   {systemStatus === 'online' ? 'Secure Node: Active' : 
+                    systemStatus === 'error' ? 'Action Required' : 'Engine Idle'}
+                 </span>
               </div>
+              <button className="text-slate-400 hover:text-slate-900 transition-colors">
+                 <Settings className="w-4 h-4" />
+              </button>
            </div>
         </header>
 
-        {/* Top Header Bar for Mobile only */}
-        <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-blue-50/40 z-40 px-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-[10px] text-white font-black">
-              B
+        {/* Premium Mobile Header */}
+        <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-slate-100 z-40 px-4 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-slate-900 rounded-md flex items-center justify-center shadow-md">
+              <Zap className="text-white w-4 h-4 fill-current" />
             </div>
-            <span className="text-sm font-black text-blue-900 tracking-tight">BloomxPe</span>
+            <div className="flex flex-col">
+              <span className="text-[13px] font-black tracking-tight text-slate-900 leading-none">PayxMint</span>
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className={`w-1.5 h-1.5 rounded-full ${systemStatus === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                <span className="text-[9px] font-bold text-slate-500 uppercase">{systemStatus === 'online' ? 'Active' : 'Offline'}</span>
+              </div>
+            </div>
           </div>
-          <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 bg-slate-50 text-slate-600 rounded-xl border border-slate-100">
-            <Menu className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-3">
+             <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 bg-slate-50 text-slate-600 rounded-full border border-slate-200 active:scale-95 transition-transform">
+               <Menu className="w-4 h-4" />
+             </button>
+          </div>
         </header>
 
-        {/* Content Wrapper */}
-        <main className="flex-grow pt-16 md:pt-0 pb-16 overflow-x-hidden">
-          <div className="max-w-[1240px] mx-auto w-full p-4 md:p-8">
+        {/* Main Content Area */}
+        <main className="flex-grow pt-16 pb-20 md:pt-0 md:pb-12 overflow-x-hidden">
+          <div className="max-w-[1200px] mx-auto w-full p-4 md:p-8">
             {children}
           </div>
         </main>
