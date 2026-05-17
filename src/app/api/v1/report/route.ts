@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { MatchingEngine } from "@/services/matching/MatchingEngine";
 import { logApi } from "@/lib/log";
 import { parseSafeJson } from "@/lib/safe-body";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,8 +32,29 @@ export async function POST(req: NextRequest) {
 
     await logApi("INFO", "Received bot report", undefined, { account, count: transactions.length });
 
+    // --- HIGH-PERFORMANCE BATCH FILTERING ---
+    // Extract external IDs to check in a single database query rather than sequentially
+    const externalIds = transactions
+      .map((t: any) => String(t.externalId || "").trim().toUpperCase())
+      .filter(Boolean);
+
+    let existingIds = new Set<string>();
+    if (externalIds.length > 0) {
+      const existingTxns = await prisma.transaction.findMany({
+        where: { externalId: { in: externalIds } },
+        select: { externalId: true }
+      });
+      existingIds = new Set(existingTxns.map((t: any) => t.externalId));
+    }
+
+    // Only process actual new transactions, skipping database round-trips for duplicates
+    const newTransactions = transactions.filter((t: any) => {
+      const id = String(t.externalId || "").trim().toUpperCase();
+      return !existingIds.has(id);
+    });
+
     let newCount = 0;
-    for (const trx of transactions) {
+    for (const trx of newTransactions) {
       const isNew = await MatchingEngine.onTransactionDetected(trx);
       if (isNew) newCount++;
     }
