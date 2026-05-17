@@ -110,8 +110,8 @@ export class PaymentEngine {
     // ── 5. Generate UPI Deep Link (exactly like BloomXHub) ───────────
     const merchantName = keyData.merchant.brandName || keyData.merchant.businessName || keyData.merchant.name;
     const cleanName = encodeURIComponent(merchantName).replace(/%20/g, "+");
-    // Full UPI link matching exact Google Pay Business terminal format (with mc=5411, oobe=fos123, etc.)
-    const upiDeepLink = `upi://pay?pa=${account.upiId.trim()}&pn=${cleanName}&am=${amount.toFixed(2)}&cu=INR&tr=${encodeURIComponent(orderId)}&tn=${encodeURIComponent(orderId)}&tid=${encodeURIComponent(orderId)}&mc=5411&oobe=fos123&qrst=stk&ver=01&mode=01`;
+    // Full UPI link for exact BloomXHub parity, keeping VPA raw and using '+' for spaces to support legacy scanners
+    const upiDeepLink = `upi://pay?pa=${account.upiId.trim()}&pn=${cleanName}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(orderId)}`;
 
     // ── 6. Generate cryptographically strong payment token ────────────
     const paymentToken = crypto.randomBytes(32).toString("hex");
@@ -174,8 +174,8 @@ export class PaymentEngine {
     const { account } = routingResult;
 
     const orderId = `RCG_${Math.floor(Date.now() / 1000)}_${Math.floor(Math.random() * 1000)}`;
-    // Full UPI link for recharge QR matching exact Google Pay Business terminal format
-    const upiDeepLink = `upi://pay?pa=${account.upiId.trim()}&pn=PayxMint+SaaS&am=${amount.toFixed(2)}&cu=INR&tr=${encodeURIComponent(orderId)}&tn=${encodeURIComponent(orderId)}&tid=${encodeURIComponent(orderId)}&mc=5411&oobe=fos123&qrst=stk&ver=01&mode=01`;
+    // Full UPI link for recharge QR, keeping VPA raw and using '+' for spaces to support legacy scanners
+    const upiDeepLink = `upi://pay?pa=${account.upiId.trim()}&pn=PayxMint+SaaS&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(orderId)}`;
 
     const paymentToken = crypto.randomBytes(32).toString("hex");
 

@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vanna Pay | Private QR Payment Interface</title>
+  <meta name="description" content="Vanna Pay is a private QR-based UPI payment interface for secure transaction collection." />
+  <meta name="keywords" content="UPI, QR payment, private payment link, Vanna Pay, fintech" />
+  <meta name="author" content="Vanna Pay" />
+  <meta name="application-name" content="Vanna Pay" />
+  <meta name="theme-color" content="#005bbf" />
+  <meta name="color-scheme" content="light" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="format-detection" content="telephone=no, email=no, address=no" />
+
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, nocache, notranslate, nositelinkssearchbox, max-snippet:0, max-image-preview:none, max-video-preview:-1" />
+  <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate, max-snippet:0, max-image-preview:none, max-video-preview:-1" />
+  <meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+
+  <meta property="og:title" content="Vanna Pay | Private QR Payment Interface" />
+  <meta property="og:description" content="Private QR-based UPI payment interface for secure collections." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/img/v.svg" />
+  <meta property="og:locale" content="en_IN" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Vanna Pay | Private QR Payment Interface" />
+  <meta name="twitter:description" content="Private QR-based UPI payment interface for secure collections." />
+  <meta name="twitter:image" content="assets/img/v.svg" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/v.svg" />
+  <link rel="shortcut icon" href="assets/img/v.svg" />
+  <link rel="apple-touch-icon" href="assets/img/v.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --surface: #f9f9ff;
+      --surface-lowest: #ffffff;
+      --surface-low: #f2f3fd;
+      --on-surface: #191c23;
+      --on-surface-variant: #414754;
+      --primary: #005bbf;
+      --primary-container: #1a73e8;
+      --outline-variant: #c1c6d6;
+      --error: #d93025;
+      --success: #1e8e3e;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      --radius-md: 8px;
+      --radius-lg: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--surface);
+      color: var(--on-surface);
+      font-family: "Inter", sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--surface-lowest);
+      border-bottom: 1px solid var(--outline-variant);
+    }
+
+    .topbar-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .admin-link {
+      margin-left: auto;
+      width: 36px;
+      height: 36px;
+      border-radius: 9999px;
+      border: 1px solid var(--outline-variant);
+      background: var(--surface-low);
+      color: var(--on-surface);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.12s ease;
+    }
+
+    .admin-link:hover {
+      border-color: var(--primary);
+      background: #eaf2ff;
+    }
+
+    .admin-link:active {
+      transform: scale(0.97);
+    }
+
+    .admin-link svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--primary-container);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .brand-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      line-height: 28px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    main {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+
+    .card {
+      background: var(--surface-lowest);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .label {
+      font-size: 12px;
+      line-height: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+      color: var(--on-surface-variant);
+    }
+
+    .amount {
+      margin: 8px 0 0;
+      font-size: 32px;
+      line-height: 40px;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .muted {
+      color: var(--on-surface-variant);
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-md);
+      background: #fff;
+      color: var(--on-surface);
+      font: inherit;
+      padding: 14px 12px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    select:focus {
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 91, 191, 0.15);
+      padding: 13px 11px;
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 56px;
+      border: none;
+      border-radius: 12px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.99);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-container);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--on-surface-variant);
+      border: 1px solid var(--outline-variant);
+    }
+
+    .qr-shell {
+      margin: 16px auto 0;
+      width: 272px;
+      background: #fff;
+      padding: 16px;
+      border-radius: 16px;
+      position: relative;
+      border: 1px solid var(--outline-variant);
+    }
+
+    .qr-shell::before,
+    .qr-shell::after,
+    .qr-shell span::before,
+    .qr-shell span::after {
+      content: "";
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-style: solid;
+      border-color: var(--primary);
+    }
+
+    .qr-shell::before {
+      top: 0;
+      left: 0;
+      border-width: 4px 0 0 4px;
+      border-radius: 12px 0 0 0;
+    }
+
+    .qr-shell::after {
+      top: 0;
+      right: 0;
+      border-width: 4px 4px 0 0;
+      border-radius: 0 12px 0 0;
+    }
+
+    .qr-shell span::before {
+      bottom: 0;
+      left: 0;
+      border-width: 0 0 4px 4px;
+      border-radius: 0 0 0 12px;
+    }
+
+    .qr-shell span::after {
+      bottom: 0;
+      right: 0;
+      border-width: 0 4px 4px 0;
+      border-radius: 0 0 12px 0;
+    }
+
+    #qr-code {
+      width: 240px;
+      height: 240px;
+      margin: 0 auto;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    #qr-code img,
+    #qr-code canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .timer {
+      margin-top: 16px;
+      text-align: center;
+      color: var(--error);
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 28px;
+    }
+
+    .chip {
+      margin: 10px auto 0;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 9999px;
+      background: #e8f5eb;
+      color: var(--success);
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .app-links {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .app-link {
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+      padding: 10px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--outline-variant);
+      color: var(--on-surface);
+      font-weight: 500;
+      background: var(--surface-low);
+      min-height: 88px;
+      font-size: 12px;
+    }
+
+    .app-link:hover {
+      border-color: var(--primary);
+    }
+
+    .app-link img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #fff;
+      padding: 2px;
+    }
+
+    .sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(25, 28, 35, 0.42);
+      display: none;
+      align-items: end;
+      justify-content: center;
+      z-index: 50;
+      padding: 12px;
+    }
+
+    .sheet {
+      width: 100%;
+      max-width: 560px;
+      border-radius: 16px;
+      background: var(--surface-lowest);
+      border: 1px solid var(--outline-variant);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .sheet-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .sheet-btn {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 10px;
+      border: 1px solid var(--outline-variant);
+      background: var(--surface-low);
+      color: var(--on-surface);
+      font: inherit;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+
+    .meta {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--outline-variant);
+      display: grid;
+      gap: 8px;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .error-box {
+      margin-bottom: 16px;
+      border-radius: 12px;
+      border: 1px solid #f3b9b9;
+      background: #ffe9e9;
+      color: #7f1d1d;
+      padding: 12px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 520px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .app-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-mark" id="brand-logo-box">V</div>
+      <div class="brand-name" id="brand-name">Vanna Pay</div>
+      <a class="admin-link" href="admin/" aria-label="Open admin panel" title="Admin">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-3.866 0-7 2.239-7 5v1h14v-1c0-2.761-3.134-5-7-5Z" fill="currentColor"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <div id="error-box" class="error-box"></div>
+
+    <section id="without-params-section" class="card hidden">
+      <div class="label">New QR Payment</div>
+      <h1 style="margin:8px 0 16px;font-size:24px;line-height:32px;font-weight:600;letter-spacing:-0.01em;">Enter payment details</h1>
+      <form id="payment-form" novalidate>
+        <div class="field">
+          <label class="label" for="amount-input">Amount</label>
+          <input id="amount-input" type="number" min="0.01" step="0.01" placeholder="Enter amount" required />
+        </div>
+        <div class="field">
+          <label class="label" for="tid-input">Transaction ID</label>
+          <input id="tid-input" type="text" maxlength="40" required />
+        </div>
+        <div class="field">
+          <label class="label" for="upi-id-select">UPI Route (Optional)</label>
+          <select id="upi-id-select" aria-label="Select UPI route">
+            <option value="">Random (Default)</option>
+          </select>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label class="label" for="json-input">JSON URL (Optional)</label>
+            <input id="json-input" type="url" placeholder="https://example.com/upi.json" />
+          </div>
+          <div class="field">
+            <label class="label" for="exp-input">Expiry Duration (seconds)</label>
+            <input id="exp-input" type="text" inputmode="numeric" placeholder="e.g. 300" />
+          </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Generate QR Payment</button>
+      </form>
+    </section>
+
+    <section id="with-params-section" class="hidden">
+      <div class="card" style="text-align:center;">
+        <div class="label">Amount to Pay</div>
+        <div class="amount" id="amount-display">₹0.00</div>
+        <div class="chip">Secure Encrypted Transaction</div>
+      </div>
+
+      <div class="card" style="text-align:center;">
+        <div class="label">Scan and Pay</div>
+        <div class="qr-shell">
+          <span></span>
+          <div id="qr-code" aria-label="Payment QR code"></div>
+        </div>
+        <div class="timer" id="timer-display">05:00</div>
+        <p class="muted" style="margin:8px 0 0;">QR code expires automatically</p>
+
+        <div class="app-links">
+          <a class="app-link" id="phonepe-link" href="#">
+            <img src="assets/img/phonepe.svg" alt="PhonePe" />
+            <span>PhonePe</span>
+          </a>
+          <a class="app-link" id="paytm-link" href="#">
+            <img src="assets/img/paytm.svg" alt="Paytm" />
+            <span>Paytm</span>
+          </a>
+          <a class="app-link" id="gpay-link" href="#">
+            <img src="assets/img/gpay.svg" alt="Google Pay" />
+            <span>Google Pay</span>
+          </a>
+          <a class="app-link" id="other-upi-link" href="#">
+            <img src="assets/img/upi.svg" alt="Other UPI apps" />
+            <span>Other UPI</span>
+          </a>
+        </div>
+
+        <div class="meta">
+          <div class="meta-row"><span class="muted">Merchant</span><strong id="merchant-name">-</strong></div>
+          <div class="meta-row"><span class="muted">UPI ID</span><strong id="merchant-vpa">-</strong></div>
+          <div class="meta-row"><span class="muted">Transaction ID</span><strong id="tx-id">-</strong></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <button id="payment-done-btn" class="btn btn-primary" type="button">Payment Done? Continue</button>
+        <button id="cancel-btn" class="btn btn-secondary" style="margin-top:10px;" type="button">Cancel Payment</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="sheet-overlay" id="mobile-sheet-overlay" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="QR options">
+      <p class="sheet-title">Choose an action</p>
+      <button class="sheet-btn" id="sheet-open-upi-btn" type="button">Open UPI App</button>
+      <button class="sheet-btn" id="sheet-download-btn" type="button">Download QR Image</button>
+      <button class="sheet-btn" id="sheet-cancel-btn" type="button">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_BRAND = {
+      name: "Vanna Pay",
+      logo: ""
+    };
+
+    const DEFAULT_EXPIRY_SECONDS = 300;
+    const IST_OFFSET_MINUTES = 330;
+
+    const state = {
+      config: null,
+      upiLink: "",
+      phonePeLink: "",
+      paytmLink: "",
+      gpayLink: "",
+      timerId: null
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const amountParam = params.get("amount");
+    const tidParam = params.get("tid");
+    const upiIdParam = params.get("upi_id");
+
+    const els = {
+      errorBox: document.getElementById("error-box"),
+      withoutSection: document.getElementById("without-params-section"),
+      withSection: document.getElementById("with-params-section"),
+      amountDisplay: document.getElementById("amount-display"),
+      timerDisplay: document.getElementById("timer-display"),
+      merchantName: document.getElementById("merchant-name"),
+      merchantVpa: document.getElementById("merchant-vpa"),
+      txId: document.getElementById("tx-id"),
+      phonepeLink: document.getElementById("phonepe-link"),
+      paytmLink: document.getElementById("paytm-link"),
+      gpayLink: document.getElementById("gpay-link"),
+      otherUpiLink: document.getElementById("other-upi-link"),
+      paymentDoneBtn: document.getElementById("payment-done-btn"),
+      cancelBtn: document.getElementById("cancel-btn"),
+      form: document.getElementById("payment-form"),
+      amountInput: document.getElementById("amount-input"),
+      tidInput: document.getElementById("tid-input"),
+      upiIdSelect: document.getElementById("upi-id-select"),
+      jsonInput: document.getElementById("json-input"),
+      expInput: document.getElementById("exp-input"),
+      brandName: document.getElementById("brand-name"),
+      brandLogoBox: document.getElementById("brand-logo-box"),
+      qrCode: document.getElementById("qr-code"),
+      mobileSheetOverlay: document.getElementById("mobile-sheet-overlay"),
+      sheetOpenUpiBtn: document.getElementById("sheet-open-upi-btn"),
+      sheetDownloadBtn: document.getElementById("sheet-download-btn"),
+      sheetCancelBtn: document.getElementById("sheet-cancel-btn")
+    };
+
+    function showError(message) {
+      els.errorBox.textContent = message;
+      els.errorBox.style.display = "block";
+    }
+
+    function hideError() {
+      els.errorBox.style.display = "none";
+      els.errorBox.textContent = "";
+    }
+
+    function randomTid(length = 12) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let out = "";
+      for (let i = 0; i < length; i += 1) {
+        out += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return out;
+    }
+
+    function formatCurrencyINR(value) {
+      const num = Number(value);
+      if (!Number.isFinite(num)) {
+        return `₹${value}`;
+      }
+      return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(num);
+    }
+
+    function formatTimer(totalSec) {
+      const m = Math.floor(totalSec / 60).toString().padStart(2, "0");
+      const s = (totalSec % 60).toString().padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    function encodeBase64Utf8(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    function isAndroidOrIphone() {
+      return /android|iphone/i.test(navigator.userAgent || "");
+    }
+
+    function resolveBrand(config) {
+      const candidate = config && config.brand ? config.brand : null;
+      const name = candidate && candidate.name ? String(candidate.name).trim() : DEFAULT_BRAND.name;
+      const logo = candidate && candidate.logo ? String(candidate.logo).trim() : DEFAULT_BRAND.logo;
+      return { name: name || DEFAULT_BRAND.name, logo: logo || "" };
+    }
+
+    function applyBrand(brand) {
+      els.brandName.textContent = brand.name;
+      if (!brand.logo) {
+        els.brandLogoBox.textContent = "V";
+        els.brandLogoBox.innerHTML = "V";
+        return;
+      }
+      const img = document.createElement("img");
+      img.src = brand.logo;
+      img.alt = `${brand.name} logo`;
+      img.onerror = () => {
+        els.brandLogoBox.textContent = "V";
+      };
+      els.brandLogoBox.innerHTML = "";
+      els.brandLogoBox.appendChild(img);
+    }
+
+    function createPhonePePayload({ pa, pn, amount, tid }) {
+      const numeric = Number(amount);
+      const initialAmount = Number.isFinite(numeric) ? Math.round(numeric * 100) : 0;
+      return {
+        contact: {
+          cbsName: "",
+          nickName: pn,
+          vpa: pa,
+          type: "VPA"
+        },
+        p2pPaymentCheckoutParams: {
+          note: tid,
+          isByDefaultKnownContact: true,
+          enableSpeechToText: false,
+          allowAmountEdit: false,
+          showQrCodeOption: false,
+          disableViewHistory: true,
+          shouldShowUnsavedContactBanner: false,
+          isRecurring: false,
+          checkoutType: "DEFAULT",
+          transactionContext: "p2p",
+          initialAmount,
+          disableNotesEdit: true,
+          showKeyboard: false,
+          currency: "INR",
+          shouldShowMaskedNumber: true
+        }
+      };
+    }
+
+    function parseIstDateTimeToEpochMs(value) {
+      const normalized = value.trim().replace(" ", "T");
+      const match = normalized.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+      if (!match) {
+        return NaN;
+      }
+      const [, year, month, day, hour, minute, second = "0"] = match;
+      const utcMs = Date.UTC(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+        Number(hour),
+        Number(minute),
+        Number(second)
+      );
+      return utcMs - IST_OFFSET_MINUTES * 60 * 1000;
+    }
+
+    function getDefaultExpiryEpochMs() {
+      return Date.now() + DEFAULT_EXPIRY_SECONDS * 1000;
+    }
+
+    function parseExpirySecondsInputToEpochMs(expRaw) {
+      const value = String(expRaw || "").trim();
+      if (!value) {
+        return getDefaultExpiryEpochMs();
+      }
+
+      if (!/^\d+$/.test(value)) {
+        return NaN;
+      }
+
+      const seconds = Number(value);
+      if (!Number.isFinite(seconds) || seconds <= 0) {
+        return NaN;
+      }
+
+      return Date.now() + Math.floor(seconds) * 1000;
+    }
+
+    function parseExpToEpochMs(expRaw) {
+      const value = String(expRaw || "").trim();
+      if (!value) {
+        return getDefaultExpiryEpochMs();
+      }
+
+      if (/^\d+$/.test(value)) {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric) || numeric <= 0) {
+          return getDefaultExpiryEpochMs();
+        }
+
+        // Backward compatibility: small numeric values are treated as duration (seconds).
+        if (numeric < 1000000000) {
+          return Date.now() + Math.floor(numeric) * 1000;
+        }
+
+        // 10 digits => Unix seconds timestamp, 13+ digits => Unix ms timestamp.
+        if (numeric < 1000000000000) {
+          return Math.floor(numeric) * 1000;
+        }
+        return Math.floor(numeric);
+      }
+
+      // If a date-time is provided without timezone, treat it as IST.
+      const isTzAware = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(value);
+      const parsedMs = isTzAware ? Date.parse(value) : parseIstDateTimeToEpochMs(value);
+      if (Number.isFinite(parsedMs)) {
+        return parsedMs;
+      }
+
+      return getDefaultExpiryEpochMs();
+    }
+
+    function toUnixSeconds(epochMs) {
+      return Math.floor(epochMs / 1000);
+    }
+
+    function startExpiryTimer(expiryEpochMs) {
+      let remaining = Math.max(0, Math.ceil((expiryEpochMs - Date.now()) / 1000));
+      els.timerDisplay.textContent = formatTimer(remaining);
+
+      if (remaining <= 0) {
+        window.location.href = "failure.html";
+        return;
+      }
+
+      state.timerId = window.setInterval(() => {
+        remaining = Math.max(0, Math.ceil((expiryEpochMs - Date.now()) / 1000));
+        if (remaining <= 0) {
+          clearInterval(state.timerId);
+          window.location.href = "failure.html";
+          return;
+        }
+        els.timerDisplay.textContent = formatTimer(remaining);
+      }, 1000);
+    }
+
+    function generateQr(text) {
+      els.qrCode.innerHTML = "";
+      new QRCode(els.qrCode, {
+        text,
+        width: 240,
+        height: 240,
+        colorDark: "#191c23",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function buildWithParamsUrl() {
+      const data = new URLSearchParams();
+      data.set("amount", els.amountInput.value.trim());
+      data.set("tid", (els.tidInput.value || "").trim() || randomTid());
+      const selectedUpiId = (els.upiIdSelect.value || "").trim();
+      const json = els.jsonInput.value.trim();
+      const expEpochMs = parseExpirySecondsInputToEpochMs(els.expInput.value.trim());
+      if (selectedUpiId) {
+        data.set("upi_id", selectedUpiId);
+      }
+      if (json) {
+        data.set("json", json);
+      }
+      data.set("exp", String(toUnixSeconds(expEpochMs)));
+      return `${window.location.pathname}?${data.toString()}`;
+    }
+
+    function getValidUpiMetaList(config) {
+      const rawMeta = config && (config.upi_meta ?? config.upi_metas);
+      const list = Array.isArray(rawMeta) ? rawMeta : (rawMeta ? [rawMeta] : []);
+      const valid = list.filter((item) => item && item.pa && item.pn && item.id);
+
+      if (!valid.length) {
+        throw new Error("JSON must include at least one upi_meta entry with pa, pn, and id.");
+      }
+
+      return valid;
+    }
+
+    function buildUpiLinkFromMeta(meta, amount, tid) {
+      const pa = String(meta.pa).trim();
+      const pn = String(meta.pn).trim();
+
+      const query = new URLSearchParams();
+      query.set("pa", pa);
+      query.set("pn", pn);
+      query.set("am", amount.toFixed(2));
+      query.set("cu", "INR");
+      query.set("tr", tid);
+      query.set("tn", tid);
+      query.set("tid", tid);
+
+      const requiredKeys = new Set(["pa", "pn", "id"]);
+      Object.entries(meta).forEach(([key, value]) => {
+        if (requiredKeys.has(key)) {
+          return;
+        }
+
+        if (value == null) {
+          return;
+        }
+
+        const normalized = String(value).trim();
+        if (!normalized) {
+          return;
+        }
+
+        query.set(key, normalized);
+      });
+
+      return `upi://pay?${query.toString()}`;
+    }
+
+    function getUniqueUpiIds(config) {
+      const list = getValidUpiMetaList(config);
+      return Array.from(
+        new Set(
+          list
+            .map((item) => String(item.id || "").trim())
+            .filter(Boolean)
+        )
+      );
+    }
+
+    async function populateUpiIdOptions() {
+      const previousValue = (els.upiIdSelect.value || "").trim() || upiIdParam || "";
+      const config = await fetchJsonConfig();
+      const ids = getUniqueUpiIds(config);
+
+      els.upiIdSelect.innerHTML = "";
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "Random (Default)";
+      els.upiIdSelect.appendChild(defaultOption);
+
+      ids.forEach((id) => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = id;
+        els.upiIdSelect.appendChild(option);
+      });
+
+      if (previousValue && ids.includes(previousValue)) {
+        els.upiIdSelect.value = previousValue;
+      } else {
+        els.upiIdSelect.value = "";
+      }
+    }
+
+    function getQrImageDataUrl() {
+      const canvas = els.qrCode.querySelector("canvas");
+      if (canvas) {
+        return canvas.toDataURL("image/png");
+      }
+      const img = els.qrCode.querySelector("img");
+      if (img && img.src) {
+        return img.src;
+      }
+      return "";
+    }
+
+    function downloadQrImage() {
+      const dataUrl = getQrImageDataUrl();
+      if (!dataUrl) {
+        return;
+      }
+      const anchor = document.createElement("a");
+      anchor.href = dataUrl;
+      anchor.download = `upi-qr-${Date.now()}.png`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+    }
+
+    function closeMobileSheet() {
+      els.mobileSheetOverlay.style.display = "none";
+      els.mobileSheetOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function openMobileSheet() {
+      els.mobileSheetOverlay.style.display = "flex";
+      els.mobileSheetOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function setupQrTapActions() {
+      els.qrCode.addEventListener("click", () => {
+        if (isAndroidOrIphone()) {
+          openMobileSheet();
+          return;
+        }
+        downloadQrImage();
+      });
+
+      els.sheetOpenUpiBtn.addEventListener("click", () => {
+        closeMobileSheet();
+        window.location.href = state.upiLink;
+      });
+
+      els.sheetDownloadBtn.addEventListener("click", () => {
+        closeMobileSheet();
+        downloadQrImage();
+      });
+
+      els.sheetCancelBtn.addEventListener("click", closeMobileSheet);
+      els.mobileSheetOverlay.addEventListener("click", (event) => {
+        if (event.target === els.mobileSheetOverlay) {
+          closeMobileSheet();
+        }
+      });
+    }
+
+    async function setupWithoutParamsMode() {
+      hideError();
+      els.withSection.classList.add("hidden");
+      els.withoutSection.classList.remove("hidden");
+
+      els.tidInput.value = randomTid();
+      els.expInput.value = "";
+      if (params.get("json")) {
+        els.jsonInput.value = params.get("json");
+      }
+
+      try {
+        await populateUpiIdOptions();
+      } catch {
+        els.upiIdSelect.innerHTML = "<option value=\"\">Random (Default)</option>";
+      }
+
+      els.jsonInput.addEventListener("change", async () => {
+        try {
+          await populateUpiIdOptions();
+        } catch {
+          els.upiIdSelect.innerHTML = "<option value=\"\">Random (Default)</option>";
+        }
+      });
+
+      els.form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        hideError();
+
+        const amount = Number(els.amountInput.value);
+        if (!Number.isFinite(amount) || amount <= 0) {
+          showError("Please enter a valid amount greater than 0.");
+          return;
+        }
+
+        const expiryEpochMs = parseExpirySecondsInputToEpochMs(els.expInput.value.trim());
+        if (!Number.isFinite(expiryEpochMs)) {
+          showError("Please enter expiry as valid seconds (e.g. 300).");
+          return;
+        }
+
+        const nextUrl = buildWithParamsUrl();
+        window.location.href = nextUrl;
+      });
+    }
+
+    async function fetchJsonConfig() {
+      const jsonParam = params.get("json");
+      const url = jsonParam ? jsonParam : "upi.json";
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`Unable to load JSON config from ${url}`);
+      }
+      return response.json();
+    }
+
+    function setupSuccessRedirect() {
+      const redirectUrl = state.config && state.config.redirect_url ? state.config.redirect_url : "success.html";
+      els.paymentDoneBtn.addEventListener("click", () => {
+        window.location.href = redirectUrl;
+      });
+      els.cancelBtn.addEventListener("click", () => {
+        window.location.href = "index.html";
+      });
+    }
+
+    function buildPaytmLink(pa, pn, amount, tid) {
+      return `paytmmp://cash_wallet?pa=${encodeURIComponent(pa)}&pn=${encodeURIComponent(pn)}&am=${encodeURIComponent(amount.toFixed(2))}&cu=INR&tn=${encodeURIComponent(tid)}&featuretype=money_transfer`;
+    }
+
+    function buildGpayLink(pa, pn, amount, tid) {
+      return `gpay://upi/pay?pa=${encodeURIComponent(pa)}&pn=${encodeURIComponent(pn)}&am=${encodeURIComponent(amount.toFixed(2))}&cu=INR&tn=${encodeURIComponent(tid)}`;
+    }
+
+    function getRandomUpiMeta(config) {
+      const valid = getValidUpiMetaList(config);
+
+      return valid[Math.floor(Math.random() * valid.length)];
+    }
+
+    function getUpiMetaById(config, upiId) {
+      const targetId = String(upiId || "").trim();
+      const valid = getValidUpiMetaList(config);
+      const match = valid.find((item) => String(item.id || "").trim() === targetId);
+
+      if (!match) {
+        throw new Error(`UPI id \"${targetId}\" was not found in JSON.`);
+      }
+
+      return match;
+    }
+
+    async function setupWithParamsMode() {
+      hideError();
+      els.withoutSection.classList.add("hidden");
+      els.withSection.classList.remove("hidden");
+
+      const amount = Number(amountParam);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        throw new Error("Invalid amount in URL. Please provide a value greater than 0.");
+      }
+
+      els.amountDisplay.textContent = formatCurrencyINR(amount);
+      els.txId.textContent = tidParam;
+
+      const config = await fetchJsonConfig();
+      state.config = config;
+      const brand = resolveBrand(config);
+      applyBrand(brand);
+
+      const selectedMeta = upiIdParam ? getUpiMetaById(config, upiIdParam) : getRandomUpiMeta(config);
+      const pa = String(selectedMeta.pa).trim();
+      const pn = String(selectedMeta.pn).trim();
+      const upiLink = buildUpiLinkFromMeta(selectedMeta, amount, tidParam);
+      state.upiLink = upiLink;
+
+      const phonePePayload = createPhonePePayload({ pa, pn, amount, tid: tidParam });
+      const phonePeBase64 = encodeBase64Utf8(JSON.stringify(phonePePayload));
+      state.phonePeLink = (config.upi_links && config.upi_links.phonepe) || `phonepe://native?data=${phonePeBase64}&id=p2ppayment`;
+      state.paytmLink = (config.upi_links && config.upi_links.paytm) || buildPaytmLink(pa, pn, amount, tidParam);
+      state.gpayLink = (config.upi_links && config.upi_links.gpay) || buildGpayLink(pa, pn, amount, tidParam);
+
+      generateQr(state.upiLink);
+      els.phonepeLink.href = state.phonePeLink;
+      els.paytmLink.href = state.paytmLink;
+      els.gpayLink.href = state.gpayLink;
+      els.otherUpiLink.href = state.upiLink;
+      els.merchantName.textContent = pn;
+      els.merchantVpa.textContent = pa;
+
+      const expiryEpochMs = parseExpToEpochMs(params.get("exp"));
+      startExpiryTimer(expiryEpochMs);
+      setupSuccessRedirect();
+      setupQrTapActions();
+    }
+
+    async function init() {
+      try {
+        if (!amountParam || !tidParam) {
+          await setupWithoutParamsMode();
+          return;
+        }
+        await setupWithParamsMode();
+      } catch (error) {
+        showError(error instanceof Error ? error.message : "Something went wrong.");
+        await setupWithoutParamsMode();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

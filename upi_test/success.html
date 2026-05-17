@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Successful | Vanna Pay</title>
+  <meta name="description" content="Private Vanna Pay confirmation page for successful QR-based UPI payments." />
+  <meta name="keywords" content="UPI, QR payment, success, Vanna Pay, private payment" />
+  <meta name="author" content="Vanna Pay" />
+  <meta name="application-name" content="Vanna Pay" />
+  <meta name="theme-color" content="#005bbf" />
+  <meta name="color-scheme" content="light" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="format-detection" content="telephone=no, email=no, address=no" />
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, nocache, notranslate, nositelinkssearchbox, max-snippet:0, max-image-preview:none, max-video-preview:-1" />
+  <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate, max-snippet:0, max-image-preview:none, max-video-preview:-1" />
+  <meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+  <meta property="og:title" content="Payment Successful | Vanna Pay" />
+  <meta property="og:description" content="Private confirmation page for a successful QR-based UPI payment." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/img/v.svg" />
+  <meta property="og:locale" content="en_IN" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Payment Successful | Vanna Pay" />
+  <meta name="twitter:description" content="Private confirmation page for a successful QR-based UPI payment." />
+  <meta name="twitter:image" content="assets/img/v.svg" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/v.svg" />
+  <link rel="shortcut icon" href="assets/img/v.svg" />
+  <link rel="apple-touch-icon" href="assets/img/v.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --surface: #f9f9ff;
+      --surface-lowest: #ffffff;
+      --outline-variant: #c1c6d6;
+      --on-surface: #191c23;
+      --on-surface-variant: #414754;
+      --primary: #005bbf;
+      --primary-container: #1a73e8;
+      --success: #1e8e3e;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--surface);
+      color: var(--on-surface);
+      font-family: "Inter", sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--surface-lowest);
+      border: 1px solid var(--outline-variant);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 16px;
+      border-radius: 9999px;
+      display: grid;
+      place-items: center;
+      background: #e8f5eb;
+      color: var(--success);
+      font-size: 42px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 32px;
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      margin: 10px 0 24px;
+      color: var(--on-surface-variant);
+      font-size: 16px;
+      line-height: 24px;
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 56px;
+      border: none;
+      border-radius: 12px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: background-color 0.2s ease;
+    }
+
+    .btn:hover { background: var(--primary-container); }
+  </style>
+</head>
+<body>
+  <section class="card">
+    <div class="icon">✓</div>
+    <h1>Payment Successful</h1>
+    <p>Your transaction is completed securely. You can start a fresh payment anytime.</p>
+    <button class="btn" type="button" onclick="window.location.href='index.html'">New Payment</button>
+  </section>
+</body>
+</html>

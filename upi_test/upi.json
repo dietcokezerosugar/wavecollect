@@ -1,0 +1,40 @@
+{
+    "upi_meta": [
+        {
+            "pa": "gpay-12191454187@okbizaxis",
+            "pn": "Google Pay Merchant",
+            "id": "anmol"
+        },
+        {
+            "pa": "gpay-12205284864@okbizaxis",
+            "pn": "Skylyn Technology",
+            "id": "skylyn",
+            "mc": "5411",
+            "oobe": "fos123",
+            "qrst": "stk",
+            "ver": "01",
+            "mode": "01"
+        },
+        {
+            "pa": "9602638238@okbizaxis",
+            "pn": "solana",
+            "id": "solana"
+        },
+        {
+            "id": "bharatpe",
+            "pa": "BHARATPE2U0O0L1K1H99476@unitype",
+            "pn": "Demo",
+            "cu": "INR",
+            "bpsign": "MHVnWFg4a0p2d0hlczZSWnc3SCt4bWh0dzlmWE9NZTVYTE1uaEtJY2Z4UT0="
+        },
+        {
+            "id": "rohit",
+            "pa": "pinelabs.stq4499986@pineaxis",
+            "pn": "ROHIT WEDDING PLANNER",
+            "mc": "5621",
+            "cu": "INR",
+            "qrMedium": "04",
+            "pinCode": "121004"
+        }
+    ]
+}
