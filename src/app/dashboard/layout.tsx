@@ -104,7 +104,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-[#FCFCFC] text-slate-800 font-sans antialiased">
+    <div className="flex min-h-screen bg-[#F8FAFC] text-slate-700 font-sans antialiased">
       {/* Command Palette */}
       <AnimatePresence>
         {isCommandPaletteOpen && (
@@ -113,25 +113,25 @@ export default function DashboardLayout({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-slate-900/20 backdrop-blur-xs"
+              className="fixed inset-0 bg-blue-900/10 backdrop-blur-xs"
               onClick={() => setIsCommandPaletteOpen(false)}
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.98, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: -10 }}
-              className="relative w-full max-w-xl bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
+              className="relative w-full max-w-xl bg-white rounded-2xl shadow-xl border border-blue-50 overflow-hidden"
             >
               <div className="flex items-center px-5 border-b border-slate-100">
-                <Search className="w-4 h-4 text-slate-400" />
+                <Search className="w-4 h-4 text-blue-400" />
                 <input 
                   autoFocus
                   placeholder="Search dashboard navigation..."
-                  className="w-full px-4 py-5 text-sm outline-none font-medium text-slate-900 placeholder:text-slate-400 bg-transparent"
+                  className="w-full px-4 py-5 text-sm outline-none font-medium text-slate-700 placeholder:text-slate-400 bg-transparent"
                   value={commandQuery}
                   onChange={(e) => setCommandQuery(e.target.value)}
                 />
-                <span className="text-[9px] font-black text-slate-400 bg-slate-50 px-2 py-1 rounded border border-slate-200">ESC</span>
+                <span className="text-[9px] font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded border border-blue-100">ESC</span>
               </div>
               
               <div className="max-h-[50vh] overflow-y-auto p-2">
@@ -144,11 +144,11 @@ export default function DashboardLayout({
                           router.push(item.href);
                           setIsCommandPaletteOpen(false);
                         }}
-                        className="w-full flex items-center justify-between px-3 py-3 hover:bg-slate-50 rounded-xl transition-all group text-left"
+                        className="w-full flex items-center justify-between px-3 py-3 hover:bg-blue-50/50 rounded-xl transition-all group text-left"
                       >
                         <div className="flex items-center gap-3">
-                          <item.icon className="w-4 h-4 text-slate-400 group-hover:text-slate-800" />
-                          <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">{item.label}</span>
+                          <item.icon className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
+                          <span className="text-sm font-semibold text-slate-600 group-hover:text-blue-950">{item.label}</span>
                         </div>
                       </button>
                     ))}
@@ -167,22 +167,22 @@ export default function DashboardLayout({
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="md:hidden fixed inset-0 bg-slate-900/30 z-[60] backdrop-blur-xs transition-opacity"
+          className="md:hidden fixed inset-0 bg-blue-900/10 z-[60] backdrop-blur-xs transition-opacity"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       {/* Side Navigation panel - Desktop & Mobile */}
-      <aside className={`flex flex-col fixed inset-y-0 left-0 w-60 bg-white border-r border-slate-100/80 z-[70] transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`flex flex-col fixed inset-y-0 left-0 w-60 bg-white border-r border-blue-50/60 z-[70] transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         {/* BloomxPe Brand Header */}
-        <div className="h-16 px-6 flex items-center justify-between border-b border-slate-50">
+        <div className="h-16 px-6 flex items-center justify-between border-b border-blue-50/40">
           <Link href="/dashboard" className="flex items-center gap-2">
             <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-[10px] text-white font-black shadow-sm">
               B
             </div>
-            <span className="text-sm font-black text-slate-900 tracking-tight">BloomxPe</span>
+            <span className="text-sm font-black text-blue-900 tracking-tight">BloomxPe</span>
           </Link>
-          <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-1 text-slate-400 hover:text-slate-900">
+          <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-1 text-slate-400 hover:text-blue-600">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -198,8 +198,8 @@ export default function DashboardLayout({
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold tracking-tight transition-all duration-200 ${
                   isActive 
-                    ? "bg-slate-50 text-slate-900 font-bold" 
-                    : "text-slate-500 hover:text-slate-950 hover:bg-slate-50/50"
+                    ? "bg-blue-50 text-blue-600 font-bold" 
+                    : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/30"
                 }`}
               >
                 <item.icon className={`w-4 h-4 stroke-[1.8] ${isActive ? "text-blue-600" : "text-slate-400"}`} />
@@ -222,32 +222,32 @@ export default function DashboardLayout({
       {/* Main Page Area */}
       <div className="flex-1 flex flex-col md:ml-60">
         {/* Top Header Bar for Desktop only */}
-        <header className="hidden md:flex items-center justify-between h-16 px-8 bg-white border-b border-slate-100 sticky top-0 z-40">
+        <header className="hidden md:flex items-center justify-between h-16 px-8 bg-white border-b border-blue-50/40 sticky top-0 z-40">
            <div className="flex items-center gap-2 text-xs font-semibold">
               <span className="text-slate-400">Main</span>
               <ChevronRight className="w-3.5 h-3.5 text-slate-200" />
-              <span className="text-slate-900 font-bold">{getPageTitle()}</span>
+              <span className="text-blue-900 font-bold">{getPageTitle()}</span>
            </div>
            
            <div className="flex items-center gap-3">
-              <div className={`flex items-center gap-2 px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-wider ${
-                systemStatus === 'online' ? 'bg-emerald-50 text-emerald-600 border-emerald-100/50' : 'bg-slate-50 text-slate-500 border-slate-100'
+              <div className={`flex items-center gap-2 px-3 py-1 rounded-full border text-[9px] font-bold uppercase tracking-wider ${
+                systemStatus === 'online' ? 'bg-blue-50 text-blue-600 border-blue-100/50' : 'bg-slate-50 text-slate-500 border-slate-100'
               }`}>
-                 <div className={`w-1.5 h-1.5 rounded-full ${systemStatus === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                 <div className={`w-1.5 h-1.5 rounded-full ${systemStatus === 'online' ? 'bg-blue-500 animate-pulse' : 'bg-slate-400'}`} />
                  <span>{systemStatus === 'online' ? 'Engine Online' : 'System Idle'}</span>
               </div>
            </div>
         </header>
 
         {/* Top Header Bar for Mobile only */}
-        <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-100 z-40 px-4 flex items-center justify-between">
+        <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-blue-50/40 z-40 px-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-[10px] text-white font-black">
               B
             </div>
-            <span className="text-sm font-black text-slate-900 tracking-tight">BloomxPe</span>
+            <span className="text-sm font-black text-blue-900 tracking-tight">BloomxPe</span>
           </div>
-          <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 bg-slate-50 text-slate-600 rounded-xl border border-slate-150">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 bg-slate-50 text-slate-600 rounded-xl border border-slate-100">
             <Menu className="w-4 h-4" />
           </button>
         </header>
