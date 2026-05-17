@@ -63,6 +63,7 @@ const SECTIONS = [
       { id: "create_intent", label: "1. Initiate Payment" },
       { id: "check_status", label: "2. Payment Status" },
       { id: "payment_webhook", label: "3. Process Webhook" },
+      { id: "custom_checkout", label: "4. Custom Checkout Screen" },
     ]
   }
 ];
@@ -535,6 +536,97 @@ sendJSONResponse(response, 200)`}
   }
 }`}
                   />
+                </div>
+              </div>
+            </section>
+
+            {/* 4. Custom Checkout Screen */}
+            <section id="custom_checkout" className="mb-16 scroll-mt-24 border-t border-slate-100 pt-10">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="px-2 py-0.5 bg-[#002C8A] text-white font-mono text-[10px] font-bold rounded">NATIVE</span>
+                <h3 className="text-base font-black text-slate-900">4. Custom Checkout Screen (Web & Mobile Apps)</h3>
+              </div>
+              <p className="text-slate-500 text-[13.5px] font-medium mb-4">
+                To maximize conversion rates, you can completely bypass our hosted checkout page and render the payment experience natively inside your own application using raw UPI links.
+              </p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">A. Render Custom Web QR Code</h4>
+                  <p className="text-slate-550 text-xs font-semibold leading-relaxed mb-3">
+                    Use any standard QR generating library (such as <code className="font-mono bg-slate-100 px-1 py-0.5 text-blue-600 rounded">qrcode.react</code> or standard canvas libraries) to render the raw <code className="font-mono text-slate-800 font-bold bg-slate-50 px-1">qr_data</code> string returned from the intent creation.
+                  </p>
+                  
+                  <CodeBlock 
+                    language="React / JSX" 
+                    code={`import { QRCodeSVG } from 'qrcode.react';
+
+function NativeUPIQRCode({ qr_data, amount }) {
+  return (
+    <div className="p-6 border border-slate-200 rounded-2xl text-center">
+      <h3 className="text-sm font-bold text-slate-800 mb-4">
+        Scan to Pay: ₹\${amount}
+      </h3>
+      <div className="flex justify-center my-4">
+        <QRCodeSVG value={qr_data} size={200} includeMargin={true} />
+      </div>
+      <p className="text-xs text-slate-400">
+        Scan using GPay, PhonePe, Paytm, or BHIM
+      </p>
+    </div>
+  );
+}`}
+                  />
+
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 mt-6">B. Mobile Deep Linking (One-click Apps)</h4>
+                  <p className="text-slate-550 text-xs font-semibold leading-relaxed mb-3">
+                    For mobile checkouts (iOS & Android), bind the <code className="font-mono text-slate-800 font-bold bg-slate-50 px-1">upi_link</code> directly as a hyperlink or button click handler. The operating system will trigger standard UPI application sheets instantly.
+                  </p>
+                  
+                  <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 font-mono text-[11px] text-slate-700 leading-relaxed font-semibold">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">HTML Hyperlink Trigger</span>
+                    &lt;a href="{"{upi_link}"}" class="btn"&gt;Pay with UPI App&lt;/a&gt;
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1">C. Browser Status Polling loop</h4>
+                  <p className="text-slate-550 text-xs font-semibold leading-relaxed mb-3">
+                    To auto-redirect your customer once the payment is completed, poll the check-status API using JavaScript every 3 seconds:
+                  </p>
+                  
+                  <CodeBlock 
+                    language="Javascript" 
+                    code={`// Start polling status for client-side redirection
+function startPaymentPolling(orderId) {
+  const pollInterval = setInterval(async () => {
+    try {
+      const response = await fetch(\`https://api.payxmint.com/api/v1/check-status?order_id=\${orderId}\`);
+      const result = await response.json();
+      
+      if (result.status === 'SUCCESS') {
+        clearInterval(pollInterval);
+        // Redirect user instantly to your success page
+        window.location.href = '/checkout/success?order_id=' + orderId;
+      } else if (result.status === 'EXPIRED') {
+        clearInterval(pollInterval);
+        // Redirect user to failed page
+        window.location.href = '/checkout/failed?order_id=' + orderId;
+      }
+    } catch (error) {
+      console.error('Check status polling failed:', error);
+    }
+  }, 3000); // Check every 3 seconds
+}`}
+                  />
+
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl flex gap-3 text-xs">
+                    <ShieldCheck className="text-blue-600 w-5 h-5 shrink-0 mt-0.5" />
+                    <div className="font-semibold text-blue-900">
+                      <span className="font-black uppercase tracking-wide block mb-0.5 text-[10px]">Security Warning</span>
+                      Never rely solely on client-side status polling to deliver products or fulfill orders. Always verify the transaction state server-side using Webhooks or direct API calls before fulfilling.
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
