@@ -37,6 +37,31 @@ export default function StaffAccountReview() {
   const getBatchCommand = () => {
     if (selectedIds.length === 0) return "# Select accounts below to generate batch commands...";
     
+    // For logs, stop, or restart, combine them into a single high-efficiency PM2 command to prevent stdin/tail blocking!
+    if (batchAction === 'logs') {
+      const names = selectedIds.map(id => {
+        const acc = accounts.find(a => a.id === id);
+        return acc ? `'bot-${acc.name}'` : '';
+      }).filter(Boolean).join(" ");
+      return `pm2 logs ${names}`;
+    }
+
+    if (batchAction === 'stop') {
+      const names = selectedIds.map(id => {
+        const acc = accounts.find(a => a.id === id);
+        return acc ? `'bot-${acc.name}'` : '';
+      }).filter(Boolean).join(" ");
+      return `pm2 stop ${names}`;
+    }
+
+    if (batchAction === 'restart') {
+      const names = selectedIds.map(id => {
+        const acc = accounts.find(a => a.id === id);
+        return acc ? `'bot-${acc.name}'` : '';
+      }).filter(Boolean).join(" ");
+      return `pm2 restart ${names}`;
+    }
+    
     return selectedIds.map(id => {
       const acc = accounts.find(a => a.id === id);
       if (!acc) return "";
@@ -46,12 +71,6 @@ export default function StaffAccountReview() {
           return `cd ~/wavecollect && node src/bot/auto-login.js '${acc.name}' '${acc.email}' '${acc.botPassword}' '${acc.proxyConfig || ''}' --terminal`;
         case 'start':
           return `cd ~/wavecollect && pm2 start src/bot/bot.js --name 'bot-${acc.name}' -- '${acc.name}'`;
-        case 'stop':
-          return `pm2 stop 'bot-${acc.name}'`;
-        case 'restart':
-          return `pm2 restart 'bot-${acc.name}'`;
-        case 'logs':
-          return `pm2 logs 'bot-${acc.name}'`;
         default:
           return "";
       }
