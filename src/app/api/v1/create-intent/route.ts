@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
     const payeeVpa = allocatedAccount ? allocatedAccount.upiId.trim() : "merchant@upi";
 
     const cleanName = encodeURIComponent(merchantName).replace(/%20/g, "+");
-    const cleanUpiLink = `upi://pay?pa=${encodeURIComponent(payeeVpa)}&pn=${cleanName}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tr=${encodeURIComponent(finalOrderId)}&tn=${encodeURIComponent(finalOrderId)}&tid=${encodeURIComponent(finalOrderId)}`;
+    const cleanUpiLink = `upi://pay?pa=${encodeURIComponent(payeeVpa)}&pn=${cleanName}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tr=${encodeURIComponent(finalOrderId)}&tn=${encodeURIComponent(finalOrderId)}&tid=${encodeURIComponent(finalOrderId)}&mc=5411&oobe=fos123&qrst=stk&ver=01&mode=01`;
     const cleanPaytmLink = `paytmmp://cash_wallet?pa=${encodeURIComponent(payeeVpa)}&pn=${cleanName}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent(finalOrderId)}&featuretype=money_transfer`;
 
     const phonepePayload = JSON.stringify({
