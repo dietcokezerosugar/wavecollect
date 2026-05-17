@@ -24,13 +24,8 @@ export async function POST(
       );
     }
 
-    // 2. Validate input fields
-    if (!firstName || !lastName || !phone || !email) {
-      return NextResponse.json(
-        { success: false, message: "All customer billing fields are required." },
-        { status: 400 }
-      );
-    }
+    // 2. Validate input fields (Now completely optional!)
+    // None needed here as firstName, lastName, phone, and email are optional
 
     // 3. Resolve Amount: prefilled vs custom user amount
     const finalAmount = Number(link.amount) > 0 ? Number(link.amount) : Number(amount);
@@ -60,11 +55,11 @@ export async function POST(
     const intent = await PaymentEngine.createIntent({
       amount: finalAmount,
       orderId,
-      customerMobile: phone,
-      customerEmail: email,
+      customerMobile: phone || undefined,
+      customerEmail: email || undefined,
       apiKey: apiKey.key,
       metadata: {
-        payerName: `${firstName} ${lastName}`,
+        payerName: (firstName || lastName) ? `${firstName || ""} ${lastName || ""}`.trim() : "Anonymous Payer",
         paymentLinkId: link.id
       }
     });

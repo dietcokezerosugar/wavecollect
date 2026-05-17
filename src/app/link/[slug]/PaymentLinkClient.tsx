@@ -32,8 +32,8 @@ export default function PaymentLinkClient({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName || !lastName || !phone || !email || !amount) {
-      setError("Please fill out all billing details.");
+    if (!amount) {
+      setError("Please enter a payment amount.");
       return;
     }
 
@@ -112,13 +112,12 @@ export default function PaymentLinkClient({
           {/* First Name */}
           <div className="space-y-1.5">
             <label className="text-slate-600 font-bold text-[11px] uppercase tracking-wider block">
-              First name
+              First name <span className="text-slate-400 font-normal lowercase">(optional)</span>
             </label>
             <input
               type="text"
-              required
               disabled={loading}
-              placeholder="Your first name"
+              placeholder="Your first name (optional)"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-sm font-medium transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none disabled:bg-slate-50 disabled:text-slate-400"
@@ -128,13 +127,12 @@ export default function PaymentLinkClient({
           {/* Last Name */}
           <div className="space-y-1.5">
             <label className="text-slate-600 font-bold text-[11px] uppercase tracking-wider block">
-              Last name
+              Last name <span className="text-slate-400 font-normal lowercase">(optional)</span>
             </label>
             <input
               type="text"
-              required
               disabled={loading}
-              placeholder="Your last name"
+              placeholder="Your last name (optional)"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-sm font-medium transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none disabled:bg-slate-50 disabled:text-slate-400"
@@ -144,13 +142,12 @@ export default function PaymentLinkClient({
           {/* Phone Number */}
           <div className="space-y-1.5">
             <label className="text-slate-600 font-bold text-[11px] uppercase tracking-wider block">
-              Phone
+              Phone <span className="text-slate-400 font-normal lowercase">(optional)</span>
             </label>
             <input
               type="tel"
-              required
               disabled={loading}
-              placeholder="Your phone number"
+              placeholder="Your phone number (optional)"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-sm font-medium transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none disabled:bg-slate-50 disabled:text-slate-400"
@@ -160,13 +157,12 @@ export default function PaymentLinkClient({
           {/* Email Address */}
           <div className="space-y-1.5">
             <label className="text-slate-600 font-bold text-[11px] uppercase tracking-wider block">
-              Email
+              Email <span className="text-slate-400 font-normal lowercase">(optional)</span>
             </label>
             <input
               type="email"
-              required
               disabled={loading}
-              placeholder="Your email address"
+              placeholder="Your email address (optional)"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-sm font-medium transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none disabled:bg-slate-50 disabled:text-slate-400"
