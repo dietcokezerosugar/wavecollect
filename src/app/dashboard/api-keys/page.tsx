@@ -89,8 +89,8 @@ export default function ApiKeysPage() {
     setTimeout(() => setCopiedId(null), 2000);
   }
 
-  const totalUsed = keys.reduce((acc, k) => acc + k.usedAmount, 0);
-  const totalLimit = keys.reduce((acc, k) => acc + k.monthlyLimit, 0);
+  const totalUsed = keys.reduce((acc, k) => acc + parseFloat(k.usedAmount as any || 0), 0);
+  const totalLimit = keys.reduce((acc, k) => acc + parseFloat(k.monthlyLimit as any || 0), 0);
 
   if (!dataLoaded) {
     return <div className="min-h-[50vh] flex items-center justify-center"><Activity className="w-8 h-8 animate-spin text-blue-600" /></div>;
@@ -142,11 +142,10 @@ export default function ApiKeysPage() {
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {[
-          { label: "Active Nodes", value: keys.filter(k => !k.isBlocked).length, icon: Globe, color: "bg-blue-600" },
-          { label: "Current Volume", value: `₹${totalUsed.toLocaleString()}`, icon: Activity, color: "bg-blue-500" },
-          { label: "Aggregate Capacity", value: `₹${totalLimit.toLocaleString()}`, icon: ShieldCheck, color: "bg-emerald-600" },
+          { label: "Passed Volume", value: `₹${totalUsed.toLocaleString()}`, icon: Activity, color: "bg-blue-500" },
+          { label: "Total Capacity", value: `₹${totalLimit.toLocaleString()}`, icon: ShieldCheck, color: "bg-emerald-600" },
         ].map((stat, i) => (
           <div key={i} className="bg-white rounded-lg p-8 border border-slate-200 shadow-sm flex items-center gap-6 group hover:border-blue-500 transition-all">
              <div className={`w-14 h-14 ${stat.color} rounded-md flex items-center justify-center text-white shadow-lg`}>

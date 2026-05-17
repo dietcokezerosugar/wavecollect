@@ -16,7 +16,11 @@ import {
   Smartphone,
   Save,
   Lock,
-  Loader2
+  Loader2,
+  Activity,
+  RefreshCw,
+  XCircle,
+  Clock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -29,7 +33,9 @@ export default function QuickSetup() {
   const [ipStatus, setIpStatus] = useState<"NONE" | "PENDING" | "APPROVED">("NONE");
   const [agentInfo, setAgentInfo] = useState<any>(null);
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("CONFIG"); // CONFIG or DOCS
+  const [activeTab, setActiveTab] = useState("CONFIG"); // CONFIG, WEBHOOKS, DOCS
+  const [logs, setLogs] = useState<any[]>([]);
+  const [testing, setTesting] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -56,8 +62,39 @@ export default function QuickSetup() {
       
       if (approved) setIpStatus("APPROVED");
       else if (pending) setIpStatus("PENDING");
+      
+      fetchLogs();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchLogs = async () => {
+    const res = await fetch("/api/dashboard/webhooks");
+    const d = await res.json();
+    setLogs(d.data || []);
+  };
+
+  const testWebhook = async () => {
+    if (!webhookUrl) return;
+    setTesting(true);
+    try {
+      const res = await fetch("/api/dashboard/webhooks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "TEST" }),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        alert("Test packet dispatched securely. Check logs.");
+        fetchLogs();
+      } else {
+        alert("Webhook delivery failed. Check your endpoint connectivity.");
+      }
+    } catch (e: any) {
+      alert("Error triggering test: " + e.message);
+    } finally {
+      setTesting(false);
     }
   };
 
@@ -114,16 +151,22 @@ export default function QuickSetup() {
            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-widest mt-1">Configure your entire gateway in 60 seconds</p>
         </div>
         
-        <div className="flex p-1 bg-slate-100 rounded-md border border-slate-200 shadow-inner">
+        <div className="flex p-1 bg-slate-100 rounded-md border border-slate-200 shadow-inner overflow-x-auto">
            <button 
              onClick={() => setActiveTab("CONFIG")}
-             className={`px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'CONFIG' ? 'bg-white text-slate-750 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+             className={`px-4 md:px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'CONFIG' ? 'bg-white text-slate-750 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
            >
              Configuration
            </button>
            <button 
+             onClick={() => setActiveTab("WEBHOOKS")}
+             className={`px-4 md:px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'WEBHOOKS' ? 'bg-white text-slate-755 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+           >
+             Webhooks
+           </button>
+           <button 
              onClick={() => setActiveTab("DOCS")}
-             className={`px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'DOCS' ? 'bg-white text-slate-755 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+             className={`px-4 md:px-6 py-2.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'DOCS' ? 'bg-white text-slate-755 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
            >
              Documentation
            </button>
@@ -274,6 +317,79 @@ export default function QuickSetup() {
                      Once setup is complete, you can start dispatching payment intents to this endpoint.
                   </p>
                </div>
+            </div>
+          </motion.div>
+        ) : activeTab === "WEBHOOKS" ? (
+          <motion.div 
+            key="webhooks"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-8"
+          >
+            <div className="bg-white rounded-[40px] border border-slate-200 p-8 md:p-10 shadow-sm shadow-slate-200/50 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <h3 className="text-xl font-black text-slate-700 tracking-tight">Webhook Delivery Tester</h3>
+                <p className="text-sm font-medium text-slate-500 mt-1">Dispatch a test POST payload to your configured Webhook URL to verify connectivity.</p>
+              </div>
+              <button
+                onClick={testWebhook}
+                disabled={!webhookUrl || testing}
+                className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 shrink-0"
+              >
+                {testing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Activity className="w-4 h-4" />}
+                Dispatch Test Packet
+              </button>
+            </div>
+
+            <div className="bg-white rounded-[40px] border border-slate-200 overflow-hidden shadow-sm shadow-slate-200/50">
+              <div className="flex items-center justify-between p-8 border-b border-slate-100 bg-slate-50/50">
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-700">Delivery History (Recent 50)</h3>
+                <button onClick={fetchLogs} className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline flex items-center gap-2"><RefreshCw size={12}/> Refresh</button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[600px]">
+                   <thead>
+                      <tr className="bg-slate-50 border-b border-slate-100">
+                         <th className="p-4 px-8 text-[10px] font-black text-slate-400 uppercase tracking-widest">Event</th>
+                         <th className="p-4 px-8 text-[10px] font-black text-slate-400 uppercase tracking-widest">Result</th>
+                         <th className="p-4 px-8 text-[10px] font-black text-slate-400 uppercase tracking-widest">Latency / Code</th>
+                         <th className="p-4 px-8 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Timestamp</th>
+                      </tr>
+                   </thead>
+                   <tbody className="divide-y divide-slate-50">
+                      {logs.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="p-16 text-center text-slate-400 font-bold text-[11px] uppercase tracking-widest">No dispatch history recorded</td>
+                        </tr>
+                      ) : logs.map((log) => (
+                        <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="p-4 px-8">
+                             <p className="text-xs font-black text-slate-700 uppercase tracking-tight">{log.event}</p>
+                             <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{(() => { try { return JSON.parse(log.payload)?.reference_id || log.id.slice(0, 8); } catch { return log.id.slice(0, 8); } })()}</p>
+                          </td>
+                          <td className="p-4 px-8">
+                             <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-black uppercase border ${
+                               log.isSuccess ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
+                             }`}>
+                                {log.isSuccess ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                                {log.isSuccess ? "Delivered" : "Failed"}
+                             </div>
+                          </td>
+                          <td className="p-4 px-8">
+                             <span className="text-[11px] font-mono font-bold text-slate-500">HTTP {log.status || '???' }</span>
+                          </td>
+                          <td className="p-4 px-8 text-right">
+                             <div className="flex items-center justify-end gap-2 text-slate-400">
+                                <Clock size={12} />
+                                <span className="text-[11px] font-bold">{new Date(log.createdAt).toLocaleString()}</span>
+                             </div>
+                          </td>
+                        </tr>
+                      ))}
+                   </tbody>
+                </table>
+              </div>
             </div>
           </motion.div>
         ) : (

@@ -271,36 +271,40 @@ export default function MerchantAccountsPage() {
 
           {poolState.processingMode === "PLATFORM_POOL" && (
             <div className="pt-2 border-t border-slate-100">
-              {poolState.poolRequestStatus === "APPROVED" && poolState.allocation ? (
-                <div className="flex flex-col md:flex-row items-center gap-6 p-6 bg-emerald-50 rounded-md border border-emerald-100">
-                  <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shrink-0">
-                    <ShieldCheck className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-sm font-black uppercase tracking-widest text-emerald-900">Platform Account Active</h3>
-                      <span className="px-2 py-0.5 bg-emerald-200 text-emerald-800 text-[9px] font-black uppercase rounded-full">
-                        {poolState.allocation.sessionStatus}
-                      </span>
-                    </div>
-                    <p className="text-xs font-bold text-emerald-700 font-mono">UPI ID: {poolState.allocation.upiId}</p>
-                    
-                    <div className="pt-2">
-                      <div className="flex justify-between text-[10px] font-black text-emerald-700 uppercase mb-1">
-                        <span>Quota Used: ₹{(Number(poolState.allocation.usedQuota)).toLocaleString()}</span>
-                        <span>₹{(Number(poolState.allocation.totalQuota)).toLocaleString()}</span>
+              {poolState.poolRequestStatus === "APPROVED" && poolState.allocations && poolState.allocations.length > 0 ? (
+                <div className="space-y-4">
+                  {poolState.allocations.map((alloc: any) => (
+                    <div key={alloc.id} className="flex flex-col md:flex-row items-center gap-6 p-6 bg-emerald-50 rounded-md border border-emerald-100">
+                      <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-6 h-6" />
                       </div>
-                      <div className="h-1.5 bg-emerald-200/50 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${poolState.allocation.allocationStatus === "EXHAUSTED" ? 'bg-rose-500' : 'bg-emerald-500'}`}
-                          style={{ width: `${Math.min((Number(poolState.allocation.usedQuota) / Number(poolState.allocation.totalQuota)) * 100, 100)}%` }}
-                        />
+                      <div className="flex-1 space-y-3 w-full">
+                        <div className="flex items-center gap-3">
+                          <h3 className="text-sm font-black uppercase tracking-widest text-emerald-900">Platform Account Active</h3>
+                          <span className="px-2 py-0.5 bg-emerald-200 text-emerald-800 text-[9px] font-black uppercase rounded-full">
+                            {alloc.sessionStatus}
+                          </span>
+                        </div>
+                        <p className="text-xs font-bold text-emerald-700 font-mono">UPI ID: {alloc.upiId}</p>
+                        
+                        <div className="pt-2">
+                          <div className="flex justify-between text-[10px] font-black text-emerald-700 uppercase mb-1">
+                            <span>Quota Used: ₹{(Number(alloc.usedQuota)).toLocaleString()}</span>
+                            <span>₹{(Number(alloc.totalQuota)).toLocaleString()}</span>
+                          </div>
+                          <div className="h-1.5 bg-emerald-200/50 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full ${alloc.allocationStatus === "EXHAUSTED" ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                              style={{ width: `${Math.min((Number(alloc.usedQuota) / Number(alloc.totalQuota)) * 100, 100)}%` }}
+                            />
+                          </div>
+                          {alloc.allocationStatus === "EXHAUSTED" && (
+                             <p className="text-[10px] text-rose-600 font-bold mt-1 uppercase tracking-widest">Quota Exhausted. API Paused.</p>
+                          )}
+                        </div>
                       </div>
-                      {poolState.allocation.allocationStatus === "EXHAUSTED" && (
-                         <p className="text-[10px] text-rose-600 font-bold mt-1 uppercase tracking-widest">Quota Exhausted. API Paused.</p>
-                      )}
                     </div>
-                  </div>
+                  ))}
                 </div>
               ) : poolState.poolRequestStatus === "PENDING" ? (
                 <div className="flex items-center gap-4 p-6 bg-amber-50 rounded-md border border-amber-100">

@@ -19,10 +19,10 @@ export async function GET() {
     return NextResponse.json({ error: "Merchant not found" }, { status: 404 });
   }
 
-  // If allocated, fetch the pool account details
-  let allocation = null;
+  // If allocated, fetch all pool account details
+  let allocations: any[] = [];
   if (merchant.poolRequestStatus === "APPROVED") {
-    allocation = await prisma.googlePayAccount.findFirst({
+    allocations = await prisma.googlePayAccount.findMany({
       where: {
         allocatedToMerchantId: session.user.merchantId,
         allocationStatus: { in: ["ASSIGNED", "PAUSED", "EXHAUSTED"] }
@@ -46,7 +46,7 @@ export async function GET() {
       processingMode: merchant.processingMode,
       poolRequestStatus: merchant.poolRequestStatus,
       poolRequestedAt: merchant.poolRequestedAt,
-      allocation,
+      allocations,
     }
   });
 }

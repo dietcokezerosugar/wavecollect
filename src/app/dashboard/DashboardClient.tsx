@@ -47,7 +47,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
   }, [isLive]);
 
   const successfulTxns = recentIntents.filter(i => i.status === 'SUCCESS').length;
-  const totalVolume = recentIntents.filter(i => i.status === 'SUCCESS').reduce((acc, curr) => acc + curr.amount, 0);
+  const totalVolume = recentIntents.filter(i => i.status === 'SUCCESS').reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
 
   const trialEndsAt = merchant.trialEndsAt ? new Date(merchant.trialEndsAt) : null;
   const isTrialActive = trialEndsAt && trialEndsAt > new Date();
@@ -135,7 +135,7 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
       </div>
 
       {/* Financial Health Grid */}
-      <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <DashboardCard 
           label="Wallet Balance" 
           value={`₹${merchant.walletBalance.toLocaleString()}`} 
@@ -149,13 +149,6 @@ export default function DashboardClient({ initialMerchant, initialLedgerEntries 
           sub={`${successfulTxns} Verified Today`} 
           icon={<TrendingUp />} 
           color="blue" 
-        />
-        <DashboardCard 
-          label="Gateway Nodes" 
-          value={merchant._count.gpayAccounts} 
-          sub="Active bot fleet" 
-          icon={<Zap />} 
-          color="amber" 
         />
         <DashboardCard 
           label="Commission" 

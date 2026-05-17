@@ -274,7 +274,7 @@ export default function DocsPage() {
                 <div className="space-y-4 text-[14.5px] text-slate-600 leading-relaxed font-medium">
                    <ol className="list-decimal list-inside space-y-3 pl-2">
                      <li>
-                       Go to the <span className="font-bold text-slate-900">Webhooks</span> page: <a href="https://payxmint.com/dashboard/webhooks" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline font-bold inline-flex items-center gap-1">https://payxmint.com/dashboard/webhooks <ExternalLink size={12}/></a>.
+                       Go to the <span className="font-bold text-slate-900">Quick Setup</span> page: <a href="https://payxmint.com/dashboard/quick-setup" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline font-bold inline-flex items-center gap-1">https://payxmint.com/dashboard/quick-setup <ExternalLink size={12}/></a>.
                      </li>
                      <li>Type in the URL where you want us to send payment callback notifications (e.g., <code>https://yoursite.com/payment-callback</code>).</li>
                      <li>Click <span className="font-bold text-slate-900">Save</span>.</li>
