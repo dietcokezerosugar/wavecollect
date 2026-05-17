@@ -34,6 +34,8 @@ const LOG_FILE = path.join(SESSION_DIR, 'bot.log');
 let accountConfig = { report_id: null, download_interval_sec: 10, email: '' };
 let engineContext = null;
 let enginePage = null;
+let engineBPage = null;
+let isEngineBRunning = false;
 let engineRunning = false;
 let isInitialLoad = true;
 const knownTransactions = new Set();
@@ -270,62 +272,106 @@ function parseCSV(text) {
 }
 
 async function runEngineB() {
-    if (!engineRunning || !enginePage || !accountConfig.report_id) return;
+    if (!engineRunning || !engineContext || !accountConfig.report_id) return;
+    if (isEngineBRunning) {
+        log('[ENGINE-B] ⚠️ Previous CSV download still running. Skipping this tick to prevent overlap.');
+        return;
+    }
+    isEngineBRunning = true;
     try {
         const reportUrl = `https://pay.google.com/g4b/reports/${accountConfig.report_id}`;
-        const reportPage = await engineContext.newPage();
-        try {
-            await reportPage.goto(reportUrl, { timeout: 30000, waitUntil: 'load' });
-            await reportPage.waitForTimeout(3000);
-            await reportPage.evaluate(() => {
-                const radio = document.querySelector('input[type="radio"][value="today"]');
-                if (radio && !radio.checked) radio.click();
+        
+        // 1. Initialize or verify persistent page
+        if (!engineBPage || engineBPage.isClosed()) {
+            log('[ENGINE-B] 🆕 Creating persistent report tab...');
+            engineBPage = await engineContext.newPage();
+            await engineBPage.goto(reportUrl, { timeout: 30000, waitUntil: 'load' });
+        } else {
+            // Already open, reload existing page leveraging browser cache
+            log('[ENGINE-B] 🔄 Refreshing report page (cached)...');
+            await engineBPage.reload({ timeout: 15000, waitUntil: 'domcontentloaded' }).catch(async (err) => {
+                log(`[ENGINE-B] Reload failed: ${err.message}. Re-navigating...`);
+                await engineBPage.goto(reportUrl, { timeout: 30000, waitUntil: 'load' });
             });
-            await reportPage.waitForTimeout(1500);
-
-            const oldFiles = fs.readdirSync(DOWNLOAD_DIR);
-            for (const file of oldFiles) fs.unlinkSync(path.join(DOWNLOAD_DIR, file));
-
-            log('[ENGINE-B] 📄 Initiating CSV download...');
-            await reportPage.getByRole('button', { name: /download/i }).first().click();
-
-            const downloadPromise = reportPage.waitForEvent('download', { timeout: 15000 }).catch(() => null);
-            const modalPromise = reportPage.waitForSelector('text=CSV', { timeout: 5000 }).catch(() => null);
-            const firstAction = await Promise.race([downloadPromise, modalPromise]);
-
-            let downloadObj;
-            if (firstAction && !firstAction.saveAs) {
-                await reportPage.getByText('CSV').click(); 
-                await reportPage.waitForTimeout(1000);
-                const finalBtn = reportPage.getByRole('button', { name: /download/i }).last();
-                [downloadObj] = await Promise.all([
-                    reportPage.waitForEvent('download', { timeout: 30000 }),
-                    finalBtn.click()
-                ]);
-            } else if (firstAction) {
-                downloadObj = firstAction;
-            } else {
-                log('[ENGINE-B] Download timeout');
-                await reportPage.close(); return;
-            }
-
-            const dlPath = path.join(DOWNLOAD_DIR, `report_${Date.now()}.csv`);
-            await downloadObj.saveAs(dlPath);
-            const csvText = fs.readFileSync(dlPath, 'utf-8');
-            const rows = parseCSV(csvText);
-            log(`[ENGINE-B] 📄 CSV captured: ${rows.length} rows`);
-            await syncToHub(rows, 'ENGINE-B'); 
-            statsEngineB.captured += rows.length;
-            statsEngineB.lastDownload = new Date().toISOString();
-        } finally {
-            await reportPage.close().catch(() => {});
         }
+
+        // GPay 9 Resilience: Health Check for Engine-B
+        const currentUrl = engineBPage.url();
+        const isLoggedOut = currentUrl.includes('/g4b/signup') || 
+                           currentUrl.includes('accounts.google.com');
+
+        if (isLoggedOut) {
+            log('[CRITICAL] 🚨 Bot session expired on Engine-B! Redirected to Login page. Stopping polling.');
+            engineRunning = false;
+            await reportStatus("expired");
+            return;
+        }
+
+        // 2. Wait reactively for date selectors and "Download" button to be visible
+        await engineBPage.waitForSelector('input[type="radio"][value="today"]', { timeout: 5000 }).catch(() => {});
+
+        await engineBPage.evaluate(() => {
+            const radio = document.querySelector('input[type="radio"][value="today"]');
+            if (radio && !radio.checked) radio.click();
+        });
+
+        // Small wait for UI state transition
+        await engineBPage.waitForTimeout(500);
+
+        const oldFiles = fs.readdirSync(DOWNLOAD_DIR);
+        for (const file of oldFiles) fs.unlinkSync(path.join(DOWNLOAD_DIR, file));
+
+        log('[ENGINE-B] 📄 Initiating CSV download...');
+        const dlButton = engineBPage.getByRole('button', { name: /download/i }).first();
+        await dlButton.waitFor({ state: 'visible', timeout: 5000 });
+        await dlButton.click();
+
+        const downloadPromise = engineBPage.waitForEvent('download', { timeout: 8000 }).catch(() => null);
+        const modalPromise = engineBPage.waitForSelector('text=CSV', { timeout: 3000 }).catch(() => null);
+        const firstAction = await Promise.race([downloadPromise, modalPromise]);
+
+        let downloadObj;
+        if (firstAction && !firstAction.saveAs) {
+            const csvBtn = engineBPage.getByText('CSV');
+            await csvBtn.waitFor({ state: 'visible', timeout: 3000 });
+            await csvBtn.click(); 
+            await engineBPage.waitForTimeout(500); 
+            
+            const finalBtn = engineBPage.getByRole('button', { name: /download/i }).last();
+            await finalBtn.waitFor({ state: 'visible', timeout: 3000 });
+            [downloadObj] = await Promise.all([
+                engineBPage.waitForEvent('download', { timeout: 15000 }),
+                finalBtn.click()
+            ]);
+        } else if (firstAction) {
+            downloadObj = firstAction;
+        } else {
+            log('[ENGINE-B] Download timeout/no file received');
+            return;
+        }
+
+        const dlPath = path.join(DOWNLOAD_DIR, `report_${Date.now()}.csv`);
+        await downloadObj.saveAs(dlPath);
+        const csvText = fs.readFileSync(dlPath, 'utf-8');
+        const rows = parseCSV(csvText);
+        log(`[ENGINE-B] 📄 CSV captured: ${rows.length} rows`);
+        
+        await syncToHub(rows, 'ENGINE-B'); 
+        statsEngineB.captured += rows.length;
+        statsEngineB.lastDownload = new Date().toISOString();
     } catch (e) {
         log(`[ENGINE-B] CSV cycle error: ${e.message}`);
+        // If critical crash, close page so we recreate it on next loop
+        if (engineBPage) {
+            try { await engineBPage.close(); } catch(x) {}
+            engineBPage = null;
+        }
+    } finally {
+        isEngineBRunning = false;
     }
 }
 
-async function runDualPollingLoop() {
+async function runEngineALoop() {
     if (!engineRunning) return;
 
     // Memory Hardening: Guard checks
@@ -335,13 +381,15 @@ async function runDualPollingLoop() {
     if (memUsage > 1024 || uptimeHrs > 12) {
         const reason = memUsage > 1024 ? `Memory threshold exceeded (${Math.round(memUsage)}MB)` : 'Scheduled 12-hour refresh';
         log(`[STABILITY] 🔄 ${reason}. Restarting browser context...`);
+        engineRunning = false;
+        try { if (engineBPage) await engineBPage.close(); } catch(e) {}
         try { if (engineContext) await engineContext.close(); } catch(e) {}
-        engineContext = null; enginePage = null;
-        return setTimeout(async () => { await bootEngine(); }, 8000);
+        engineContext = null; enginePage = null; engineBPage = null;
+        return setTimeout(async () => { engineRunning = true; await bootEngine(); }, 8000);
     }
 
     try {
-        log('[DUAL] 🔄 Sweep cycle starting...');
+        log('[ENGINE-A] 🔄 XHR Sweep starting...');
         totalSweeps++;
         await enginePage.reload({ waitUntil: 'domcontentloaded', timeout: 8000 });
         
@@ -349,32 +397,42 @@ async function runDualPollingLoop() {
         const currentUrl = enginePage.url();
         const pageContent = await enginePage.content();
         
-        // If we are redirected to the landing/signup page, session is definitely dead
         const isLoggedOut = currentUrl.includes('/g4b/signup') || 
                            (pageContent.includes('Sign in') && currentUrl.includes('accounts.google.com'));
 
         if (isLoggedOut) {
-            log('[CRITICAL] 🚨 Bot session expired! Redirected to Login page. Stopping polling.');
+            log('[CRITICAL] 🚨 Bot session expired on Engine-A! Redirected to Login page. Stopping polling.');
             engineRunning = false;
             await reportStatus("expired");
             return;
         }
 
         await reportStatus("online");
-
         log('[ENGINE-A] ⚡ XHR sweep complete');
         
-        // Engine-B: Run CSV download every sweep for full transaction coverage
-        await runEngineB();
-        
-        setTimeout(runDualPollingLoop, (accountConfig.download_interval_sec || 8) * 1000);
+        setTimeout(runEngineALoop, (accountConfig.download_interval_sec || 8) * 1000);
     } catch(e) {
-        log(`[CRASH] Playwright stalled: ${e.message}. Recovering...`);
+        log(`[CRASH] Playwright stalled on Engine-A: ${e.message}. Recovering...`);
         engineRunning = false;
         await reportStatus("error");
+        try { if (engineBPage) await engineBPage.close(); } catch(x){}
         try { if (engineContext) await engineContext.close(); } catch(x){}
-        engineContext = null; enginePage = null;
+        engineContext = null; enginePage = null; engineBPage = null;
         setTimeout(async () => { engineRunning = true; await bootEngine(); }, 8000);
+    }
+}
+
+async function runEngineBLoop() {
+    if (!engineRunning) return;
+
+    try {
+        await runEngineB();
+    } catch (e) {
+        log(`[CRASH] Engine-B error in loop: ${e.message}`);
+    }
+
+    if (engineRunning) {
+        setTimeout(runEngineBLoop, 10000); // Strictly every 10 seconds!
     }
 }
 
@@ -481,7 +539,8 @@ async function bootEngine() {
         }
 
         log('[SYSTEM] ⚡ Engines ARMED and MONITORING.');
-        setTimeout(runDualPollingLoop, 5000);
+        setTimeout(runEngineALoop, 5000);
+        setTimeout(runEngineBLoop, 5000);
         return true;
     } catch (e) {
         log(`[CRITICAL] Engine Boot failed: ${e.message}`);
