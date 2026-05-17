@@ -109,9 +109,8 @@ export class PaymentEngine {
 
     // ── 5. Generate UPI Deep Link (exactly like BloomXHub) ───────────
     const merchantName = keyData.merchant.brandName || keyData.merchant.businessName || keyData.merchant.name;
-    // Barebones UPI link for maximum compatibility across all apps (GPay, PhonePe, Paytm)
-    // We use encodeURIComponent to ensure spaces are %20 (not +) and omit tid/tr/mc to avoid bank-side validation errors
-    const upiDeepLink = `upi://pay?pa=${account.upiId.trim()}&pn=${encodeURIComponent(merchantName)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(orderId)}`;
+    // Full UPI link for exact BloomXHub parity, including transaction tracking fields (tid/tr)
+    const upiDeepLink = `upi://pay?pa=${encodeURIComponent(account.upiId.trim())}&pn=${encodeURIComponent(merchantName)}&am=${amount.toFixed(2)}&tid=${encodeURIComponent(orderId)}&tr=${encodeURIComponent(orderId)}&tn=${encodeURIComponent(`Pay ${orderId}`)}&cu=INR`;
 
     // ── 6. Generate cryptographically strong payment token ────────────
     const paymentToken = crypto.randomBytes(32).toString("hex");
@@ -174,8 +173,8 @@ export class PaymentEngine {
     const { account } = routingResult;
 
     const orderId = `RCG_${Math.floor(Date.now() / 1000)}_${Math.floor(Math.random() * 1000)}`;
-    // Barebones UPI link for recharge QR
-    const upiDeepLink = `upi://pay?pa=${account.upiId.trim()}&pn=PayxMint%20SaaS&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`Wallet Recharge: ${merchant.name}`)}`;
+    // Full UPI link for recharge QR with exact BloomXHub tracking fields (tid/tr)
+    const upiDeepLink = `upi://pay?pa=${encodeURIComponent(account.upiId.trim())}&pn=PayxMint%20SaaS&am=${amount.toFixed(2)}&tid=${encodeURIComponent(orderId)}&tr=${encodeURIComponent(orderId)}&tn=${encodeURIComponent(`Wallet Recharge: ${merchant.name}`)}&cu=INR`;
 
     const paymentToken = crypto.randomBytes(32).toString("hex");
 
