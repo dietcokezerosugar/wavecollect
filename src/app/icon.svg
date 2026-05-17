@@ -6,12 +6,10 @@
     </linearGradient>
   </defs>
 
-  <!-- Circle -->
-  <circle cx="64" cy="64" r="60" fill="url(#payxmintBlue)"/>
+  <circle cx="64" cy="64" r="58" fill="url(#payxmintBlue)"/>
 
-  <!-- P -->
   <path
-    d="M48 28H71C87 28 97 38 97 53C97 69 86 79 69 79H59V104H48V28ZM69 69C79 69 86 63 86 53C86 43 79 38 69 38H59V69H69Z"
+    d="M46 26H72C89 26 100 37 100 53C100 70 88 81 70 81H58V104H46V26ZM70 70C81 70 88 64 88 53C88 42 81 37 70 37H58V70H70Z"
     fill="white"
   />
 </svg>
