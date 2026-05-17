@@ -30,6 +30,7 @@ export default function StaffAccountReview() {
   const [isCreating, setIsCreating] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [batchAction, setBatchAction] = useState<string>('start');
+  const [logMode, setLogMode] = useState<string>('combined');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [editingReportId, setEditingReportId] = useState<string | null>(null);
   const [reportIdValue, setReportIdValue] = useState("");
@@ -37,13 +38,36 @@ export default function StaffAccountReview() {
   const getBatchCommand = () => {
     if (selectedIds.length === 0) return "# Select accounts below to generate batch commands...";
     
-    // For logs, stop, or restart, combine them into a single high-efficiency PM2 command to prevent stdin/tail blocking!
+    // For logs, offer dynamic multi-window/multi-session outputs
     if (batchAction === 'logs') {
       const names = selectedIds.map(id => {
         const acc = accounts.find(a => a.id === id);
-        return acc ? `'bot-${acc.name}'` : '';
-      }).filter(Boolean).join(" ");
-      return `pm2 logs ${names}`;
+        return acc ? `bot-${acc.name}` : '';
+      }).filter(Boolean);
+
+      if (logMode === 'combined') {
+        return `pm2 logs ${names.map(n => `'${n}'`).join(" ")}`;
+      }
+      
+      if (logMode === 'tmux') {
+        if (names.length === 1) return `pm2 logs '${names[0]}'`;
+        let cmd = `tmux new-session -d -s bot-logs "pm2 logs '${names[0]}'"`;
+        for (let i = 1; i < names.length; i++) {
+          const splitFlag = i % 2 === 0 ? '-v' : '-h';
+          cmd += ` \\; split-window ${splitFlag} "pm2 logs '${names[i]}'"`;
+        }
+        cmd += ` \\; attach-session -d -t bot-logs`;
+        return cmd;
+      }
+
+      if (logMode === 'screen') {
+        return names.map(n => `screen -S 'logs-${n}' -d -m pm2 logs '${n}'`).join("\n") + 
+          `\n# To view a session, run: screen -r 'logs-${names[0]}'`;
+      }
+
+      if (logMode === 'raw') {
+        return names.map((n, idx) => `# Terminal Window ${idx + 1}:\npm2 logs '${n}'`).join("\n\n");
+      }
     }
 
     if (batchAction === 'stop') {
@@ -256,6 +280,36 @@ export default function StaffAccountReview() {
               </button>
             ))}
          </div>
+
+          {/* Log Window Mode Sub-Selector (Only visible when View Logs is selected) */}
+          {batchAction === 'logs' && (
+             <div className="bg-slate-800/40 border border-slate-800/80 rounded-lg p-4 space-y-3">
+                <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">
+                   Log Window Mode
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                   {[
+                     { id: 'combined', label: 'Single Consolidated Window', desc: 'Space separated logs' },
+                     { id: 'tmux', label: 'tmux Splits (Side-by-Side Windows)', desc: 'Beautiful split panels' },
+                     { id: 'screen', label: 'Background Sessions (screen)', desc: 'Virtual screens' },
+                     { id: 'raw', label: 'Separate Shell Windows', desc: 'Raw separate commands' }
+                   ].map(mode => (
+                     <button
+                       key={mode.id}
+                       onClick={() => setLogMode(mode.id)}
+                       className={`text-left px-3.5 py-2.5 rounded border transition-all flex flex-col justify-center ${
+                         logMode === mode.id
+                           ? 'bg-indigo-600 border-indigo-500 text-white shadow shadow-indigo-600/30'
+                           : 'bg-[#0F172A] border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                       }`}
+                     >
+                        <span className="text-[10px] font-black uppercase tracking-wider">{mode.label}</span>
+                        <span className={`text-[8px] mt-0.5 font-medium leading-tight ${logMode === mode.id ? 'text-indigo-200' : 'text-slate-500'}`}>{mode.desc}</span>
+                     </button>
+                   ))}
+                </div>
+             </div>
+          )}
 
          {/* Generated Terminal Block */}
          <div className="relative rounded-lg overflow-hidden border border-slate-800 bg-[#0F172A] shadow-inner">
