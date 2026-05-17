@@ -346,14 +346,14 @@ export default function DocsPage() {
                 </h2>
                 
                 <div className="space-y-12">
-                   {/* API 1 */}
+                   {/* Initiate Payment */}
                    <div>
-                     <h3 className="text-lg font-black text-slate-900 mb-2">1. Create a Payment Intent</h3>
-                     <p className="text-[14px] text-slate-500 font-medium mb-4">Call this endpoint when your checkout page is ready to initiate a payment.</p>
+                     <h3 className="text-lg font-black text-slate-900 mb-2">1. Initiate Payment</h3>
+                     <p className="text-[14px] text-slate-500 font-medium mb-4">Call this endpoint to create a new checkout session and receive a direct payment checkout link.</p>
                      
                      <div className="flex items-center gap-3 font-mono text-[12.5px] bg-slate-100 border border-slate-200 px-4 py-2.5 rounded-lg mb-6">
                        <span className="px-2 py-0.5 bg-indigo-600 text-white font-black rounded text-[10px]">POST</span>
-                       <span className="font-bold text-slate-800">https://api.payxmint.com/api/v1/create-intent</span>
+                       <span className="font-bold text-slate-800">/payment/initiate</span>
                      </div>
 
                      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white mb-6">
@@ -368,488 +368,211 @@ export default function DocsPage() {
                          </thead>
                          <tbody className="divide-y divide-slate-100 font-bold text-slate-600">
                            <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">public_key</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-rose-500">Yes</td>
+                             <td className="p-3 pr-4">Your merchant account public key.</td>
+                           </tr>
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">merchant_txn_id</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-rose-500">Yes</td>
+                             <td className="p-3 pr-4">Max 64 characters alphanumeric. Unique order reference.</td>
+                           </tr>
+                           <tr>
                              <td className="p-3 pl-4 font-mono text-indigo-600">amount</td>
-                             <td className="p-3">number</td>
-                             <td className="p-3 text-rose-500">Yes</td>
-                             <td className="p-3 pr-4">The amount to collect in INR (e.g. 500.00).</td>
-                           </tr>
-                           <tr>
-                             <td className="p-3 pl-4 font-mono text-indigo-600">order_id</td>
                              <td className="p-3">string</td>
                              <td className="p-3 text-rose-500">Yes</td>
-                             <td className="p-3 pr-4">Your platform's unique order reference ID.</td>
+                             <td className="p-3 pr-4">The amount to collect, based on account limits (e.g. "5000.00").</td>
                            </tr>
                            <tr>
-                             <td className="p-3 pl-4 font-mono text-indigo-600">metadata</td>
-                             <td className="p-3">object</td>
-                             <td className="p-3 text-slate-400">No</td>
-                             <td className="p-3 pr-4">Up to 20 key-value pairs of JSON metadata.</td>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">redirect_url</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-rose-500">Yes</td>
+                             <td className="p-3 pr-4">Must be a valid URL where the buyer is redirected after payment.</td>
                            </tr>
                            <tr>
-                             <td className="p-3 pl-4 font-mono text-indigo-600">customer_email</td>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">buyer_first_name</td>
                              <td className="p-3">string</td>
                              <td className="p-3 text-slate-400">No</td>
-                             <td className="p-3 pr-4">For sending automatic receipts.</td>
+                             <td className="p-3 pr-4">Max 64 characters alphanumeric.</td>
+                           </tr>
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">buyer_last_name</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-slate-400">No</td>
+                             <td className="p-3 pr-4">Max 64 characters alphanumeric.</td>
+                           </tr>
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">buyer_phone</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-slate-400">No</td>
+                             <td className="p-3 pr-4">10-digit phone number.</td>
+                           </tr>
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">buyer_email</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-slate-400">No</td>
+                             <td className="p-3 pr-4">Max 100 characters.</td>
                            </tr>
                          </tbody>
                        </table>
                      </div>
 
                      <CodeBlock 
-                       code={`{\n  "id": "pi_88990011",\n  "status": "pending",\n  "amount": 500.00,\n  "checkout_url": "https://payxmint.com/pay/tok_65c3b...",\n  "upi_link": "upi://pay?pa=merchant@bank&am=500...",\n  "payment_token": "tok_65c3b...",\n  "metadata": { "order_type": "retail" }\n}`}
+                       language="Bash"
+                       code={`curl --request POST \\\n  --url <API_BASE_URL>/payment/initiate \\\n  --header 'Content-Type: application/json' \\\n  --data '{\\n    "public_key": "YOUR_PUBLIC_KEY",\\n    "merchant_txn_id": "pay_202506038627",\\n    "buyer_first_name": "Amit",\\n    "buyer_last_name": "Bansal",\\n    "buyer_phone": "9898989898",\\n    "buyer_email": "amit_bansal@email.com",\\n    "amount": "5000.00",\\n    "redirect_url": "https://merchant.site/thankyou"\\n  }'`}
+                     />
+
+                     <p className="text-[14px] text-slate-500 font-medium my-4">Sample Response:</p>
+                     <CodeBlock 
+                       language="JSON"
+                       code={`{\\n  "query": "success",\\n  "code": 200,\\n  "message": "Payment request created",\\n  "timestamp_create": "03-06-2025 09:47:48 PM",\\n  "merchant_txn_id": "pay_202506038627",\\n  "amount": "5000.00",\\n  "buyer_first_name": "Amit",\\n  "buyer_last_name": "Bansal",\\n  "buyer_phone": "9898989898",\\n  "buyer_email": "amit_bansal@email.com",\\n  "redirect_url": "https://merchant.site/thankyou",\\n  "payment_link": "https://gateway.site/checkout/pay_202506038627",\\n  "payment_status": "pending"\\n}`}
                      />
                    </div>
 
-                   {/* API 2 */}
+                   {/* Payment Status Check */}
                    <div className="border-t border-slate-100 pt-8">
-                     <h3 className="text-lg font-black text-slate-900 mb-2">2. Check Payment Status</h3>
-                     <p className="text-[14px] text-slate-500 font-medium mb-4">Use this endpoint to query if a specific payment intent has been settled.</p>
+                     <h3 className="text-lg font-black text-slate-900 mb-2">2. Payment Status Check</h3>
+                     <p className="text-[14px] text-slate-500 font-medium mb-4">Query the settlement and bank reference details of any payment transaction using this endpoint.</p>
                      
                      <div className="flex items-center gap-3 font-mono text-[12.5px] bg-slate-100 border border-slate-200 px-4 py-2.5 rounded-lg mb-6">
-                       <span className="px-2 py-0.5 bg-emerald-600 text-white font-black rounded text-[10px]">GET</span>
-                       <span className="font-bold text-slate-800">https://api.payxmint.com/api/v1/check-status?token={"{token}"}</span>
+                       <span className="px-2 py-0.5 bg-indigo-600 text-white font-black rounded text-[10px]">POST</span>
+                       <span className="font-bold text-slate-800">/payment/status</span>
                      </div>
 
                      <CodeBlock 
-                       code={`{\n  "status": "SUCCESS",\n  "utr": "412239102931",\n  "payer_name": "John Doe",\n  "paid_at": "2024-05-16T12:00:00Z"\n}`}
+                       language="Bash"
+                       code={`curl --request POST \\\n  --url <API_BASE_URL>/payment/status \\\n  --header 'Content-Type: application/json' \\\n  --data '{\\n    "public_key": "YOUR_PUBLIC_KEY",\\n    "merchant_txn_id": "pay_202506038627"\\n  }'`}
+                     />
+
+                     <p className="text-[14px] text-slate-500 font-medium my-4">Sample Response:</p>
+                     <CodeBlock 
+                       language="JSON"
+                       code={`{\\n  "query": "success",\\n  "code": 200,\\n  "message": "Collection details found",\\n  "created": "03-06-2025 09:40:24 PM",\\n  "updated": "03-06-2025 09:40:51 PM",\\n  "device": "mobile",\\n  "mode": "upi",\\n  "gateway": "smart_collect",\\n  "platform_txn_id": "pay_202506035445",\\n  "gateway_txn_id": "pay_202506035445",\\n  "bank_txn_id": "5477419633",\\n  "buyer_first_name": "Ajay",\\n  "buyer_last_name": "Bansal",\\n  "buyer_phone": "9898989898",\\n  "buyer_email": "ajay.b@email.com",\\n  "amount": "799.00",\\n  "fee": "22.40",\\n  "net_amount": "776.60",\\n  "redirect_url": "https://merchant.site/thankyou",\\n  "remark": "submitted",\\n  "status": "success"\\n}`}
                      />
                    </div>
 
-                   {/* API 3: Checkout Page Template */}
+                   {/* Payout Balance Check */}
                    <div className="border-t border-slate-100 pt-8">
-                     <h3 className="text-lg font-black text-slate-900 mb-2">3. Direct Custom Checkout Template (HTML/CSS/JS)</h3>
-                     <p className="text-[14px] text-slate-500 font-medium mb-4">Deploy a highly-responsive, clean glassmorphic checkout screen for your SaaS instantly using this complete self-contained preview template.</p>
+                     <h3 className="text-lg font-black text-slate-900 mb-2">3. Payout Balance Check</h3>
+                     <p className="text-[14px] text-slate-500 font-medium mb-4">Fetch your current payout ledger balance securely.</p>
                      
+                     <div className="flex items-center gap-3 font-mono text-[12.5px] bg-slate-100 border border-slate-200 px-4 py-2.5 rounded-lg mb-6">
+                       <span className="px-2 py-0.5 bg-indigo-600 text-white font-black rounded text-[10px]">POST</span>
+                       <span className="font-bold text-slate-800">/payout/balance</span>
+                     </div>
+
                      <CodeBlock 
-                       language="HTML"
-                       code={`<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>PayxMint Checkout Preview</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-:root{
-  --primary:#18181b;
-  --slate-50:#f8fafc;
-  --slate-100:#f1f5f9;
-  --slate-200:#e2e8f0;
-  --slate-400:#94a3b8;
-  --slate-500:#64748b;
-  --slate-600:#475569;
-  --slate-900:#0f172a;
-  --blue-600:#2563eb;
-  --green:#10b981;
-}
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  font-family:'Inter',sans-serif;
-  background:#ffffff;
-  color:var(--slate-900);
-  min-height:100vh;
-}
-
-.checkout-container{
-  display:flex;
-  min-height:100vh;
-}
-
-/* LEFT PANEL */
-
-.summary-panel{
-  flex:1;
-  background:var(--slate-50);
-  border-right:1px solid var(--slate-100);
-  padding:64px 48px;
-  display:flex;
-  justify-content:flex-end;
-}
-
-.panel-content{
-  width:100%;
-  max-width:380px;
-}
-
-.merchant-header{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:32px;
-}
-
-.merchant-logo{
-  width:38px;
-  height:38px;
-  border-radius:10px;
-  background:var(--primary);
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:700;
-}
-
-.merchant-name{
-  font-size:15px;
-  font-weight:600;
-  color:var(--slate-600);
-}
-
-.amount-label{
-  color:var(--slate-500);
-  margin-bottom:8px;
-  font-weight:500;
-}
-
-.amount{
-  font-size:52px;
-  font-weight:700;
-  letter-spacing:-2px;
-  margin-bottom:48px;
-}
-
-.order-details{
-  border-top:1px solid var(--slate-200);
-  padding-top:24px;
-}
-
-.order-row{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:16px;
-  font-size:14px;
-}
-
-.order-label{
-  color:var(--slate-500);
-}
-
-.order-value{
-  font-weight:600;
-}
-
-/* RIGHT PANEL */
-
-.payment-panel{
-  flex:1;
-  background:#fff;
-  padding:64px 48px;
-  display:flex;
-  align-items:flex-start;
-}
-
-.payment-title{
-  font-size:24px;
-  font-weight:700;
-  margin-bottom:18px;
-}
-
-.payment-subtitle{
-  font-size:14px;
-  color:var(--slate-500);
-  margin-bottom:28px;
-}
-
-.loader{
-  width:100%;
-  height:4px;
-  background:var(--slate-100);
-  border-radius:999px;
-  overflow:hidden;
-  margin-bottom:28px;
-}
-
-.loader-progress{
-  width:30%;
-  height:100%;
-  background:var(--blue-600);
-  animation:slide 1.8s infinite linear;
-}
-
-@keyframes slide{
-  0%{
-    transform:translateX(-100%);
-  }
-  100%{
-    transform:translateX(400%);
-  }
-}
-
-.qr-box{
-  border:1px solid var(--slate-200);
-  border-radius:18px;
-  padding:18px;
-  background:#fff;
-  display:inline-block;
-  margin-bottom:20px;
-}
-
-.qr-img{
-  width:240px;
-  height:240px;
-  display:block;
-}
-
-.scan-text{
-  font-size:14px;
-  color:var(--slate-500);
-  margin-bottom:28px;
-}
-
-.app-buttons{
-  display:flex;
-  gap:12px;
-  width:100%;
-}
-
-.btn{
-  flex:1;
-  padding:15px;
-  border-radius:12px;
-  text-decoration:none;
-  color:#fff;
-  font-weight:600;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  transition:.2s ease;
-}
-
-.btn:hover{
-  transform:translateY(-2px);
-}
-
-.phonepe{
-  background:#5f259f;
-}
-
-.paytm{
-  background:#002970;
-}
-
-.gpay{
-  background:#111827;
-}
-
-.footer{
-  margin-top:42px;
-  font-size:12px;
-  color:var(--slate-400);
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.secure-dot{
-  width:8px;
-  height:8px;
-  border-radius:999px;
-  background:var(--green);
-}
-
-/* MOBILE */
-
-.mobile-summary{
-  display:none;
-}
-
-@media(max-width:850px){
-
-  body{
-    background:#f4f4f5;
-    padding:20px;
-  }
-
-  .checkout-container{
-    display:block;
-    max-width:430px;
-    margin:auto;
-  }
-
-  .summary-panel{
-    display:none;
-  }
-
-  .payment-panel{
-    padding:30px 24px;
-    border-radius:24px;
-    box-shadow:
-      0 10px 30px rgba(0,0,0,0.06);
-  }
-
-  .mobile-summary{
-    display:block;
-    margin-bottom:28px;
-  }
-
-  .amount{
-    font-size:38px;
-    margin-bottom:18px;
-  }
-
-  .qr-img{
-    width:100%;
-    max-width:240px;
-    height:auto;
-  }
-
-  .app-buttons{
-    flex-direction:column;
-  }
-}
-</style>
-</head>
-
-<body>
-
-<div class="checkout-container">
-
-  <!-- LEFT SIDE -->
-  <div class="summary-panel">
-
-    <div class="panel-content">
-
-      <div class="merchant-header">
-        <div class="merchant-logo">P</div>
-        <div class="merchant-name">PayxMint Store</div>
-      </div>
-
-      <div class="amount-label">
-        Pay PayxMint Store
-      </div>
-
-      <div class="amount">
-        ₹1,299.00
-      </div>
-
-      <div class="order-details">
-
-        <div class="order-row">
-          <div class="order-label">Order ID</div>
-          <div class="order-value">ORD-938382</div>
-        </div>
-
-        <div class="order-row">
-          <div class="order-label">Session expires</div>
-          <div class="order-value" id="timer">10:00</div>
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-  <!-- RIGHT SIDE -->
-  <div class="payment-panel">
-
-    <div class="panel-content">
-
-      <!-- MOBILE TOP -->
-      <div class="mobile-summary">
-
-        <div class="merchant-header">
-          <div class="merchant-logo">P</div>
-          <div class="merchant-name">PayxMint Store</div>
-        </div>
-
-        <div class="amount">
-          ₹1,299.00
-        </div>
-
-        <div class="order-label">
-          Order ID: ORD-938382
-        </div>
-
-      </div>
-
-      <div class="payment-title">
-        Pay with UPI
-      </div>
-
-      <div class="payment-subtitle">
-        Open any UPI app and scan this QR code
-      </div>
-
-      <div class="loader">
-        <div class="loader-progress"></div>
-      </div>
-
-      <div class="qr-box">
-        <img
-          class="qr-img"
-          src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay"
-          alt="QR"
-        />
-      </div>
-
-      <div class="scan-text">
-        Waiting for payment confirmation...
-      </div>
-
-      <div class="app-buttons">
-
-        <a href="#" class="btn phonepe">
-          PhonePe
-        </a>
-
-        <a href="#" class="btn paytm">
-          Paytm
-        </a>
-
-        <a href="#" class="btn gpay">
-          GPay
-        </a>
-
-      </div>
-
-      <div class="footer">
-        <div class="secure-dot"></div>
-        Securely processed by PayxMint
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-<script>
-let total = 600;
-
-function updateTimer() {
-
-  const minutes = Math.floor(total / 60);
-  const seconds = total % 60;
-
-  document.getElementById('timer').innerText =
-    minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-
-  total--;
-
-  if(total < 0){
-    clearInterval(interval);
-    document.getElementById('timer').innerText = "Expired";
-  }
-}
-
-updateTimer();
-
-const interval = setInterval(updateTimer,1000);
-</script>
-
-</body>
-</html>`}
+                       language="Bash"
+                       code={`curl --request POST \\\n  --url <API_BASE_URL>/payout/balance \\\n  --header 'Content-Type: application/json' \\\n  --data '{\\n    "public_key": "YOUR_PUBLIC_KEY"\\n  }'`}
+                     />
+
+                     <p className="text-[14px] text-slate-500 font-medium my-4">Sample Response:</p>
+                     <CodeBlock 
+                       language="JSON"
+                       code={`{\\n  "query": "success",\\n  "code": 200,\\n  "message": "Payout balance fetched",\\n  "timestamp_request": "03-06-2025 10:04:24 PM",\\n  "account_id": "btx_wmK6wBC7BF0N6Rb5",\\n  "payout_balance": "3,061.19"\\n}`}
+                     />
+                   </div>
+
+                   {/* Payout Initiate */}
+                   <div className="border-t border-slate-100 pt-8">
+                     <h3 className="text-lg font-black text-slate-900 mb-2">4. Payout Initiate</h3>
+                     <p className="text-[14px] text-slate-500 font-medium mb-4">Initialize direct payout bank transfers (IMPS / NEFT / RTGS) instantly.</p>
+                     
+                     <div className="flex items-center gap-3 font-mono text-[12.5px] bg-slate-100 border border-slate-200 px-4 py-2.5 rounded-lg mb-6">
+                       <span className="px-2 py-0.5 bg-indigo-600 text-white font-black rounded text-[10px]">POST</span>
+                       <span className="font-bold text-slate-800">/payout/initiate</span>
+                     </div>
+
+                     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white mb-6">
+                       <table className="w-full text-left text-xs border-collapse">
+                         <thead>
+                           <tr className="bg-slate-50 border-b border-slate-200 font-black text-slate-400 uppercase tracking-wider text-[10px]">
+                             <th className="p-3 pl-4">Parameter</th>
+                             <th className="p-3">Type</th>
+                             <th className="p-3">Required</th>
+                             <th className="p-3 pr-4">Description</th>
+                           </tr>
+                         </thead>
+                         <tbody className="divide-y divide-slate-100 font-bold text-slate-600">
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">public_key</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-rose-500">Yes</td>
+                             <td className="p-3 pr-4">Your merchant account public key.</td>
+                           </tr>
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">merchant_txn_id</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-rose-500">Yes</td>
+                             <td className="p-3 pr-4">Max 64 characters alphanumeric. Unique payout ID.</td>
+                           </tr>
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">payout_mode</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-rose-500">Yes</td>
+                             <td className="p-3 pr-4">Mode of payout: "imps" / "neft" / "rtgs".</td>
+                           </tr>
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">account_name</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-rose-500">Yes</td>
+                             <td className="p-3 pr-4">Max 64 characters alphanumeric. Beneficiary account name.</td>
+                           </tr>
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">account_number</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-rose-500">Yes</td>
+                             <td className="p-3 pr-4">Max 64 characters alphanumeric. Beneficiary bank account number.</td>
+                           </tr>
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">ifsc</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-rose-500">Yes</td>
+                             <td className="p-3 pr-4">IFSC code of the destination bank branch.</td>
+                           </tr>
+                           <tr>
+                             <td className="p-3 pl-4 font-mono text-indigo-600">amount</td>
+                             <td className="p-3">string</td>
+                             <td className="p-3 text-rose-500">Yes</td>
+                             <td className="p-3 pr-4">The payout amount, based on account limits.</td>
+                           </tr>
+                         </tbody>
+                       </table>
+                     </div>
+
+                     <CodeBlock 
+                       language="Bash"
+                       code={`curl --request POST \\\n  --url <API_BASE_URL>/payout/initiate \\\n  --header 'Content-Type: application/json' \\\n  --data '{\\n    "public_key": "YOUR_PUBLIC_KEY",\\n    "merchant_txn_id": "pay_202506031327",\\n    "payout_mode": "imps",\\n    "account_name": "Beneficiary name",\\n    "account_number": "919898989898",\\n    "ifsc": "SBIN0005050",\\n    "amount": "20000.00"\\n}'`}
+                     />
+
+                     <p className="text-[14px] text-slate-500 font-medium my-4">Sample Response:</p>
+                     <CodeBlock 
+                       language="JSON"
+                       code={`{\\n  "query": "success",\\n  "code": 200,\\n  "message": "Payout request created",\\n  "timestamp_create": "03-06-2025 10:01:36 PM",\\n  "payout_mode": "imps",\\n  "merchant_txn_id": "pay_202506031327",\\n  "bank_name": "State Bank of India",\\n  "branch_name": "TRADE CPC",\\n  "account_name": "Beneficiary name",\\n  "account_number": "919898989898",\\n  "ifsc": "SBIN0005050",\\n  "amount": "20000.00",\\n  "fee": "11.80",\\n  "net_amount": "20011.80",\\n  "payout_status": "success"\\n}`}
+                     />
+                   </div>
+
+                   {/* Payout Status Check */}
+                   <div className="border-t border-slate-100 pt-8">
+                     <h3 className="text-lg font-black text-slate-900 mb-2">5. Payout Status Check</h3>
+                     <p className="text-[14px] text-slate-500 font-medium mb-4">Query the direct payout transaction state and settlement reference.</p>
+                     
+                     <div className="flex items-center gap-3 font-mono text-[12.5px] bg-slate-100 border border-slate-200 px-4 py-2.5 rounded-lg mb-6">
+                       <span className="px-2 py-0.5 bg-indigo-600 text-white font-black rounded text-[10px]">POST</span>
+                       <span className="font-bold text-slate-800">/payout/status</span>
+                     </div>
+
+                     <CodeBlock 
+                       language="Bash"
+                       code={`curl --request POST \\\n  --url <API_BASE_URL>/payout/status \\\n  --header 'Content-Type: application/json' \\\n  --data '{\\n    "public_key": "YOUR_PUBLIC_KEY",\\n    "merchant_txn_id": "pay_202506031327"\\n  }'`}
+                     />
+
+                     <p className="text-[14px] text-slate-500 font-medium my-4">Sample Response:</p>
+                     <CodeBlock 
+                       language="JSON"
+                       code={`{\\n  "query": "success",\\n  "code": 200,\\n  "message": "Payout details found",\\n  "created": "03-06-2025 10:01:36 PM",\\n  "updated": "03-06-2025 10:02:11 PM",\\n  "payout_mode": "imps",\\n  "platform_txn_id": "pay_202506031327",\\n  "bank_txn_id": "521245112100",\\n  "bank_name": "State Bank of India",\\n  "branch_name": "TRADE CPC",\\n  "account_name": "Beneficiary name",\\n  "account_number": "919898989898",\\n  "ifsc": "SBIN0005050",\\n  "amount": "20000",\\n  "fee": "11.8",\\n  "net_amount": "20011.80",\\n  "status": "success"\\n}`}
                      />
                    </div>
                 </div>
@@ -864,37 +587,31 @@ const interval = setInterval(updateTimer,1000);
                 
                 <div className="space-y-8 text-[14px] text-slate-600 leading-relaxed font-medium">
                    <div>
-                     <h3 className="text-[15px] font-black text-slate-900 mb-2">1. Webhook Notification</h3>
-                     <p className="text-slate-500 mb-4">When a payment resolves, we immediately transmit the following JSON payload to your webhook callback URL.</p>
+                     <h3 className="text-[15px] font-black text-slate-900 mb-2">1. Webhook Signature Verification</h3>
+                     <p className="text-slate-500 mb-4">Always verify the webhook signature to protect your application endpoint against spoofing. Use this implementation pattern to verify payloads securely:</p>
                      <CodeBlock 
-                       code={`{\n  "event": "payment.success",\n  "id": "evt_776655",\n  "data": {\n    "order_id": "INV-99",\n    "amount": 500.00,\n    "utr": "412239102931",\n    "metadata": { "ref": "abc-123" }\n  }\n}`}
+                       language="JavaScript"
+                       code={`// Define the secret key\\nsecret_key = 'secret_key'\\n\\n// Read HTTP headers from the request\\ntimestamp = getHeader('X-Timestamp')\\nsignature = getHeader('X-Signature')\\n\\n// Read raw request body\\nraw_body = getRawBody()\\n\\n// Initialize response\\nresponse = {\\n  'status': 'failure',\\n  'message': ''\\n}\\n\\n// Ensure required values are present\\nif timestamp and signature and raw_body:\\n  signed_payload = timestamp + '.' + raw_body\\n  expected_signature = base64encode(HMAC_SHA256(signed_payload, secret_key))\\n  if secureCompare(expected_signature, signature):\\n    response['status'] = 'success'\\n    response['message'] = 'Webhook verified and accepted'\\n  else:\\n    response['message'] = 'Invalid signature'\\nelse:\\n  response['message'] = 'Missing timestamp, signature, or body'\\n\\n// Send JSON response back to the sender\\nsendJSONResponse(response)`}
                      />
                    </div>
 
                    <div className="border-t border-slate-100 pt-8">
-                     <h3 className="text-[15px] font-black text-slate-900 mb-2">2. Checking the Signature (Safety First)</h3>
-                     <p className="text-slate-500 mb-4">Always verify incoming webhooks to ensure they originate strictly from our system and haven't been tampered with.</p>
-                     
-                     <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                       <p className="font-bold text-slate-900 text-xs uppercase tracking-wider">Verification Signature Logic</p>
-                       <ol className="list-decimal list-inside space-y-2 text-[13px] text-slate-500 pl-1">
-                         <li>Capture the <span className="font-bold text-slate-900">Raw Request Body</span> as string.</li>
-                         <li>Compute the signature using <span className="font-mono text-indigo-600 font-bold">HMAC-SHA256</span> hashing with your unique <span className="font-bold text-slate-900">Webhook Secret Key</span>.</li>
-                         <li>Perform a constant-time comparison against the value supplied in the <span className="font-mono text-indigo-600 font-bold">X-PayxMint-Signature</span> header.</li>
-                       </ol>
-                     </div>
+                     <h3 className="text-[15px] font-black text-slate-900 mb-2">2. Sample Payment Webhook Payload</h3>
+                     <p className="text-slate-500 mb-4">Below is a sample notification payload that is POSTed securely to your designated webhook endpoint upon collection verification:</p>
+                     <CodeBlock 
+                       language="JSON"
+                       code={`{\\n  "event_type": "collection_notification",\\n  "data": {\\n    "timestamp_create": 1748553768,\\n    "timestamp_update": 1748635750,\\n    "pid": "btx_wmK6wBC7BF0N6Rb5",\\n    "device": "desktop",\\n    "payment_method": "upi",\\n    "gateway": "smart_collect",\\n    "platform_txn_id": "pay_202505298531",\\n    "gateway_txn_id": "pay_202505298531",\\n    "bank_txn_id": "541254875525",\\n    "buyer_first_name": "Ajay",\\n    "buyer_last_name": "Bansal",\\n    "buyer_phone": "9898989898",\\n    "buyer_email": "ajay.b@email.com",\\n    "amount": 388,\\n    "remark": "attempted",\\n    "status": "success"\\n  }\\n}`}
+                     />
                    </div>
 
                    <div className="border-t border-slate-100 pt-8">
                      <h3 className="text-[15px] font-black text-slate-900 mb-2">3. Idempotency (Preventing Duplicates)</h3>
-                     <p className="text-slate-500">
+                     <p className="text-slate-505 font-black">
                        We enforce strict request idempotency. Always supply a unique value in the <code>Idempotency-Key</code> header of your HTTP request. If you send the same key twice within 24 hours, our hub will return the pre-computed cached response to guarantee duplicate billing is physically impossible.
                      </p>
                    </div>
                 </div>
-             </section>
-
-             {/* --- STEP 9 --- */}
+             </section>{/* --- STEP 9 --- */}
              <section id="step9" className="mb-20 scroll-mt-24 border-t border-slate-100 pt-16">
                 <h2 className="text-2xl font-black text-slate-705 mb-6 tracking-tight flex items-center gap-3">
                    <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-600/10"><AlertTriangle size={18}/></div>
