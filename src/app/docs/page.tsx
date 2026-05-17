@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
 import { 
   UserCheck, FileText, Shield, Webhook as WebhookIcon, Layers, Cpu, Code, 
   ShieldCheck, AlertTriangle, HelpCircle, Check, Copy, ArrowRight, Menu, X, 
@@ -136,9 +137,9 @@ export default function DocsPage() {
       {/* --- Header --- */}
       <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-[100] px-6 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2 group">
-             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-all duration-300">W</div>
-             <span className="font-bold text-slate-705 tracking-tight text-base">WaveCollect <span className="text-slate-400 font-medium ml-1">Developers</span></span>
+          <Link href="/" className="flex items-center gap-2.5">
+             <Logo height={24} />
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-slate-100 text-slate-500 px-2 py-0.5 rounded ml-1.5 border border-slate-200">Devs</span>
           </Link>
           <div className="hidden md:flex h-6 w-px bg-slate-200 mx-2" />
           <div className="hidden md:flex items-center gap-6">

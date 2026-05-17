@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Zap, ArrowRight, Loader2, ShieldCheck, Mail, Lock, User, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -79,13 +80,9 @@ export default function RegisterPage() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-10">
-          <motion.div 
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            className="w-14 h-14 bg-slate-900 rounded-[22px] flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-slate-900/20"
-          >
-            <Zap className="text-white w-7 h-7 fill-current" />
-          </motion.div>
+          <Link href="/" className="inline-block mb-6">
+            <Logo height={42} />
+          </Link>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Join PayxMint</h1>
           <p className="text-slate-500 font-medium">Start automating your payment verification today</p>
         </div>

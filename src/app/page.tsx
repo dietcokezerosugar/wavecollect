@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
 import { ArrowRight, CheckCircle2, ShieldCheck, Zap, Menu, X, Terminal, Server, Lock, Globe2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
@@ -15,12 +16,9 @@ export default function LandingPage() {
       {/* Navigation */}
       <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-650 rounded-md flex items-center justify-center shadow-lg shadow-blue-600/20">
-              <Zap className="text-white w-5 h-5 fill-current" />
-            </div>
-            <span className="text-2xl font-black tracking-tighter text-indigo-950">PayxMint</span>
-          </div>
+          <Link href="/" className="flex items-center">
+            <Logo height={28} />
+          </Link>
           
           <nav className="hidden md:flex items-center gap-8">
             <Link href="#features" className="text-sm font-bold text-slate-500 hover:text-indigo-900 transition-colors">Features</Link>
@@ -206,10 +204,9 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-12 border-t border-slate-200 bg-white">
         <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-2 text-indigo-950">
-            <Zap className="w-5 h-5 fill-current text-blue-650" />
-            <span className="font-black tracking-tight text-xl">PayxMint</span>
-          </div>
+          <Link href="/" className="flex items-center justify-center md:justify-start">
+            <Logo height={24} />
+          </Link>
           <p className="text-sm font-bold text-slate-400">
             © {new Date().getFullYear()} PayxMint Infrastructure. All rights reserved.
           </p>

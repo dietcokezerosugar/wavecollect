@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
 import { 
   LayoutDashboard, 
   Key, 
@@ -257,10 +258,9 @@ export default function DashboardLayout({
       {/* Sleek Minimalist Sidebar - Desktop & Mobile */}
       <aside className={`flex flex-col fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-100 z-[70] transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="h-14 px-6 flex items-center justify-between border-b border-slate-50">
-          <div className="flex items-center gap-2.5">
-            <Zap className="text-blue-600 w-4 h-4 fill-current" />
-            <span className="text-sm font-black tracking-tight text-slate-700">PayxMint</span>
-          </div>
+          <Link href="/dashboard" className="flex items-center">
+            <Logo height={24} />
+          </Link>
           <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-1 text-slate-400 hover:text-slate-700">
             <X className="w-4 h-4" />
           </button>
@@ -382,16 +382,13 @@ export default function DashboardLayout({
 
         {/* Premium Mobile Header */}
         <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-slate-100 z-40 px-4 flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-md flex items-center justify-center shadow-md">
-              <Zap className="text-white w-4 h-4 fill-current" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[13px] font-black tracking-tight text-slate-700 leading-none">PayxMint</span>
-              <div className="flex items-center gap-1.5 mt-1">
-                <div className={`w-1.5 h-1.5 rounded-full ${systemStatus === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                <span className="text-[9px] font-bold text-slate-500 uppercase">{systemStatus === 'online' ? 'Active' : 'Offline'}</span>
-              </div>
+          <div className="flex items-center gap-3.5">
+            <Link href="/dashboard">
+              <Logo height={24} />
+            </Link>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-50 rounded-full border border-slate-100">
+              <div className={`w-1.5 h-1.5 rounded-full ${systemStatus === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+              <span className="text-[9px] font-bold text-slate-500 uppercase">{systemStatus === 'online' ? 'Active' : 'Offline'}</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
