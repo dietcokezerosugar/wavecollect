@@ -28,9 +28,35 @@ export default function StaffAccountReview() {
   const [showPoolModal, setShowPoolModal] = useState(false);
   const [newPoolAccount, setNewPoolAccount] = useState({ name: '', email: '', password: '', upiId: '', proxy: '' });
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [batchAction, setBatchAction] = useState<string>('start');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [editingReportId, setEditingReportId] = useState<string | null>(null);
   const [reportIdValue, setReportIdValue] = useState("");
+
+  const getBatchCommand = () => {
+    if (selectedIds.length === 0) return "# Select accounts below to generate batch commands...";
+    
+    return selectedIds.map(id => {
+      const acc = accounts.find(a => a.id === id);
+      if (!acc) return "";
+      
+      switch (batchAction) {
+        case 'handshake':
+          return `cd ~/wavecollect && node src/bot/auto-login.js '${acc.name}' '${acc.email}' '${acc.botPassword}' '${acc.proxyConfig || ''}' --terminal`;
+        case 'start':
+          return `cd ~/wavecollect && pm2 start src/bot/bot.js --name 'bot-${acc.name}' -- '${acc.name}'`;
+        case 'stop':
+          return `pm2 stop 'bot-${acc.name}'`;
+        case 'restart':
+          return `pm2 restart 'bot-${acc.name}'`;
+        case 'logs':
+          return `pm2 logs 'bot-${acc.name}'`;
+        default:
+          return "";
+      }
+    }).filter(Boolean).join("\n");
+  };
 
   const copyToClipboard = (text: string, id: string) => {
     try {
@@ -149,6 +175,94 @@ export default function StaffAccountReview() {
         </button>
       </div>
 
+      {/* Interactive Batch Command Panel */}
+      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl p-6 space-y-4">
+         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+               <h3 className="text-white text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                  <Terminal className="w-4 h-4 text-indigo-400" /> Multi-Account Batch Terminal
+               </h3>
+               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                  Select multiple nodes below to generate a single-block copyable execution command.
+               </p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+               <button 
+                 onClick={() => {
+                   if (selectedIds.length === accounts.length) {
+                     setSelectedIds([]);
+                   } else {
+                     setSelectedIds(accounts.map(a => a.id));
+                   }
+                 }}
+                 className="text-[10px] font-black text-slate-400 hover:text-white uppercase transition-colors mr-2 border border-slate-700 rounded-lg px-2.5 py-1.5 hover:bg-slate-800"
+               >
+                  {selectedIds.length === accounts.length ? 'Deselect All' : 'Select All'}
+               </button>
+               <span className="text-[10px] font-black text-indigo-400 uppercase bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20">
+                  {selectedIds.length} Nodes Selected
+               </span>
+               {selectedIds.length > 0 && (
+                  <button 
+                    onClick={() => setSelectedIds([])}
+                    className="text-[10px] font-black text-rose-400 hover:text-rose-300 uppercase transition-colors"
+                  >
+                     Clear Selection
+                  </button>
+               )}
+            </div>
+         </div>
+
+         {/* Command Purpose Selector */}
+         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-2">
+            {[
+              { id: 'start', label: 'Start Engines', desc: 'pm2 start' },
+              { id: 'handshake', label: 'Handshake', desc: 'node auto-login' },
+              { id: 'logs', label: 'View Logs', desc: 'pm2 logs' },
+              { id: 'stop', label: 'Stop Engines', desc: 'pm2 stop' },
+              { id: 'restart', label: 'Restart Engines', desc: 'pm2 restart' }
+            ].map(act => (
+              <button
+                key={act.id}
+                onClick={() => setBatchAction(act.id)}
+                className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all ${
+                  batchAction === act.id 
+                    ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg' 
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                 <span className="text-[10px] font-black uppercase tracking-wider">{act.label}</span>
+                 <span className={`text-[8px] font-mono mt-0.5 ${batchAction === act.id ? 'text-indigo-200' : 'text-slate-500'}`}>{act.desc}</span>
+              </button>
+            ))}
+         </div>
+
+         {/* Generated Terminal Block */}
+         <div className="relative rounded-lg overflow-hidden border border-slate-800 bg-[#0F172A] shadow-inner">
+            <div className="flex items-center justify-between px-4 py-2 bg-slate-800/40 border-b border-white/5">
+               <span className="text-[9px] font-mono text-slate-500">GENERATED SHELL COMMAND BLOCK</span>
+               {selectedIds.length > 0 && (
+                  <button 
+                    onClick={() => {
+                      copyToClipboard(getBatchCommand(), 'batch-copy');
+                    }}
+                    className={`flex items-center gap-1 px-3 py-1 rounded text-[9px] font-black uppercase tracking-widest transition-all ${
+                      copiedId === 'batch-copy' 
+                        ? 'bg-emerald-600 text-white' 
+                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    }`}
+                  >
+                     {copiedId === 'batch-copy' ? '✓ Copied!' : 'Copy Command Block'}
+                  </button>
+               )}
+            </div>
+            <pre className="p-4 overflow-x-auto text-[11px] font-mono leading-relaxed text-slate-300 min-h-[64px] max-h-48 whitespace-pre">
+               {getBatchCommand()}
+            </pre>
+         </div>
+      </div>
+
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Account List */}
         <div className="xl:col-span-2 space-y-4">
@@ -162,7 +276,25 @@ export default function StaffAccountReview() {
                <div key={account.id} className="bg-white rounded-md border border-slate-200 shadow-sm overflow-hidden group hover:border-slate-300 transition-all">
                   <div className="p-6">
                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex gap-4">
+                        <div className="flex items-center gap-4">
+                           {/* Checkbox selector for Batch Terminal */}
+                           <button
+                             onClick={() => {
+                               if (selectedIds.includes(account.id)) {
+                                 setSelectedIds(selectedIds.filter(id => id !== account.id));
+                               } else {
+                                 setSelectedIds([...selectedIds, account.id]);
+                               }
+                             }}
+                             className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-all ${
+                               selectedIds.includes(account.id)
+                                 ? 'bg-indigo-600 border-indigo-500 text-white'
+                                 : 'bg-white border-slate-300 hover:border-slate-400 text-transparent hover:bg-slate-50'
+                             }`}
+                           >
+                              <span className="text-[10px] font-bold">✓</span>
+                           </button>
+
                            <div className={`w-12 h-12 rounded-md flex items-center justify-center shrink-0 border ${
                              account.reviewStatus === 'PENDING_REVIEW' ? 'bg-amber-50 border-amber-100 text-amber-600' :
                              account.reviewStatus === 'APPROVED' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
