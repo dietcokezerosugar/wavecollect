@@ -150,10 +150,9 @@ export default function PaymentPageClient({
 
   const upiMatch = upiDeepLink.match(/pa=([^&]+)/);
   const merchantUpi = upiMatch ? decodeURIComponent(upiMatch[1]) : "merchant@upi";
-  const cleanName = encodeURIComponent(merchantName).replace(/%20/g, "+");
 
   // Intent links
-  const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${cleanName}&am=${amount}&cu=INR&tn=${referenceId}&featuretype=money_transfer`;
+  const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${referenceId}&featuretype=money_transfer`;
   
   const phonepeData = {
     contact: { cbsName: "", nickName: merchantName, vpa: merchantUpi, type: "VPA" },

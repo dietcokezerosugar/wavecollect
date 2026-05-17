@@ -36,50 +36,46 @@ sequenceDiagram
 
 ---
 
----
+## 1. 🔗 The UPI Deep-Link Formula (Maximum Scanning Parity)
 
-## 1. 📸 Standard UPI QR Code Specifications (Scan Flow)
+Modern UPI scanning apps (such as Google Pay, PhonePe, Paytm, and BHIM) are highly sensitive to URI parameters. WaveCollect utilizes a strictly optimized **"Barebones" P2P Link Formula** that strips away all merchant tracking parameters to route transaction flows as standard friend-to-friend P2P payments.
 
-The QR code displayed on the desktop checkout interface is the primary payment vector for standard computer-to-mobile scanner flows. Standard UPI scanning engines (especially Google Pay, BHIM, and bank-specific apps) are extremely sensitive to URI structures and character encodings.
+### 🚫 Bypassing Banking Firewalls
+Standard business checkouts include transaction parameters like `tid` (Transaction ID) and `tr` (Transaction Reference). When scanned, banking gateways run strict **Merchant Commercial Limit Validations** against these IDs. If a VPA is hosted on standard retail nodes, the transaction is instantly blocked.
+*   **Solution:** WaveCollect **completely strips `tid` and `tr`** from all consumer QR codes and standard links, utilizing **strictly `tn` (Transaction Note)** to carry the unique order reference.
 
-### 🚫 Bypassing Banking Firewalls (The "Barebones" Strategy)
-Commercial payment links attach standard tracking parameters such as `tid` (Transaction ID) and `tr` (Transaction Reference). Scanning standard business links causes commercial gateways to evaluate and enforce retail account merchant limits.
-*   **The WaveCollect Solution:** WaveCollect **completely strips `tid` and `tr`** from the QR code data URI. The only parameter carrying order identification is **`tn` (Transaction Note)**, formatting the transaction strictly as a personal P2P transfer!
+### 🌐 Legacy Scanner Compatibility & Casing Rule
+To ensure older Android smartphones, legacy banking apps (e.g. SBI UPI, HDFC PayZapp), and desktop webcams scan QR codes successfully with a **100% success rate**, we implement custom URL format sanitization:
+*   **VPA Casing (`pa`):** The payee VPA domain must remain **completely raw/unencoded** (using the literal `@` character, e.g. `pa=7440673279@okbizaxis`), preventing decoder crashes on older handsets.
+*   **Name Casing (`pn`):** Spaces inside the business/merchant name are explicitly mapped to **`+` symbols** instead of standard percent-encoding `%20` (e.g. `pn=SOLANA+TECHNOLOGIES`), as older engines throw security exceptions on raw spaces or `%20`.
 
-### 🌐 Legacy Scanner Compatibility (Casing Rules)
-Many cheap or older Android handsets running legacy scanning apps crash or throw exceptions when trying to parse complex URL-encoded strings. WaveCollect implements strict layout rules to maximize scanner success:
-*   **Payee Address (`pa`):** The VPA domain must be left **completely raw and unencoded** (preserving the literal `@` sign, e.g., `pa=7440673279@okbizaxis`), preventing string-decoding glitches.
-*   **Payee Name (`pn`):** Spaces inside the business/merchant name are explicitly mapped to **`+` symbols** instead of `%20` (e.g. `pn=SOLANA+TECHNOLOGIES`), as raw spaces or `%20` trigger "Security Violations" in legacy Google Pay scanners.
-
-### 📋 Full QR Link URI Specification
+### 📋 Full UPI Link Specification
 ```bash
 upi://pay?pa={raw_vpa}&pn={plus_spaced_name}&am={amount}&cu=INR&tn={order_id}
 ```
 
-#### Query Parameter Dictionary:
-| Parameter | Purpose | Value & Type Enforced | Real-World Example |
+| Query Parameter | Purpose | Formatting Enforced | Example |
 | :--- | :--- | :--- | :--- |
-| **`pa`** | Payee Address (VPA Domain) | Raw, unencoded string (trimmed, no `%40`) | `7440673279@okbizaxis` |
-| **`pn`** | Payee Display Name | String with spaces mapped explicitly to `+` | `SOLANA+TECHNOLOGIES` |
-| **`am`** | Transaction Amount | Float formatted to strictly **2 decimal places** | `1.75` |
-| **`cu`** | Currency Code | Hardcoded to **`INR`** (NPCI mandate) | `INR` |
-| **`tn`** | Transaction Note / Message | Clean 12-char alphanumeric order ID | `6FBOAptgW8Xe` |
+| **`pa`** | Payee Address (VPA Domain) | Trimmed & Raw (Unencoded `@` sign) | `7440673279@okbizaxis` |
+| **`pn`** | Payee Display Name | Encoded, spaces mapped to `+` | `SOLANA+TECHNOLOGIES` |
+| **`am`** | Transaction Amount | Decimal string, formatted to strictly 2 decimal places | `1.75` |
+| **`cu`** | Currency Identifier | Strictly hardcoded to `INR` | `INR` |
+| **`tn`** | Transaction Note / Description | Clean 12-character alphanumeric order ID | `6FBOAptgW8Xe` |
 
 ---
 
-## 2. 📲 PhonePe Native P2P Intent Specifications (Click Flow)
+## 2. 📲 App-Specific P2P Redirect Intents
 
-When a customer initiates checkout on a mobile device and chooses PhonePe, standard deep-links can trigger sluggish browser redirections or generic Android app-picker menus. WaveCollect bypasses this entirely using PhonePe's **native custom protocol**.
+When customers complete transactions on their mobile devices, standard UPI intents can occasionally trigger app-picker menus. To streamline the user experience, WaveCollect generates direct, single-click application intents that bypass menus and launch PhonePe or Paytm immediately.
 
-### 🔒 Secure Locked Checkout
-The native PhonePe protocol accepts a **Base64-encoded JSON payload** representing the transfer context, which enforces a locked-down interface where customers cannot modify the amount or delete the reference note.
+### A. PhonePe Native P2P Redirect (`phonepe://native`)
+PhonePe enforces a highly secure, locked payment protocol. It expects a **Base64-encoded JSON payload** representing the transfer context:
 
-### 📋 Deep-Link URI format:
 ```bash
 phonepe://native?data={base64_payload}&id=p2ppayment
 ```
 
-### 📋 Decoded JSON Payload Schema:
+#### Decoded JSON Payload Structure:
 ```json
 {
   "contact": {
@@ -108,41 +104,22 @@ phonepe://native?data={base64_payload}&id=p2ppayment
 }
 ```
 
-#### JSON Payload Fields:
-*   **`contact.nickName`:** The exact merchant business/brand name displayed to the customer inside the PhonePe UI.
-*   **`contact.vpa`:** The raw target payee VPA domain.
-*   **`p2pPaymentCheckoutParams.note`:** The exact 12-character alphanumeric order ID mapped directly to the locked note field.
-*   **`p2pPaymentCheckoutParams.initialAmount`:** Denominated strictly in **paise** (calculated as `Math.round(amount * 100)`). E.g. `1.75 INR` translates to `175` paise.
-*   **`p2pPaymentCheckoutParams.disableNotesEdit`:** Strictly set to `true` to guarantee the customer cannot alter the tracking note.
-*   **`p2pPaymentCheckoutParams.allowAmountEdit`:** Strictly set to `false` to guarantee the customer pays the exact order value.
+> [!NOTE]
+> *   **`initialAmount`** is denominated strictly in **paise** (e.g. `1.75 INR` translates to `175` paise).
+> *   **`disableNotesEdit`** is locked to `true` and **`allowAmountEdit`** is locked to `false`, preventing customers from modifying payment details.
 
 ---
 
-## 3. 💳 Paytm Cash Wallet P2P Intent Specifications (Click Flow)
+### B. Paytm Cash Wallet Redirect (`paytmmp://cash_wallet`)
+Rather than utilizing Paytm's complex business merchant API (which requires digital signatures and commercial keys), WaveCollect routes Paytm transfers via a clean P2P Cash Wallet scheme utilizing the standard `featuretype=money_transfer` P2P bypass flag:
 
-For customers choosing Paytm on their mobile devices, WaveCollect utilizes a clean, lightweight P2P Cash Wallet scheme instead of Paytm's complex business merchant API. This eliminates the need for merchant keys and fragile digital signatures.
-
-### ⚡ Bypassing Signature Restrictions
-Standard Paytm commercial checkouts require secure merchant checkout tokens, checksums, and signatures that easily expire or trigger commercial limits. WaveCollect bypasses this entirely using the custom `paytmmp://cash_wallet` protocol configured with the `featuretype=money_transfer` P2P bypass flag.
-
-### 📋 Deep-Link URI Format:
 ```bash
 paytmmp://cash_wallet?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={order_id}&featuretype=money_transfer
 ```
 
-#### Query Parameter Dictionary:
-| Parameter | Purpose | Value & Casing Enforced | Example |
-| :--- | :--- | :--- | :--- |
-| **`pa`** | Target Payee VPA | Raw, unencoded string (trimmed, no `%40`) | `7440673279@okbizaxis` |
-| **`pn`** | Display Name | String with spaces mapped explicitly to `+` | `SOLANA+TECHNOLOGIES` |
-| **`am`** | Transaction Amount | Float formatted to strictly **2 decimal places** | `1.75` |
-| **`cu`** | Currency Code | Hardcoded to **`INR`** | `INR` |
-| **`tn`** | Transaction Note | Clean 12-char alphanumeric order ID | `6FBOAptgW8Xe` |
-| **`featuretype`** | P2P Bypass Flag | Hardcoded to **`money_transfer`** to route via cash wallet | `money_transfer` |
-
 ---
 
-## 4. 🛡️ Real-Time Automated Reconciliation Flow
+## 3. 🛡️ Real-Time Automated Reconciliation Flow
 
 WaveCollect's core strength is its frictionless auto-matching engine. The system requires zero user upload of transaction receipts:
 
@@ -173,7 +150,7 @@ The bot posts the transaction ledger to `/api/bots/bridge`. The `MatchingEngine`
 
 ---
 
-## 5. 📂 Source Code Map
+## 📂 Source Code Map
 
 All deep-linking and intent routing components are situated inside the following key files:
 
