@@ -53,7 +53,8 @@ async function getStatus(req: NextRequest) {
       }, { status: 401 });
     }
 
-    // Validate IP Whitelist
+    // Validate IP Whitelist (Commented out for instant integration)
+    /*
     const ip = req.headers.get("x-forwarded-for") || "unknown";
     if (!(await validateIpWhitelist(keyData.merchantId, ip))) {
        return NextResponse.json({ 
@@ -64,6 +65,7 @@ async function getStatus(req: NextRequest) {
          }
        }, { status: 403 });
     }
+    */
 
     const intent = await prisma.paymentIntent.findUnique({
       where: { referenceId: order_id },

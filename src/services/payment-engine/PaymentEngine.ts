@@ -39,10 +39,12 @@ export class PaymentEngine {
       throw new Error("API Key or Merchant account is blocked/suspended.");
     }
 
-    // ── 1b. Validate IP Whitelist ────────────────────────────────────
+    // ── 1b. Validate IP Whitelist (Commented out for instant integration) ────────────────────
+    /*
     if (ip && !(await validateIpWhitelist(keyData.merchantId, ip))) {
       throw new Error(`SECURITY_ERROR: IP Address ${ip} is not authorized for this merchant.`);
     }
+    */
 
     // ── SaaS: Settlement Custody Shift ────────────
     // We no longer require pre-paid wallet balance to cover fees.

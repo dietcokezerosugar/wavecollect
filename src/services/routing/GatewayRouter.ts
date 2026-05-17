@@ -17,11 +17,11 @@ export class GatewayRouter {
     const isPoolMode = merchant.processingMode === "PLATFORM_POOL";
     const heartbeatThreshold = new Date(Date.now() - 10 * 60 * 1000); // 10 minutes stale = dead (Resilient for heavy loads)
 
-    // 2. Build the BASE query (ACTIVE + APPROVED + ticket range + cooldown)
+    // 2. Build the BASE query (ACTIVE + ticket range + cooldown)
     //    Heartbeat/session are NOT hard requirements — we prefer them but don't block on them.
     const baseWhere: any = {
       status: "ACTIVE",
-      reviewStatus: "APPROVED",        // Staff must have approved
+      // reviewStatus: "APPROVED",        // Commented out to enable instant self-serve integration
       minTicket: { lte: amount },
       maxTicket: { gte: amount },
       OR: [
