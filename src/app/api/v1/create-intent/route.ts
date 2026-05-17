@@ -65,7 +65,10 @@ export async function POST(req: NextRequest) {
     }
 
     const apiKey = authHeader.replace("Bearer ", "");
-    const apiKeyRecord = await prisma.apiKey.findUnique({ where: { key: apiKey } });
+    const apiKeyRecord = await prisma.apiKey.findUnique({ 
+      where: { key: apiKey },
+      include: { merchant: true }
+    });
     
     if (!apiKeyRecord) {
       return NextResponse.json({ 
@@ -129,6 +132,39 @@ export async function POST(req: NextRequest) {
       metadata: metadata || {},
     });
 
+    const allocatedAccount = intent.allocatedAccountId
+      ? await prisma.googlePayAccount.findUnique({ where: { id: intent.allocatedAccountId } })
+      : null;
+
+    const merchantName = apiKeyRecord.merchant.brandName || apiKeyRecord.merchant.businessName || apiKeyRecord.merchant.name;
+    const payeeVpa = allocatedAccount ? allocatedAccount.upiId.trim() : "merchant@upi";
+
+    const cleanUpiLink = `upi://pay?pa=${encodeURIComponent(payeeVpa)}&pn=${encodeURIComponent(merchantName)}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent(finalOrderId)}`;
+    const cleanPaytmLink = `paytmmp://cash_wallet?pa=${encodeURIComponent(payeeVpa)}&pn=${encodeURIComponent(merchantName)}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent(finalOrderId)}&featuretype=money_transfer`;
+
+    const phonepePayload = JSON.stringify({
+      contact: { cbsName: "", nickName: merchantName, vpa: payeeVpa, type: "VPA" },
+      p2pPaymentCheckoutParams: {
+        note: finalOrderId,
+        isByDefaultKnownContact: true,
+        enableSpeechToText: false,
+        allowAmountEdit: false,
+        showQrCodeOption: false,
+        disableViewHistory: true,
+        shouldShowUnsavedContactBanner: false,
+        isRecurring: false,
+        checkoutType: "DEFAULT",
+        transactionContext: "p2p",
+        initialAmount: Math.round(parseFloat(amount) * 100),
+        disableNotesEdit: true,
+        showKeyboard: false,
+        currency: "INR",
+        shouldShowMaskedNumber: true
+      }
+    });
+    const phonepeBase64 = Buffer.from(phonepePayload).toString("base64");
+    const cleanPhonepeLink = `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const responseData = {
       id: intent.id,
@@ -139,7 +175,12 @@ export async function POST(req: NextRequest) {
       order_id: intent.referenceId,
       checkout_url: `${appUrl}/pay/${intent.paymentToken}`,
       payment_token: intent.paymentToken,
-      upi_link: intent.upiDeepLink,
+      upi_link: cleanUpiLink,
+      upi_links: {
+        upi: cleanUpiLink,
+        paytm: cleanPaytmLink,
+        phonepe: cleanPhonepeLink
+      },
       qr_data: intent.qrData,
       metadata: (intent as any).metadata,
       created: Math.floor(intent.createdAt.getTime() / 1000),

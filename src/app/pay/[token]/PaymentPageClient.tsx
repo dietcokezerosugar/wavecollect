@@ -152,15 +152,15 @@ export default function PaymentPageClient({
   const merchantUpi = upiMatch ? decodeURIComponent(upiMatch[1]) : "merchant@upi";
 
   // Intent links
-  const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${referenceId}&mc=4722&&sign=AAuN7izDWN5cb8A5scnUiNME%2BLkZqI2DWgkXlN1McoP6WZABa%2FKkFTiLvuPRP6%2FnWK8BPg%2FrPhb%2Bu4QMrUEX10UsANTDbJaALcSM9b8Wk218X%2B55T%2FzOzb7xoiB%2BBcX8yYuYayELImXJHIgL%2Fc7nkAnHrwUCmbM97nRbCVVRvU0ku3Tr&featuretype=money_transfer`;
+  const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${referenceId}&featuretype=money_transfer`;
   
   const phonepeData = {
-    contact: { cbsName: "", nickName: "", vpa: merchantUpi, type: "VPA" },
+    contact: { cbsName: "", nickName: merchantName, vpa: merchantUpi, type: "VPA" },
     p2pPaymentCheckoutParams: {
       note: referenceId, isByDefaultKnownContact: true, enableSpeechToText: false,
       allowAmountEdit: false, showQrCodeOption: false, disableViewHistory: true,
       shouldShowUnsavedContactBanner: false, isRecurring: false, checkoutType: "DEFAULT",
-      transactionContext: "p2p", initialAmount: Math.floor(amount * 100),
+      transactionContext: "p2p", initialAmount: Math.round(amount * 100),
       disableNotesEdit: true, showKeyboard: false, currency: "INR", shouldShowMaskedNumber: true,
     },
   };
