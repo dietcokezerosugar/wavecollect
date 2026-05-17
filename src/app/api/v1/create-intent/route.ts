@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
       }, { status: isTooLarge ? 413 : 400 });
     }
 
-    const { amount, order_id, customer_mobile, customer_email, customer_ip, customer_device_id, redirect_url, metadata } = body;
+    const { amount, order_id, orderId, customer_mobile, customer_email, customer_ip, customer_device_id, redirect_url, metadata } = body;
 
     // Strict validation
     if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
@@ -115,8 +115,9 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    const finalOrderId = (order_id && String(order_id).trim())
-      ? String(order_id).trim()
+    const inputOrderId = order_id || orderId;
+    const finalOrderId = (inputOrderId && String(inputOrderId).trim())
+      ? String(inputOrderId).trim()
       : generateAlphanumericId(12);
 
     const intent = await PaymentEngine.createIntent({
