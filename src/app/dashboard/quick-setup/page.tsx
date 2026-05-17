@@ -311,7 +311,7 @@ export default function QuickSetup() {
                      <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black">STABLE</span>
                   </div>
                   <div className="p-5 bg-slate-50 rounded-md font-mono text-xs text-slate-700 border border-slate-200 break-all select-all cursor-pointer hover:bg-slate-100 transition-colors">
-                     https://api.payxmint.com/v1/create-intent
+                     https://payxmint.com/api/v1/create-intent
                   </div>
                   <p className="mt-4 text-[10px] font-bold text-slate-400 text-center leading-relaxed">
                      Once setup is complete, you can start dispatching payment intents to this endpoint.

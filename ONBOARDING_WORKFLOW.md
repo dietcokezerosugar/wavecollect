@@ -60,7 +60,7 @@ Follow these simple steps to set up your account and start taking payments.
 ### 1. Create a Payment Intent
 Call this when your customer is ready to pay.
 
-**URL:** `POST https://api.payxmint.com/api/v1/create-intent`
+**URL:** `POST https://payxmint.com/api/v1/create-intent`
 
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
@@ -85,7 +85,7 @@ Call this when your customer is ready to pay.
 ### 2. Check Payment Status
 Check if a specific payment is done.
 
-**URL:** `GET https://api.payxmint.com/api/v1/check-status?token={token}`
+**URL:** `GET https://payxmint.com/api/v1/check-status?token={token}`
 
 **Response (Success):**
 ```json

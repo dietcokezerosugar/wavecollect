@@ -235,7 +235,7 @@ export default function DocsPage() {
                 <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl relative overflow-hidden group">
                   <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#2F9BFF] to-[#0072FF]" />
                   <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Production API Base Endpoint</span>
-                  <p className="text-xs font-mono font-bold text-slate-800 mt-1 select-all">https://api.payxmint.com/api/v1</p>
+                  <p className="text-xs font-mono font-bold text-slate-800 mt-1 select-all">https://payxmint.com/api/v1</p>
                 </div>
               </div>
 
@@ -268,7 +268,7 @@ export default function DocsPage() {
                 <div>
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Endpoint URL</h4>
                   <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4 font-semibold">
-                    {"https://api.payxmint.com/api/v1/create-intent"}
+                    {"https://payxmint.com/api/v1/create-intent"}
                   </div>
 
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Body Payload</h4>
@@ -332,7 +332,7 @@ export default function DocsPage() {
                   <CodeBlock 
                     language="Bash" 
                     code={`curl --request POST \\
-  --url https://api.payxmint.com/api/v1/create-intent \\
+  --url https://payxmint.com/api/v1/create-intent \\
   --header 'Authorization: Bearer YOUR_API_KEY' \\
   --header 'Content-Type: application/json' \\
   --data '{
@@ -380,7 +380,7 @@ export default function DocsPage() {
                 <div>
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Endpoint URL</h4>
                   <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 font-mono text-xs text-slate-800 select-all mb-4 font-semibold">
-                    {"https://api.payxmint.com/api/v1/check-status"}
+                    {"https://payxmint.com/api/v1/check-status"}
                   </div>
 
                   <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">Request Body Payload</h4>
@@ -405,7 +405,7 @@ export default function DocsPage() {
                   
                   <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-250 text-xs text-slate-500 leading-relaxed font-semibold">
                     💡 **Query Alternative**: You can also use HTTP <code className="text-blue-600 font-bold bg-blue-50 px-1 py-0.5 rounded font-mono">GET</code> to check status by appending order_id to search params: <br />
-                    <code className="block mt-1 font-mono text-[11px] select-all bg-white p-1 rounded border border-slate-200 break-all text-slate-700">https://api.payxmint.com/api/v1/check-status?order_id=pay_202506038627</code>
+                    <code className="block mt-1 font-mono text-[11px] select-all bg-white p-1 rounded border border-slate-200 break-all text-slate-700">https://payxmint.com/api/v1/check-status?order_id=pay_202506038627</code>
                   </div>
                 </div>
 
@@ -414,7 +414,7 @@ export default function DocsPage() {
                   <CodeBlock 
                     language="Bash" 
                     code={`curl --request POST \\
-  --url https://api.payxmint.com/api/v1/check-status \\
+  --url https://payxmint.com/api/v1/check-status \\
   --header 'Authorization: Bearer YOUR_API_KEY' \\
   --header 'Content-Type: application/json' \\
   --data '{
@@ -601,7 +601,7 @@ function NativeUPIQRCode({ qr_data, amount }) {
 function startPaymentPolling(orderId) {
   const pollInterval = setInterval(async () => {
     try {
-      const response = await fetch(\`https://api.payxmint.com/api/v1/check-status?order_id=\${orderId}\`);
+      const response = await fetch(\`https://payxmint.com/api/v1/check-status?order_id=\${orderId}\`);
       const result = await response.json();
       
       if (result.status === 'SUCCESS') {

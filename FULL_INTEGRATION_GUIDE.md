@@ -7,7 +7,7 @@ This guide provides a step-by-step walkthrough for onboarding onto the WaveColle
 ## Phase 1: Account Creation & Onboarding
 
 ### 1. Registration
-1. Navigate to [https://wavecollect.com/register](https://wavecollect.com/register).
+1. Navigate to [https://payxmint.com/register](https://payxmint.com/register).
 2. Enter your **Full Name**, **Work Email**, and a secure **Password**.
 3. Click **"Create Account"**.
 
@@ -60,7 +60,7 @@ When a customer is ready to checkout on your site, call the `/v1/create-intent` 
 
 **Request:**
 ```bash
-curl https://api.wavecollect.com/v1/create-intent \
+curl https://payxmint.com/api/v1/create-intent \
   -H "Authorization: Bearer sk_live_your_key" \
   -H "Idempotency-Key: unique_order_id_123" \
   -d amount=500.00 \
@@ -73,7 +73,7 @@ curl https://api.wavecollect.com/v1/create-intent \
 {
   "id": "pi_12345",
   "status": "pending",
-  "checkout_url": "https://wavecollect.com/pay/tok_...",
+  "checkout_url": "https://payxmint.com/pay/tok_...",
   "upi_link": "upi://pay?pa=...",
   "payment_token": "tok_..."
 }
@@ -134,4 +134,4 @@ Check the **Node Status** on your dashboard regularly. If a node is "Offline", i
 ---
 
 **Need Help?**
-Contact our engineering team via the dashboard support widget or email [support@wavecollect.com](mailto:support@wavecollect.com).
+Contact our engineering team via the dashboard support widget or email [support@payxmint.com](mailto:support@payxmint.com).

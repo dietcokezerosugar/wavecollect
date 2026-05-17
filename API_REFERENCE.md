@@ -32,7 +32,7 @@ Admin APIs require a session cookie (NextAuth).
 ```json
 {
   "status": "success",
-  "payment_url": "https://wavecollect.app/pay/tok_abc123",
+  "payment_url": "https://payxmint.com/pay/tok_abc123",
   "upi_intent": "upi://pay?pa=merchant@upi&am=500...",
   "payment_token": "tok_abc123"
 }

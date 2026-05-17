@@ -25,7 +25,7 @@ Generate a checkout URL or a direct UPI link for your customer.
 
 ### Sample Request (cURL)
 ```bash
-curl -X POST https://wavecollect.com/api/v1/create-intent \
+curl -X POST https://payxmint.com/api/v1/create-intent \
   -H "Authorization: Bearer sk_live_xxx" \
   -H "Content-Type: application/json" \
   -d '{

@@ -7,7 +7,7 @@
     _token: null,
     _interval: null,
     _config: {
-      baseUrl: "https://wavecollect.app", // Default production URL
+      baseUrl: "https://payxmint.com", // Default production URL
       pollInterval: 1000,
     },
     
