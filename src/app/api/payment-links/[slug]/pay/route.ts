@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PaymentEngine } from "@/services/payment-engine/PaymentEngine";
 import { cookies } from "next/headers";
+import { generateAlphanumericId } from "@/lib/security";
 
 export async function POST(
   req: NextRequest,
@@ -53,8 +54,8 @@ export async function POST(
       );
     }
 
-    // 5. Generate Order ID
-    const orderId = `PL-${link.slug}-${Date.now().toString(36)}`;
+    // 5. Generate Order ID (Fixed 12-character alphanumeric: upper, lower, numbers only)
+    const orderId = generateAlphanumericId(12);
 
     // 6. Call PaymentEngine to initialize a payment intent
     const intent = await PaymentEngine.createIntent({

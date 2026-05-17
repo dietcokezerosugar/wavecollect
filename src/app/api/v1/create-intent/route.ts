@@ -4,6 +4,7 @@ import { logApi } from "@/lib/log";
 import { prisma } from "@/lib/prisma";
 import { IdempotencyService } from "@/services/routing/IdempotencyService";
 import { parseSafeJson } from "@/lib/safe-body";
+import { generateAlphanumericId } from "@/lib/security";
 
 // Simple in-memory rate limiter
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
@@ -111,9 +112,13 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
+    const finalOrderId = (order_id && String(order_id).trim())
+      ? String(order_id).trim()
+      : generateAlphanumericId(12);
+
     const intent = await PaymentEngine.createIntent({
       amount: parseFloat(amount),
-      orderId: String(order_id),
+      orderId: finalOrderId,
       customerMobile: customer_mobile,
       customerEmail: customer_email,
       customerIp: customer_ip,

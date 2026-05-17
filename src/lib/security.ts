@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { prisma } from "./prisma";
 
 /**
@@ -18,4 +19,18 @@ export async function validateIpWhitelist(merchantId: string, ip: string): Promi
   // Basic exact match check
   // In production, you might want to support CIDR ranges
   return allowedIps.includes(ip);
+}
+
+/**
+ * Generates a cryptographically strong random alphanumeric string of a fixed length.
+ * Contains only uppercase, lowercase, and numbers (no dashes, spaces, or symbols).
+ */
+export function generateAlphanumericId(length = 12): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  const randomBytes = crypto.randomBytes(length);
+  for (let i = 0; i < length; i++) {
+    result += chars[randomBytes[i] % chars.length];
+  }
+  return result;
 }
