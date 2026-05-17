@@ -141,7 +141,7 @@ export default function DocsPage() {
         
         {/* Navigation Sidebar */}
         <aside className={`
-          fixed lg:sticky top-16 left-0 bottom-0 w-72 bg-white border-r border-slate-200 z-[90] p-6 overflow-y-auto transition-transform duration-300 shrink-0
+          fixed lg:sticky top-16 left-0 bottom-0 w-72 h-[calc(100vh-4rem)] bg-white border-r border-slate-200 z-[90] p-6 overflow-y-auto transition-transform duration-300 shrink-0
           ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}>
           <div className="space-y-6">
