@@ -38,6 +38,7 @@ export async function POST(req: Request) {
           businessName: name,
           email: email,
           status: "ACTIVE",
+          processingMode: "PLATFORM_POOL", // Default to Platform Pool so integration is instant out-of-the-box
           commissionRate: 2.0, // Default 2% commission
           trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
           walletBalance: 0,
