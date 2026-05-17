@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "prisma generate && prisma db push && npx tsx prisma/seed.ts && next build",
     "start": "next start -H 127.0.0.1 -p 3000",
-    "lint": "eslint"
+    "lint": "eslint",
+    "monitor": "node monitor.js"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
