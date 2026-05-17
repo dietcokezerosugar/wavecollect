@@ -124,39 +124,6 @@ export async function POST(req: NextRequest) {
       metadata: metadata || {},
     });
 
-    // Parse VPA and Merchant Name from the generated upiDeepLink
-    const paMatch = (intent.upiDeepLink || "").match(/pa=([^&]+)/);
-    const pnMatch = (intent.upiDeepLink || "").match(/pn=([^&]+)/);
-    const merchantUpi = paMatch ? decodeURIComponent(paMatch[1]) : "";
-    const merchantName = pnMatch ? decodeURIComponent(pnMatch[1]) : "";
-
-    // 1. Generate Paytm Intent (matching BloomxHub legacy format)
-    const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${intent.amount}&cu=INR&tn=${intent.referenceId}&tr=${intent.referenceId}&mc=4722&&sign=AAuN7izDWN5cb8A5scnUiNME+LkZqI2DWgkXlN1McoP6WZABa/KkFTiLvuPRP6/nWK8BPg/rPhb+u4QMrUEX10UsANTDbJaALcSM9b8Wk218X+55T/zOzb7xoiB+BcX8yYuYayELImXJHIgL/c7nkAnHrwUCmbM97nRbCVVRvU0ku3Tr&featuretype=money_transfer`;
-
-    // 2. Generate PhonePe Intent (matching BloomxHub legacy format)
-    const phonepeData = {
-      contact: { cbsName: "", nickName: "", vpa: merchantUpi, type: "VPA" },
-      p2pPaymentCheckoutParams: {
-        note: intent.referenceId,
-        isByDefaultKnownContact: true,
-        enableSpeechToText: false,
-        allowAmountEdit: false,
-        showQrCodeOption: false,
-        disableViewHistory: true,
-        shouldShowUnsavedContactBanner: false,
-        isRecurring: false,
-        checkoutType: "DEFAULT",
-        transactionContext: "p2p",
-        initialAmount: Math.floor(Number(intent.amount) * 100),
-        disableNotesEdit: true,
-        showKeyboard: false,
-        currency: "INR",
-        shouldShowMaskedNumber: true,
-      },
-    };
-    const phonepeBase64 = Buffer.from(JSON.stringify(phonepeData)).toString("base64");
-    const phonepeIntent = `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
-
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const responseData = {
       id: intent.id,
@@ -169,25 +136,8 @@ export async function POST(req: NextRequest) {
       payment_token: intent.paymentToken,
       upi_link: intent.upiDeepLink,
       qr_data: intent.qrData,
-      paytm_intent: paytmIntent,
-      phonepe_intent: phonepeIntent,
-      upi_id: merchantUpi,
-      merchant_name: merchantName,
       metadata: (intent as any).metadata,
       created: Math.floor(intent.createdAt.getTime() / 1000),
-      // Strict nested legacy compatibility block for older BloomxHub checkouts
-      data: {
-        amount: intent.amount,
-        order_id: intent.referenceId,
-        upi_id: merchantUpi,
-        merchant_name: merchantName,
-        payment_url: `${appUrl}/pay/${intent.paymentToken}`,
-        payment_token: intent.paymentToken,
-        paytm_intent: paytmIntent,
-        phonepe_intent: phonepeIntent,
-        customer_mobile: intent.customerMobile,
-        expire_at: intent.expireAt ? intent.expireAt.toISOString() : null,
-      }
     };
 
     // Save to idempotency cache if key was provided
