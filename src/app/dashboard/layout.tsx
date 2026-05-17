@@ -42,7 +42,7 @@ export default function DashboardLayout({
   const mainNavItems = [
     { label: "Home", icon: LayoutDashboard, href: "/dashboard", shortcut: "H" },
     { label: "Accounts", icon: Key, href: "/dashboard/merchant-accounts", shortcut: "C" },
-    { label: "Activity", icon: History, href: "/dashboard/transactions", shortcut: "T" },
+    { label: "Collection", icon: History, href: "/dashboard/transactions", shortcut: "T" },
     { label: "Wallet", icon: Wallet, href: "/dashboard/recharge", shortcut: "W" },
     { label: "Links", icon: LinkIcon, href: "/dashboard/payment-links", shortcut: "P" },
   ];
