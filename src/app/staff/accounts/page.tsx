@@ -351,7 +351,7 @@ export default function StaffAccountReview() {
                               </p>
                               <button 
                                 onClick={() => {
-                                  const cmd = `pm2 logs bot-${account.name}`;
+                                  const cmd = `pm2 logs "bot-${account.name}"`;
                                   copyToClipboard(cmd, `lg-${account.id}`);
                                 }}
                                 className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[9px] font-mono transition-all border ${
