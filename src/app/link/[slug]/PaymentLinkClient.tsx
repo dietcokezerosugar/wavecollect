@@ -225,21 +225,6 @@ export default function PaymentLinkClient({
             privacy policy
           </a>
         </p>
-
-        {/* Powered by Branding */}
-        <div className="pt-4 border-t border-slate-100 flex flex-col items-center justify-center gap-1.5">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-            Powered by
-          </span>
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-[10px] text-white font-black shadow-sm">
-              B
-            </div>
-            <span className="text-xs font-black text-slate-800 tracking-tight">
-              BloomxPe
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   );
