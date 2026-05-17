@@ -1,13 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { PaymentEngine } from "@/services/payment-engine/PaymentEngine";
 import { Zap } from "lucide-react";
-import Image from "next/image";
+import PaymentLinkClient from "./PaymentLinkClient";
+
+export const dynamic = "force-dynamic";
 
 export default async function PaymentLinkPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
+  // 1. Fetch the Payment Link details
   const link = await prisma.paymentLink.findUnique({
     where: { slug },
   });
@@ -16,7 +18,7 @@ export default async function PaymentLinkPage({ params }: { params: Promise<{ sl
     notFound();
   }
 
-  // Check if this user has already paid for this link recently (via cookie)
+  // 2. Check if this customer has already completed a payment on this link recently (via cookie tracking)
   const cookieStore = await cookies();
   const lastToken = cookieStore.get(`last_intent_${link.slug}`)?.value;
   
@@ -26,46 +28,19 @@ export default async function PaymentLinkPage({ params }: { params: Promise<{ sl
       select: { status: true, paymentToken: true }
     });
     
-    // If they already paid, don't ask for money again, just show success
+    // If they have already paid, fast-track them to their success screen
     if (lastIntent?.status === "SUCCESS") {
       redirect(`/checkout/${lastIntent.paymentToken}`);
     }
   }
 
-  // Create a payment intent for this link
-  const orderId = `PL-${link.slug}-${Date.now().toString(36)}`;
-
+  // 3. Fetch active API Key & Merchant details to display custom brand names
   const apiKey = await prisma.apiKey.findUnique({
     where: { id: link.apiKeyId },
+    include: { merchant: true }
   });
 
-  if (!apiKey) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-red-600 font-bold">Configuration error: API key not found.</p>
-      </div>
-    );
-  }
-
-  let intent;
-  try {
-    intent = await PaymentEngine.createIntent({
-      amount: Number(link.amount),
-      orderId,
-      apiKey: apiKey.key,
-    });
-    
-    // Store this intent token in a cookie so we can track success persistence
-    if (intent.paymentToken) {
-      cookieStore.set(`last_intent_${link.slug}`, intent.paymentToken, {
-        maxAge: 60 * 60 * 24, // 24 hours
-        path: "/",
-        httpOnly: true,
-        sameSite: "lax"
-      });
-    }
-  } catch (error: any) {
-    console.error("DEBUG: Payment Link Failed:", error.message || error);
+  if (!apiKey || apiKey.isBlocked || apiKey.merchant.status !== "ACTIVE") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFDFD] px-6 text-center">
         <div className="w-20 h-20 bg-rose-50 rounded-lg flex items-center justify-center text-rose-500 mb-8 border border-rose-100">
@@ -83,6 +58,16 @@ export default async function PaymentLinkPage({ params }: { params: Promise<{ sl
     );
   }
 
-  // Redirect MUST be outside the try/catch in Next.js
-  redirect(`/pay/${intent.paymentToken}`);
+  // 4. Resolve Store Display Name (Priority: Brand Name -> Business Name -> Account name)
+  const merchantName = apiKey.merchant.brandName || apiKey.merchant.businessName || apiKey.merchant.name || "WaveCollect Merchant";
+
+  return (
+    <PaymentLinkClient
+      slug={link.slug}
+      merchantName={merchantName}
+      linkTitle={link.title}
+      linkDescription={link.description}
+      linkAmount={Number(link.amount)}
+    />
+  );
 }
