@@ -28,7 +28,7 @@ export function MobileDashboard({ merchant, recentIntents, totalVolume, successf
   return (
     <div className="md:hidden space-y-6 pb-24">
       {/* Wallet / Main Balance Card */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[28px] p-6 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 rounded-[28px] p-6 text-white shadow-2xl shadow-blue-600/20 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl -ml-10 -mb-10" />
         
@@ -38,7 +38,7 @@ export function MobileDashboard({ merchant, recentIntents, totalVolume, successf
                 <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/10">
                    <Zap className="w-4 h-4 text-emerald-400 fill-current" />
                 </div>
-                <span className="text-[11px] font-black uppercase tracking-widest text-slate-300">Live Balance</span>
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-350">Live Balance</span>
              </div>
              <button className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-full backdrop-blur-sm active:bg-white/10 transition-colors">
                 <MoreHorizontal className="w-5 h-5 text-white/70" />
@@ -50,7 +50,7 @@ export function MobileDashboard({ merchant, recentIntents, totalVolume, successf
               <span className="text-2xl font-bold text-white/50">₹</span>
               <span className="text-5xl font-black tracking-tight">{merchant.walletBalance.toLocaleString('en-IN')}</span>
             </div>
-            <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Available for fees & settlement</p>
+            <p className="text-[11px] font-bold text-slate-300 mt-1 uppercase tracking-widest">Available for fees & settlement</p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
@@ -72,7 +72,7 @@ export function MobileDashboard({ merchant, recentIntents, totalVolume, successf
             </div>
             <div>
                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Today's Volume</p>
-               <p className="text-lg font-black text-slate-900 leading-none mt-1">₹{totalVolume.toLocaleString('en-IN')}</p>
+               <p className="text-lg font-black text-indigo-950 leading-none mt-1">₹{totalVolume.toLocaleString('en-IN')}</p>
             </div>
          </div>
          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-2">
@@ -81,7 +81,7 @@ export function MobileDashboard({ merchant, recentIntents, totalVolume, successf
             </div>
             <div>
                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Successful</p>
-               <p className="text-lg font-black text-slate-900 leading-none mt-1">{successfulTxns} Txns</p>
+               <p className="text-lg font-black text-indigo-950 leading-none mt-1">{successfulTxns} Txns</p>
             </div>
          </div>
       </div>
@@ -89,14 +89,14 @@ export function MobileDashboard({ merchant, recentIntents, totalVolume, successf
       {/* Live Activity Feed */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-[13px] font-black text-slate-900 tracking-tight">Recent Activity</h3>
+          <h3 className="text-[13px] font-black text-indigo-950 tracking-tight">Recent Activity</h3>
           <Link href="/dashboard/transactions" className="text-[11px] font-bold text-blue-600">See All</Link>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
           {recentIntents.length === 0 ? (
             <div className="p-8 flex flex-col items-center justify-center text-center space-y-3">
-              <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+              <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-350">
                 <History className="w-6 h-6" />
               </div>
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">No recent transactions</p>
@@ -113,14 +113,14 @@ export function MobileDashboard({ merchant, recentIntents, totalVolume, successf
                     {intent.status === "SUCCESS" ? <CheckCircle2 size={18} /> : intent.status === "DETECTED_UNMATCHED" ? <ShieldAlert size={18} /> : <Clock size={18} />}
                   </div>
                   <div>
-                    <p className="text-[13px] font-bold text-slate-900 leading-none">{intent.payerName || "Payment"}</p>
+                    <p className="text-[13px] font-bold text-indigo-950 leading-none">{intent.payerName || "Payment"}</p>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-1.5">
                       {new Date(intent.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                   <p className="text-[13px] font-black text-slate-900 leading-none">₹{intent.amount.toLocaleString('en-IN')}</p>
+                   <p className="text-[13px] font-black text-indigo-950 leading-none">₹{intent.amount.toLocaleString('en-IN')}</p>
                    <span className={`text-[9px] font-black uppercase tracking-widest mt-1.5 inline-block ${
                      intent.status === "SUCCESS" ? "text-emerald-600" : 
                      intent.status === "PENDING" ? "text-blue-600" : "text-slate-400"

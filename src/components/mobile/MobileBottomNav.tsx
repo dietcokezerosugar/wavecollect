@@ -34,10 +34,10 @@ export function MobileBottomNav() {
                 href={item.href}
                 className="flex flex-col items-center justify-center -mt-6 group"
               >
-                <div className="w-14 h-14 bg-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20 border-4 border-white transition-transform active:scale-95">
+                <div className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-600/20 border-4 border-white transition-transform active:scale-95">
                   <item.icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-[10px] font-bold text-slate-900 mt-1">{item.label}</span>
+                <span className="text-[10px] font-bold text-indigo-950 mt-1">{item.label}</span>
               </Link>
             );
           }
@@ -49,12 +49,12 @@ export function MobileBottomNav() {
               className="flex flex-col items-center justify-center w-16 h-12 transition-all active:scale-95"
             >
               <div className={`flex items-center justify-center w-8 h-8 rounded-xl mb-0.5 transition-colors ${
-                isActive ? "bg-slate-50 text-slate-900" : "text-slate-400"
+                isActive ? "bg-blue-50 text-blue-650" : "text-slate-400"
               }`}>
                 <item.icon className={`w-5 h-5 ${isActive ? "stroke-[2.5px]" : "stroke-2"}`} />
               </div>
               <span className={`text-[9px] font-bold ${
-                isActive ? "text-slate-900" : "text-slate-400"
+                isActive ? "text-indigo-950" : "text-slate-400"
               }`}>
                 {item.label}
               </span>

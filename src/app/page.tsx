@@ -11,7 +11,7 @@ export default function LandingPage() {
   const { status } = useSession();
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 font-sans selection:bg-blue-600 selection:text-white">
+    <div className="flex flex-col min-h-screen bg-slate-50 font-sans selection:bg-blue-650 selection:text-white">
       {/* Navigation */}
       <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
@@ -19,13 +19,13 @@ export default function LandingPage() {
             <div className="w-10 h-10 bg-blue-650 rounded-md flex items-center justify-center shadow-lg shadow-blue-600/20">
               <Zap className="text-white w-5 h-5 fill-current" />
             </div>
-            <span className="text-2xl font-black tracking-tighter text-slate-900">PayxMint</span>
+            <span className="text-2xl font-black tracking-tighter text-indigo-950">PayxMint</span>
           </div>
           
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="#features" className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">Features</Link>
-            <Link href="#infrastructure" className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">Infrastructure</Link>
-            <Link href="/docs" className="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">Developers</Link>
+            <Link href="#features" className="text-sm font-bold text-slate-500 hover:text-indigo-900 transition-colors">Features</Link>
+            <Link href="#infrastructure" className="text-sm font-bold text-slate-500 hover:text-indigo-900 transition-colors">Infrastructure</Link>
+            <Link href="/docs" className="text-sm font-bold text-slate-500 hover:text-indigo-900 transition-colors">Developers</Link>
             
             <div className="h-6 w-[1px] bg-slate-200 mx-2" />
  
@@ -35,7 +35,7 @@ export default function LandingPage() {
               </Link>
             ) : (
               <div className="flex items-center gap-4">
-                <Link href="/login" className="text-sm font-bold text-slate-900 hover:text-blue-600 transition-colors">
+                <Link href="/login" className="text-sm font-bold text-indigo-950 hover:text-blue-600 transition-colors">
                   Sign In
                 </Link>
                 <Link href="/register" className="px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-md hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95">
@@ -47,7 +47,7 @@ export default function LandingPage() {
 
           {/* Mobile Menu Button */}
           <button 
-            className="md:hidden p-2 text-slate-600 hover:text-slate-900 transition-colors bg-slate-100 rounded-full"
+            className="md:hidden p-2 text-slate-650 hover:text-indigo-900 transition-colors bg-slate-100 rounded-full"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -69,7 +69,7 @@ export default function LandingPage() {
                   <Link 
                     key={item}
                     href={`#${item.toLowerCase()}`} 
-                    className="text-lg font-black text-slate-900 hover:text-blue-600 transition-colors"
+                    className="text-lg font-black text-indigo-950 hover:text-blue-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item}
@@ -97,7 +97,7 @@ export default function LandingPage() {
                     </Link>
                     <Link 
                       href="/login" 
-                      className="w-full py-4 bg-slate-100 text-slate-900 rounded-md text-center font-black"
+                      className="w-full py-4 bg-slate-100 text-indigo-955 rounded-md text-center font-black"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Sign In
@@ -121,9 +121,9 @@ export default function LandingPage() {
              PayxMint API v2.0 is Live
           </div>
           
-          <h1 className="text-5xl md:text-8xl font-black tracking-tighter mb-8 text-slate-900 leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <h1 className="text-5xl md:text-8xl font-black tracking-tighter mb-8 text-indigo-950 leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700">
             Financial infrastructure <br className="hidden md:block" />
-            for the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">internet.</span>
+            for the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-650">internet.</span>
           </h1>
           
           <p className="text-lg md:text-2xl text-slate-500 font-medium max-w-3xl mx-auto mb-12 animate-in fade-in slide-in-from-bottom-8 delay-200 duration-700 leading-relaxed px-4">
@@ -140,7 +140,7 @@ export default function LandingPage() {
                 <Link href="/register" className="w-full sm:w-auto px-10 py-5 bg-blue-600 text-white rounded-md text-lg font-black flex items-center justify-center gap-3 hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-600/20">
                   Start Building Now <ArrowRight className="w-5 h-5" />
                 </Link>
-                <Link href="/docs" className="w-full sm:w-auto px-10 py-5 bg-white text-slate-900 border border-slate-200 rounded-md text-lg font-black hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-2">
+                <Link href="/docs" className="w-full sm:w-auto px-10 py-5 bg-white text-indigo-950 border border-slate-200 rounded-md text-lg font-black hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-2">
                   <Terminal className="w-5 h-5 text-slate-400" /> Read the Docs
                 </Link>
               </>
@@ -152,36 +152,36 @@ export default function LandingPage() {
         <section id="features" className="py-24 bg-white border-y border-slate-100">
           <div className="container mx-auto px-6">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 mb-4">Enterprise-grade architecture.</h2>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight text-indigo-950 mb-4">Enterprise-grade architecture.</h2>
               <p className="text-slate-500 font-bold max-w-2xl mx-auto">Everything you need to scale your revenue operations without the technical overhead.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="p-8 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-300 transition-colors group">
+              <div className="p-8 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-350 transition-colors group">
                 <div className="w-14 h-14 bg-white rounded-md flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
                   <Server className="w-6 h-6 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-black text-slate-900 mb-3">Headless Fleet Engines</h3>
+                <h3 className="text-xl font-black text-indigo-950 mb-3">Headless Fleet Engines</h3>
                 <p className="text-slate-500 font-medium leading-relaxed">
                   Our proprietary Puppeteer-driven node clusters run 24/7 on private IP space to capture merchant app notifications in real-time, completely bypassing traditional gateway lag.
                 </p>
               </div>
               
-              <div className="p-8 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-300 transition-colors group">
+              <div className="p-8 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-350 transition-colors group">
                 <div className="w-14 h-14 bg-white rounded-md flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
                   <ShieldCheck className="w-6 h-6 text-emerald-600" />
                 </div>
-                <h3 className="text-xl font-black text-slate-900 mb-3">Cryptographic Webhooks</h3>
+                <h3 className="text-xl font-black text-indigo-950 mb-3">Cryptographic Webhooks</h3>
                 <p className="text-slate-500 font-medium leading-relaxed">
                   Every settlement event is fired to your servers with an HMAC-SHA256 cryptographically signed payload, ensuring complete protection against spoofing attacks.
                 </p>
               </div>
 
-              <div className="p-8 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-300 transition-colors group">
+              <div className="p-8 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-350 transition-colors group">
                 <div className="w-14 h-14 bg-white rounded-md flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
-                  <Globe2 className="w-6 h-6 text-purple-600" />
+                  <Globe2 className="w-6 h-6 text-purple-650" />
                 </div>
-                <h3 className="text-xl font-black text-slate-900 mb-3">Edge-Optimized APIs</h3>
+                <h3 className="text-xl font-black text-indigo-950 mb-3">Edge-Optimized APIs</h3>
                 <p className="text-slate-500 font-medium leading-relaxed">
                   Create intents and verify payments via our low-latency edge network. Idempotency keys prevent duplicate charges out-of-the-box.
                 </p>
@@ -206,17 +206,17 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-12 border-t border-slate-200 bg-white">
         <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-2 text-slate-900">
-            <Zap className="w-5 h-5 fill-current text-blue-600" />
+          <div className="flex items-center justify-center md:justify-start gap-2 text-indigo-950">
+            <Zap className="w-5 h-5 fill-current text-blue-650" />
             <span className="font-black tracking-tight text-xl">PayxMint</span>
           </div>
           <p className="text-sm font-bold text-slate-400">
             © {new Date().getFullYear()} PayxMint Infrastructure. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900">Terms</Link>
-            <Link href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900">Privacy</Link>
-            <Link href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900">Compliance</Link>
+            <Link href="#" className="text-sm font-bold text-slate-400 hover:text-indigo-900">Terms</Link>
+            <Link href="#" className="text-sm font-bold text-slate-400 hover:text-indigo-900">Privacy</Link>
+            <Link href="#" className="text-sm font-bold text-slate-400 hover:text-indigo-900">Compliance</Link>
           </div>
         </div>
       </footer>

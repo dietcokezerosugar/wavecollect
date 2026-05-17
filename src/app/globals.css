@@ -15,19 +15,19 @@
 
 :root {
   --background: #FFFFFF;
-  --foreground: #1D1D1F;
+  --foreground: #1E293B;
   --card: #FFFFFF;
-  --card-foreground: #1D1D1F;
+  --card-foreground: #1E293B;
   --popover: #FFFFFF;
-  --popover-foreground: #1D1D1F;
+  --popover-foreground: #1E293B;
   --primary: #0066FF;
   --primary-foreground: #FFFFFF;
   --secondary: #F5F5F7;
-  --secondary-foreground: #1D1D1F;
+  --secondary-foreground: #1E293B;
   --muted: #F5F5F7;
   --muted-foreground: #86868B;
   --accent: #F5F5F7;
-  --accent-foreground: #1D1D1F;
+  --accent-foreground: #1E293B;
   --destructive: #FF3B30;
   --destructive-foreground: #FFFFFF;
   --border: #D2D2D7;
