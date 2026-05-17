@@ -139,8 +139,9 @@ export async function POST(req: NextRequest) {
     const merchantName = apiKeyRecord.merchant.brandName || apiKeyRecord.merchant.businessName || apiKeyRecord.merchant.name;
     const payeeVpa = allocatedAccount ? allocatedAccount.upiId.trim() : "merchant@upi";
 
-    const cleanUpiLink = `upi://pay?pa=${encodeURIComponent(payeeVpa)}&pn=${encodeURIComponent(merchantName)}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent(finalOrderId)}`;
-    const cleanPaytmLink = `paytmmp://cash_wallet?pa=${encodeURIComponent(payeeVpa)}&pn=${encodeURIComponent(merchantName)}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent(finalOrderId)}&featuretype=money_transfer`;
+    const cleanName = encodeURIComponent(merchantName).replace(/%20/g, "+");
+    const cleanUpiLink = `upi://pay?pa=${encodeURIComponent(payeeVpa)}&pn=${cleanName}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent(finalOrderId)}`;
+    const cleanPaytmLink = `paytmmp://cash_wallet?pa=${encodeURIComponent(payeeVpa)}&pn=${cleanName}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent(finalOrderId)}&featuretype=money_transfer`;
 
     const phonepePayload = JSON.stringify({
       contact: { cbsName: "", nickName: merchantName, vpa: payeeVpa, type: "VPA" },
