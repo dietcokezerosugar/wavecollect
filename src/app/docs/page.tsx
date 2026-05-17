@@ -414,6 +414,444 @@ export default function DocsPage() {
                        code={`{\n  "status": "SUCCESS",\n  "utr": "412239102931",\n  "payer_name": "John Doe",\n  "paid_at": "2024-05-16T12:00:00Z"\n}`}
                      />
                    </div>
+
+                   {/* API 3: Checkout Page Template */}
+                   <div className="border-t border-slate-100 pt-8">
+                     <h3 className="text-lg font-black text-slate-900 mb-2">3. Direct Custom Checkout Template (HTML/CSS/JS)</h3>
+                     <p className="text-[14px] text-slate-500 font-medium mb-4">Deploy a highly-responsive, clean glassmorphic checkout screen for your SaaS instantly using this complete self-contained preview template.</p>
+                     
+                     <CodeBlock 
+                       language="HTML"
+                       code={`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PayxMint Checkout Preview</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --primary:#18181b;
+  --slate-50:#f8fafc;
+  --slate-100:#f1f5f9;
+  --slate-200:#e2e8f0;
+  --slate-400:#94a3b8;
+  --slate-500:#64748b;
+  --slate-600:#475569;
+  --slate-900:#0f172a;
+  --blue-600:#2563eb;
+  --green:#10b981;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:#ffffff;
+  color:var(--slate-900);
+  min-height:100vh;
+}
+
+.checkout-container{
+  display:flex;
+  min-height:100vh;
+}
+
+/* LEFT PANEL */
+
+.summary-panel{
+  flex:1;
+  background:var(--slate-50);
+  border-right:1px solid var(--slate-100);
+  padding:64px 48px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.panel-content{
+  width:100%;
+  max-width:380px;
+}
+
+.merchant-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:32px;
+}
+
+.merchant-logo{
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  background:var(--primary);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+}
+
+.merchant-name{
+  font-size:15px;
+  font-weight:600;
+  color:var(--slate-600);
+}
+
+.amount-label{
+  color:var(--slate-500);
+  margin-bottom:8px;
+  font-weight:500;
+}
+
+.amount{
+  font-size:52px;
+  font-weight:700;
+  letter-spacing:-2px;
+  margin-bottom:48px;
+}
+
+.order-details{
+  border-top:1px solid var(--slate-200);
+  padding-top:24px;
+}
+
+.order-row{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:16px;
+  font-size:14px;
+}
+
+.order-label{
+  color:var(--slate-500);
+}
+
+.order-value{
+  font-weight:600;
+}
+
+/* RIGHT PANEL */
+
+.payment-panel{
+  flex:1;
+  background:#fff;
+  padding:64px 48px;
+  display:flex;
+  align-items:flex-start;
+}
+
+.payment-title{
+  font-size:24px;
+  font-weight:700;
+  margin-bottom:18px;
+}
+
+.payment-subtitle{
+  font-size:14px;
+  color:var(--slate-500);
+  margin-bottom:28px;
+}
+
+.loader{
+  width:100%;
+  height:4px;
+  background:var(--slate-100);
+  border-radius:999px;
+  overflow:hidden;
+  margin-bottom:28px;
+}
+
+.loader-progress{
+  width:30%;
+  height:100%;
+  background:var(--blue-600);
+  animation:slide 1.8s infinite linear;
+}
+
+@keyframes slide{
+  0%{
+    transform:translateX(-100%);
+  }
+  100%{
+    transform:translateX(400%);
+  }
+}
+
+.qr-box{
+  border:1px solid var(--slate-200);
+  border-radius:18px;
+  padding:18px;
+  background:#fff;
+  display:inline-block;
+  margin-bottom:20px;
+}
+
+.qr-img{
+  width:240px;
+  height:240px;
+  display:block;
+}
+
+.scan-text{
+  font-size:14px;
+  color:var(--slate-500);
+  margin-bottom:28px;
+}
+
+.app-buttons{
+  display:flex;
+  gap:12px;
+  width:100%;
+}
+
+.btn{
+  flex:1;
+  padding:15px;
+  border-radius:12px;
+  text-decoration:none;
+  color:#fff;
+  font-weight:600;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  transition:.2s ease;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+}
+
+.phonepe{
+  background:#5f259f;
+}
+
+.paytm{
+  background:#002970;
+}
+
+.gpay{
+  background:#111827;
+}
+
+.footer{
+  margin-top:42px;
+  font-size:12px;
+  color:var(--slate-400);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.secure-dot{
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background:var(--green);
+}
+
+/* MOBILE */
+
+.mobile-summary{
+  display:none;
+}
+
+@media(max-width:850px){
+
+  body{
+    background:#f4f4f5;
+    padding:20px;
+  }
+
+  .checkout-container{
+    display:block;
+    max-width:430px;
+    margin:auto;
+  }
+
+  .summary-panel{
+    display:none;
+  }
+
+  .payment-panel{
+    padding:30px 24px;
+    border-radius:24px;
+    box-shadow:
+      0 10px 30px rgba(0,0,0,0.06);
+  }
+
+  .mobile-summary{
+    display:block;
+    margin-bottom:28px;
+  }
+
+  .amount{
+    font-size:38px;
+    margin-bottom:18px;
+  }
+
+  .qr-img{
+    width:100%;
+    max-width:240px;
+    height:auto;
+  }
+
+  .app-buttons{
+    flex-direction:column;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="checkout-container">
+
+  <!-- LEFT SIDE -->
+  <div class="summary-panel">
+
+    <div class="panel-content">
+
+      <div class="merchant-header">
+        <div class="merchant-logo">P</div>
+        <div class="merchant-name">PayxMint Store</div>
+      </div>
+
+      <div class="amount-label">
+        Pay PayxMint Store
+      </div>
+
+      <div class="amount">
+        ₹1,299.00
+      </div>
+
+      <div class="order-details">
+
+        <div class="order-row">
+          <div class="order-label">Order ID</div>
+          <div class="order-value">ORD-938382</div>
+        </div>
+
+        <div class="order-row">
+          <div class="order-label">Session expires</div>
+          <div class="order-value" id="timer">10:00</div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="payment-panel">
+
+    <div class="panel-content">
+
+      <!-- MOBILE TOP -->
+      <div class="mobile-summary">
+
+        <div class="merchant-header">
+          <div class="merchant-logo">P</div>
+          <div class="merchant-name">PayxMint Store</div>
+        </div>
+
+        <div class="amount">
+          ₹1,299.00
+        </div>
+
+        <div class="order-label">
+          Order ID: ORD-938382
+        </div>
+
+      </div>
+
+      <div class="payment-title">
+        Pay with UPI
+      </div>
+
+      <div class="payment-subtitle">
+        Open any UPI app and scan this QR code
+      </div>
+
+      <div class="loader">
+        <div class="loader-progress"></div>
+      </div>
+
+      <div class="qr-box">
+        <img
+          class="qr-img"
+          src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay"
+          alt="QR"
+        />
+      </div>
+
+      <div class="scan-text">
+        Waiting for payment confirmation...
+      </div>
+
+      <div class="app-buttons">
+
+        <a href="#" class="btn phonepe">
+          PhonePe
+        </a>
+
+        <a href="#" class="btn paytm">
+          Paytm
+        </a>
+
+        <a href="#" class="btn gpay">
+          GPay
+        </a>
+
+      </div>
+
+      <div class="footer">
+        <div class="secure-dot"></div>
+        Securely processed by PayxMint
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let total = 600;
+
+function updateTimer() {
+
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+
+  document.getElementById('timer').innerText =
+    minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+
+  total--;
+
+  if(total < 0){
+    clearInterval(interval);
+    document.getElementById('timer').innerText = "Expired";
+  }
+}
+
+updateTimer();
+
+const interval = setInterval(updateTimer,1000);
+</script>
+
+</body>
+</html>`}
+                     />
+                   </div>
                 </div>
              </section>
 
