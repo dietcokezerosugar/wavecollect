@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MatchingEngine } from "@/services/matching/MatchingEngine";
 import { logApi } from "@/lib/log";
+import { parseSafeJson } from "@/lib/safe-body";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,7 +17,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "failure", message: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json();
+    let body;
+    try {
+      body = await parseSafeJson(req, 500 * 1024); // Cap at 500KB for large bot reports
+    } catch (e: any) {
+      return NextResponse.json({ status: "failure", message: e.message || "Invalid JSON payload" }, { status: 400 });
+    }
     const { account, transactions } = body;
 
     if (!account || !transactions || !Array.isArray(transactions)) {

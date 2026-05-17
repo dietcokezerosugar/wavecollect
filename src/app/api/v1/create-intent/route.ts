@@ -3,6 +3,7 @@ import { PaymentEngine } from "@/services/payment-engine/PaymentEngine";
 import { logApi } from "@/lib/log";
 import { prisma } from "@/lib/prisma";
 import { IdempotencyService } from "@/services/routing/IdempotencyService";
+import { parseSafeJson } from "@/lib/safe-body";
 
 // Simple in-memory rate limiter
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
@@ -70,18 +71,19 @@ export async function POST(req: NextRequest) {
       if (cached) return cached;
     }
 
-    // Parse and validate body
+    // Parse and validate body safely (protects against huge DoS payloads)
     let body;
     try {
-      body = await req.json();
-    } catch (e) {
+      body = await parseSafeJson(req, 100 * 1024); // Strict 100KB cap (more than enough for transaction metadata)
+    } catch (e: any) {
+      const isTooLarge = e.message?.includes("PAYLOAD_TOO_LARGE");
       return NextResponse.json({ 
         error: {
           type: "invalid_request_error",
-          code: "invalid_json",
-          message: "Request body must be valid JSON."
+          code: isTooLarge ? "payload_too_large" : "invalid_json",
+          message: e.message || "Request body must be valid JSON."
         }
-      }, { status: 400 });
+      }, { status: isTooLarge ? 413 : 400 });
     }
 
     const { amount, order_id, customer_mobile, customer_email, customer_ip, customer_device_id, redirect_url, metadata } = body;

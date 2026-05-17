@@ -5,6 +5,7 @@ import { MatchingEngine } from "@/services/matching/MatchingEngine";
 import { v4 as uuidv4 } from "uuid";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { parseSafeJson } from "@/lib/safe-body";
 
 /**
  * Simulate a transaction detection for testing the entire flow.
@@ -27,7 +28,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
+    let body;
+    try {
+      body = await parseSafeJson(req, 10 * 1024); // Strict 10KB cap
+    } catch (e: any) {
+      return NextResponse.json({ status: "failure", message: e.message || "Invalid JSON payload" }, { status: 400 });
+    }
     const { order_id } = body;
 
     if (!order_id) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logApi } from "@/lib/log";
 import { validateIpWhitelist } from "@/lib/security";
+import { parseSafeJson } from "@/lib/safe-body";
 
 async function getStatus(req: NextRequest) {
   try {
@@ -22,7 +23,7 @@ async function getStatus(req: NextRequest) {
     let order_id: string | null = null;
     if (req.method === "POST") {
       try {
-        const body = await req.json();
+        const body = await parseSafeJson(req, 10 * 1024); // Strict 10KB cap
         order_id = body.order_id;
       } catch (e) {}
     } else {
