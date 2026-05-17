@@ -315,7 +315,7 @@ export default function StaffAccountReview() {
                               </p>
                               <button 
                                 onClick={() => {
-                                  const cmd = `node src/bot/auto-login.js "${account.name}" "${account.email}" "${account.botPassword}" "${account.proxyConfig || ''}" --terminal`;
+                                  const cmd = `cd ~/wavecollect && node src/bot/auto-login.js '${account.name}' '${account.email}' '${account.botPassword}' '${account.proxyConfig || ''}' --terminal`;
                                   copyToClipboard(cmd, `hs-${account.id}`);
                                 }}
                                 className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[9px] font-mono transition-all border ${
@@ -333,7 +333,7 @@ export default function StaffAccountReview() {
                               </p>
                               <button 
                                 onClick={() => {
-                                  const cmd = `pm2 start src/bot/bot.js --name "bot-${account.name}" -- "${account.name}"`;
+                                  const cmd = `cd ~/wavecollect && pm2 start src/bot/bot.js --name 'bot-${account.name}' -- '${account.name}'`;
                                   copyToClipboard(cmd, `pm-${account.id}`);
                                 }}
                                 className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[9px] font-mono transition-all ${
@@ -351,7 +351,7 @@ export default function StaffAccountReview() {
                               </p>
                               <button 
                                 onClick={() => {
-                                  const cmd = `pm2 logs "bot-${account.name}"`;
+                                  const cmd = `pm2 logs 'bot-${account.name}'`;
                                   copyToClipboard(cmd, `lg-${account.id}`);
                                 }}
                                 className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[9px] font-mono transition-all border ${
