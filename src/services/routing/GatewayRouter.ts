@@ -69,7 +69,7 @@ export class GatewayRouter {
       }
     }
 
-    // 3. Filter by Hard Limits (100 txns OR daily/weekly/monthly limits)
+    // 3. Filter by Hard Limits (100 txns OR daily/weekly/monthly limits + pool quota limit)
     const validAccounts = allAccounts.filter((acc) => {
       if (acc.successfulTxn >= 10000) return false;
       
@@ -77,7 +77,17 @@ export class GatewayRouter {
       const weeklyOk = Number(acc.weeklyLimit) === 0 || Number(acc.currentWeekly) + amount <= Number(acc.weeklyLimit);
       const monthlyOk = Number(acc.monthlyLimit) === 0 || Number(acc.currentMonthly) + amount <= Number(acc.monthlyLimit);
       
-      return dailyOk && weeklyOk && monthlyOk;
+      if (!dailyOk || !weeklyOk || !monthlyOk) return false;
+
+      // Optimize platform pool quota check at routing level
+      if (acc.accountType === "PLATFORM_POOL" && Number(acc.totalQuota) > 0) {
+        const remainingQuota = Number(acc.totalQuota) - Number(acc.usedQuota);
+        if (remainingQuota < amount) {
+          return false;
+        }
+      }
+
+      return true;
     });
 
     if (validAccounts.length === 0) return null;
@@ -129,8 +139,33 @@ export class GatewayRouter {
 
     if (poolToUse.length === 0) return null;
 
-    // 5. Load Balancing: Round Robin (select one with lowest current daily usage)
-    poolToUse.sort((a, b) => Number(a.currentDaily) - Number(b.currentDaily));
+    // 5. Load Balancing: Capacity & Quota Preserving Round Robin
+    poolToUse.sort((a, b) => {
+      // Phase 1: ONLINE session status priority
+      const aOnline = a.sessionStatus === "ONLINE" ? 1 : 0;
+      const bOnline = b.sessionStatus === "ONLINE" ? 1 : 0;
+      if (aOnline !== bOnline) return bOnline - aOnline;
+
+      // Phase 2: Platform Pool quota safety — prefer the one with MORE remaining quota
+      if (a.accountType === "PLATFORM_POOL" && b.accountType === "PLATFORM_POOL") {
+        const aRemaining = Number(a.totalQuota) > 0 ? Number(a.totalQuota) - Number(a.usedQuota) : Infinity;
+        const bRemaining = Number(b.totalQuota) > 0 ? Number(b.totalQuota) - Number(b.usedQuota) : Infinity;
+        if (Math.abs(aRemaining - bRemaining) > 0.01) {
+          return bRemaining - aRemaining; // Descending (more remaining first)
+        }
+      }
+
+      // Phase 3: Capacity Preserving (tighter limit fit)
+      // Prefer the VPA with the smaller maxTicket that fits the transaction, keeping larger limit accounts free.
+      const aRange = Number(a.maxTicket) - Number(a.minTicket);
+      const bRange = Number(b.maxTicket) - Number(b.minTicket);
+      if (Math.abs(aRange - bRange) > 0.01) {
+        return aRange - bRange; // Ascending range (tighter fit first)
+      }
+
+      // Phase 4: Standard Load Balancing (lowest daily usage first)
+      return Number(a.currentDaily) - Number(b.currentDaily);
+    });
 
     return { account: poolToUse[0], fallbackUsed };
   }

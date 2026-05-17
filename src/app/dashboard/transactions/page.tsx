@@ -73,6 +73,8 @@ export default function TransactionsPage() {
       Status: t.status,
       Payer: t.payerName || t.transaction?.payerName,
       UTR: t.transaction?.utr,
+      "GPay Account": t.allocatedAccount?.name || "",
+      "GPay UPI VPA": t.allocatedAccount?.upiId || "",
       Date: new Date(t.createdAt).toLocaleString()
     }));
     exportToCSV(`PayxMint_Activity_${new Date().toISOString().slice(0,10)}.csv`, dataToExport);
@@ -169,6 +171,7 @@ export default function TransactionsPage() {
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reference</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Volume</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Counterparty</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">GPay VPA</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Network ID (UTR)</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Processed At</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Settlement</th>
@@ -177,13 +180,13 @@ export default function TransactionsPage() {
             <tbody className="divide-y divide-slate-50">
               {loading && transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest animate-pulse">
+                  <td colSpan={8} className="px-6 py-12 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest animate-pulse">
                     Synchronizing ledger...
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">
+                  <td colSpan={8} className="px-6 py-12 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">
                     No matching activity found
                   </td>
                 </tr>
@@ -200,6 +203,16 @@ export default function TransactionsPage() {
                     <td className="px-6 py-4 font-black text-slate-900 text-sm">₹{intent.amount.toLocaleString()}</td>
                     <td className="px-6 py-4 text-[11px] font-bold text-slate-600">
                       {intent.payerName || intent.transaction?.payerName || <span className="text-slate-300">—</span>}
+                    </td>
+                    <td className="px-6 py-4">
+                      {intent.allocatedAccount ? (
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-black text-slate-800">{intent.allocatedAccount.name}</span>
+                          <span className="text-[9px] font-mono font-bold text-slate-400">{intent.allocatedAccount.upiId}</span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-300 font-bold text-[11px]">—</span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-[11px] text-slate-500 font-mono font-bold bg-slate-50 px-2 py-0.5 rounded border border-slate-100 inline-block">

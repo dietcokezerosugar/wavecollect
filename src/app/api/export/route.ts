@@ -11,12 +11,12 @@ export async function GET() {
 
   const intents = await prisma.paymentIntent.findMany({
     where: { merchantId: merchant.id },
-    include: { transaction: true },
+    include: { transaction: true, allocatedAccount: true },
     orderBy: { createdAt: "desc" },
   });
 
   // CSV header
-  const header = "Reference ID,Amount,Status,Payer Name,Payer UPI,UTR,Created At,Expire At\n";
+  const header = "Reference ID,Amount,Status,Payer Name,Payer UPI,UTR,GPay Account Name,GPay Account UPI,Created At,Expire At\n";
 
   const rows = intents.map((i) => {
     return [
@@ -26,6 +26,8 @@ export async function GET() {
       i.payerName || i.transaction?.payerName || "",
       i.payerUpiId || i.transaction?.payerUpiId || "",
       i.transaction?.utr || "",
+      i.allocatedAccount?.name || "",
+      i.allocatedAccount?.upiId || "",
       i.createdAt.toISOString(),
       i.expireAt?.toISOString() || "",
     ]

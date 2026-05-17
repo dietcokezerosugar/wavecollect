@@ -161,6 +161,10 @@ model PaymentIntent {
   isManualApproval Boolean     @default(false)
   approvalIp       String?     
   
+  // Dynamic Pool Allocation Tracking
+  allocatedAccountId String?
+  allocatedAccount   GooglePayAccount? @relation("AccountIntents", fields: [allocatedAccountId], references: [id])
+  
   // SaaS: Stripe-Level Features
   metadata         Json?       // Custom merchant data
   errorCode        String?     // Standardized error code
@@ -265,6 +269,8 @@ model GooglePayAccount {
   allocatedBy           String?    // Staff/Admin user ID who allocated
   
   lastResetDate         String?    // YYYY-MM-DD format for lazy daily reset
+  
+  paymentIntents        PaymentIntent[] @relation("AccountIntents")
   
   createdAt      DateTime  @default(now())
 }

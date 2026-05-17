@@ -16,6 +16,7 @@ export default function PoolManagementPage() {
 
   // Form State for Allocation & Creation
   const [selectedAccountId, setSelectedAccountId] = useState("");
+  const [selectedMerchantId, setSelectedMerchantId] = useState("");
   const [totalQuota, setTotalQuota] = useState("500000");
   const [minTicket, setMinTicket] = useState("0");
   const [maxTicket, setMaxTicket] = useState("100000");
@@ -71,6 +72,11 @@ export default function PoolManagementPage() {
 
   async function handleAllocate() {
     if (!allocateModal || !selectedAccountId) return;
+    const merchantId = allocateModal.merchant ? allocateModal.merchant.id : selectedMerchantId;
+    if (!merchantId) {
+      alert("Please select a merchant");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/staff/pool", {
@@ -78,7 +84,7 @@ export default function PoolManagementPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           accountId: selectedAccountId,
-          merchantId: allocateModal.merchant.id,
+          merchantId,
           totalQuota,
           minTicket,
           maxTicket
@@ -87,6 +93,8 @@ export default function PoolManagementPage() {
       const json = await res.json();
       if (json.status === "success") {
         setAllocateModal(null);
+        setSelectedAccountId("");
+        setSelectedMerchantId("");
         fetchData();
       } else {
         alert(json.error || "Failed to allocate");
@@ -221,8 +229,19 @@ export default function PoolManagementPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-md text-xs font-bold">
-                      <CheckCircle2 className="w-4 h-4" /> Ready for allocation
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-md text-xs font-bold">
+                        <CheckCircle2 className="w-4 h-4" /> Ready for allocation
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setSelectedAccountId(acc.id);
+                          setAllocateModal({ merchant: null, accountId: acc.id });
+                        }}
+                        className="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200 flex items-center justify-center gap-1.5 shadow-sm"
+                      >
+                        <LinkIcon className="w-3 h-3" /> Allocate to Merchant
+                      </button>
                     </div>
                   )}
                 </div>
@@ -237,7 +256,7 @@ export default function PoolManagementPage() {
             </div>
           )}
         </div>
-
+ 
         {/* Right Column: Merchant Requests */}
         <div className="space-y-4">
           <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4">Pending Requests</h2>
@@ -257,7 +276,7 @@ export default function PoolManagementPage() {
               </button>
             </div>
           ))}
-
+ 
           {data.pendingRequests.length === 0 && (
             <div className="text-center p-8 bg-slate-50 border border-slate-100 rounded-md">
               <CheckCircle2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
@@ -267,30 +286,54 @@ export default function PoolManagementPage() {
           )}
         </div>
       </div>
-
+ 
       {/* Allocate Modal */}
       {allocateModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-md shadow-xl w-full max-w-md overflow-hidden">
             <div className="p-6 border-b border-slate-100">
               <h2 className="text-lg font-black text-slate-900">Allocate Pool Account</h2>
-              <p className="text-xs text-slate-500 mt-1">Assign an account to {allocateModal.merchant.name}</p>
+              <p className="text-xs text-slate-500 mt-1">
+                {allocateModal.merchant 
+                  ? `Assign an account to ${allocateModal.merchant.name}` 
+                  : `Assign this pool account to a merchant`
+                }
+              </p>
             </div>
             <div className="p-6 space-y-4">
+              {/* Select Merchant (only if direct allocation) */}
+              {!allocateModal.merchant && (
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Select Merchant</label>
+                  <select 
+                    value={selectedMerchantId}
+                    onChange={(e) => setSelectedMerchantId(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
+                  >
+                    <option value="">-- Choose merchant --</option>
+                    {(data.activeMerchants || []).map((m: any) => (
+                      <option key={m.id} value={m.id}>{m.name} ({m.businessName || "No Business Name"})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Select Pool Account (disabled/pre-selected if opened from card) */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Select Pool Account</label>
                 <select 
                   value={selectedAccountId}
                   onChange={(e) => setSelectedAccountId(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                  disabled={!!allocateModal.accountId}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-75"
                 >
                   <option value="">-- Select an available account --</option>
-                  {data.poolAccounts.filter((a: any) => a.allocationStatus === "UNASSIGNED").map((a: any) => (
+                  {data.poolAccounts.filter((a: any) => a.allocationStatus === "UNASSIGNED" || a.id === allocateModal.accountId).map((a: any) => (
                     <option key={a.id} value={a.id}>{a.name} ({a.upiId}) - {a.sessionStatus}</option>
                   ))}
                 </select>
               </div>
-
+ 
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Total Quota (₹)</label>
                 <input 
@@ -300,7 +343,7 @@ export default function PoolManagementPage() {
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" 
                 />
               </div>
-
+ 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Min Ticket</label>
@@ -313,8 +356,21 @@ export default function PoolManagementPage() {
               </div>
             </div>
             <div className="p-4 bg-slate-50 flex justify-end gap-3 border-t border-slate-100">
-              <button onClick={() => setAllocateModal(null)} className="px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 rounded-lg transition-colors">Cancel</button>
-              <button onClick={handleAllocate} disabled={!selectedAccountId || isSubmitting} className="px-6 py-2 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors flex items-center gap-2">
+              <button 
+                onClick={() => {
+                  setAllocateModal(null);
+                  setSelectedAccountId("");
+                  setSelectedMerchantId("");
+                }} 
+                className="px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleAllocate} 
+                disabled={!selectedAccountId || (!allocateModal.merchant && !selectedMerchantId) || isSubmitting} 
+                className="px-6 py-2 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors flex items-center gap-2"
+              >
                 {isSubmitting && <Loader2 className="w-3 h-3 animate-spin" />}
                 Confirm Allocation
               </button>

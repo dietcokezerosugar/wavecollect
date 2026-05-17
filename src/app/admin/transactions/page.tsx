@@ -86,6 +86,8 @@ export default function MasterTransactionLedger() {
       Status: t.status,
       UTR: t.transaction?.utr,
       Payer: t.payerName || t.transaction?.payerName,
+      "GPay Account": t.allocatedAccount?.name || "",
+      "GPay UPI VPA": t.allocatedAccount?.upiId || "",
       Date: new Date(t.createdAt).toLocaleString()
     }));
     exportToCSV(`PayxMint_Transactions_${new Date().toISOString().slice(0,10)}.csv`, dataToExport);
@@ -156,6 +158,7 @@ export default function MasterTransactionLedger() {
               <th className="p-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Merchant</th>
               <th className="p-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
               <th className="p-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+              <th className="p-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">GPay VPA</th>
               <th className="p-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timestamp</th>
               <th className="p-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
             </tr>
@@ -183,6 +186,16 @@ export default function MasterTransactionLedger() {
                 </td>
                 <td className="p-4 px-6">
                   <StatusBadge status={t.status} />
+                </td>
+                <td className="p-4 px-6">
+                  {t.allocatedAccount ? (
+                    <div>
+                      <p className="text-[12px] font-bold text-slate-700">{t.allocatedAccount.name}</p>
+                      <p className="text-[9px] font-mono font-bold text-slate-400">{t.allocatedAccount.upiId}</p>
+                    </div>
+                  ) : (
+                    <span className="text-slate-300 font-bold">—</span>
+                  )}
                 </td>
                 <td className="p-4 px-6">
                   <div className="flex items-center gap-2 text-slate-400">

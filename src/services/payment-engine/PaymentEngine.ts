@@ -133,6 +133,7 @@ export class PaymentEngine {
           paymentToken,
           expireAt,
           metadata: metadata || {},
+          allocatedAccountId: account.id,
         },
       });
 
@@ -186,6 +187,7 @@ export class PaymentEngine {
         paymentToken,
         isRecharge: true,
         expireAt: new Date(Date.now() + 30 * 60 * 1000),
+        allocatedAccountId: account.id,
       }
     });
   }

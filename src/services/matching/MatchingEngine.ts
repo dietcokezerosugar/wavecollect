@@ -242,14 +242,22 @@ export class MatchingEngine {
         payer: txn.payerName,
       });
 
-      // ── BUG FIX: Update VPA usage counters (daily/weekly/monthly + txn count) ──
-      // Find which GPay account was used via the UPI deep link
-      if (intent.upiDeepLink) {
+      // ── ROBUSTNESS UPGRADE: Update VPA usage counters (daily/weekly/monthly + txn count) ──
+      let gpayAccount = null;
+      
+      // 1. Direct secure lookup via allocatedAccountId
+      if (intent.allocatedAccountId) {
+        gpayAccount = await prisma.googlePayAccount.findUnique({
+          where: { id: intent.allocatedAccountId }
+        });
+      }
+      
+      // 2. Bulletproof Fallback via UPI deep link regex if allocatedAccountId is missing (legacy support)
+      if (!gpayAccount && intent.upiDeepLink) {
         const upiMatch = intent.upiDeepLink.match(/pa=([^&]+)/);
         if (upiMatch) {
           const usedUpi = decodeURIComponent(upiMatch[1]);
-          // Look up by merchantId (own account) OR allocatedToMerchantId (pool account)
-          const gpayAccount = await prisma.googlePayAccount.findFirst({
+          gpayAccount = await prisma.googlePayAccount.findFirst({
             where: {
               upiId: usedUpi,
               OR: [
@@ -258,24 +266,25 @@ export class MatchingEngine {
               ]
             }
           });
-          if (gpayAccount) {
-            await GatewayRouter.recordUsage(gpayAccount.id, txnAmount);
-            
-            // Pool quota tracking: increment usedQuota and check exhaustion
-            if (gpayAccount.accountType === "PLATFORM_POOL" && Number(gpayAccount.totalQuota) > 0) {
-              const updated = await prisma.googlePayAccount.update({
-                where: { id: gpayAccount.id },
-                data: { usedQuota: { increment: txnAmount } }
-              });
-              // Auto-pause when quota exhausted
-              if (Number(updated.usedQuota) >= Number(updated.totalQuota)) {
-                await prisma.googlePayAccount.update({
-                  where: { id: gpayAccount.id },
-                  data: { allocationStatus: "EXHAUSTED" }
-                });
-                await logApi("WARNING", `Pool account ${gpayAccount.name} quota exhausted (₹${updated.usedQuota}/${updated.totalQuota})`, intent.merchantId);
-              }
-            }
+        }
+      }
+
+      if (gpayAccount) {
+        await GatewayRouter.recordUsage(gpayAccount.id, txnAmount);
+        
+        // Pool quota tracking: increment usedQuota and check exhaustion
+        if (gpayAccount.accountType === "PLATFORM_POOL" && Number(gpayAccount.totalQuota) > 0) {
+          const updated = await prisma.googlePayAccount.update({
+            where: { id: gpayAccount.id },
+            data: { usedQuota: { increment: txnAmount } }
+          });
+          // Auto-pause when quota exhausted
+          if (Number(updated.usedQuota) >= Number(updated.totalQuota)) {
+            await prisma.googlePayAccount.update({
+              where: { id: gpayAccount.id },
+              data: { allocationStatus: "EXHAUSTED" }
+            });
+            await logApi("WARNING", `Pool account ${gpayAccount.name} quota exhausted (₹${updated.usedQuota}/${updated.totalQuota})`, intent.merchantId);
           }
         }
       }

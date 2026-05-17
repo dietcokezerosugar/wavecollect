@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     try {
       intents = await prisma.paymentIntent.findMany({
         where,
-        include: { transaction: true },
+        include: { transaction: true, allocatedAccount: true },
         orderBy: { createdAt: "desc" },
         take: 100,
       });

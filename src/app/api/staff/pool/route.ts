@@ -29,6 +29,13 @@ export async function GET() {
     orderBy: { poolRequestedAt: "desc" },
   });
 
+  // All active merchants (for direct dropdown allocation)
+  const activeMerchants = await prisma.merchant.findMany({
+    where: { status: "ACTIVE" },
+    select: { id: true, name: true, businessName: true, email: true },
+    orderBy: { name: "asc" }
+  });
+
   // Allocation summary
   const allocated = poolAccounts.filter(a => a.allocationStatus !== "UNASSIGNED").length;
   const available = poolAccounts.filter(a => a.allocationStatus === "UNASSIGNED").length;
@@ -39,6 +46,7 @@ export async function GET() {
     data: {
       poolAccounts,
       pendingRequests,
+      activeMerchants,
       summary: { total: poolAccounts.length, allocated, available, online, pendingRequests: pendingRequests.length }
     }
   });
@@ -124,14 +132,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Account is already assigned. Detach it first." }, { status: 409 });
   }
 
-  // Check if merchant already has an allocated pool account
-  const existingAllocation = await prisma.googlePayAccount.findFirst({
-    where: { allocatedToMerchantId: merchantId, allocationStatus: { in: ["ASSIGNED", "PAUSED"] } }
-  });
-
-  if (existingAllocation) {
-    return NextResponse.json({ error: "Merchant already has an allocated pool account. Detach the existing one first." }, { status: 409 });
-  }
+  // Multiple pool allocations are allowed. No check needed.
 
   // Allocate
   const updated = await prisma.googlePayAccount.update({
@@ -228,12 +229,21 @@ export async function PUT(req: NextRequest) {
       updateData.minTicket = 0;
       updateData.maxTicket = 1000000;
 
-      // Reset merchant to OWN_ACCOUNT mode
+      // Reset merchant to OWN_ACCOUNT mode ONLY if this was their last active/paused/exhausted pool account
       if (account.allocatedToMerchantId) {
-        await prisma.merchant.update({
-          where: { id: account.allocatedToMerchantId },
-          data: { processingMode: "OWN_ACCOUNT", poolRequestStatus: "NONE" }
+        const otherAllocationsCount = await prisma.googlePayAccount.count({
+          where: {
+            allocatedToMerchantId: account.allocatedToMerchantId,
+            id: { not: accountId },
+            allocationStatus: { in: ["ASSIGNED", "PAUSED", "EXHAUSTED"] }
+          }
         });
+        if (otherAllocationsCount === 0) {
+          await prisma.merchant.update({
+            where: { id: account.allocatedToMerchantId },
+            data: { processingMode: "OWN_ACCOUNT", poolRequestStatus: "NONE" }
+          });
+        }
       }
       break;
 

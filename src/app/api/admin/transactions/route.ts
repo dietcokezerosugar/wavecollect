@@ -16,7 +16,8 @@ export async function GET(req: NextRequest) {
         merchant: {
           select: { name: true }
         },
-        transaction: true // Real bank verification data
+        transaction: true, // Real bank verification data
+        allocatedAccount: true
       },
       orderBy: { createdAt: "desc" },
       take: 100 // Optimization: Latest 100
