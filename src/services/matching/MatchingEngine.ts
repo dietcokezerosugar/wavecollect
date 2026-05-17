@@ -59,7 +59,12 @@ export class MatchingEngine {
 
         // ═══ STRATEGY 1: STRICT (note + amount) ═══
         if (txn.note && txn.note.trim().length > 0) {
-          const cleanNote = txn.note.trim();
+          let cleanNote = txn.note.trim();
+          
+          // Strip out "Pay " prefix (case-insensitive) to extract the pure referenceId
+          if (cleanNote.toLowerCase().startsWith("pay ")) {
+            cleanNote = cleanNote.substring(4).trim();
+          }
           
           intent = await tx.paymentIntent.findFirst({
             where: { 
