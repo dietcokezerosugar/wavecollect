@@ -153,7 +153,7 @@ export default function PaymentPageClient({
 
   // Intent links
   const cleanPaytmName = encodeURIComponent(merchantName).replace(/%20/g, "+");
-  const paytmIntent = `paytmmp://cash_wallet?pa=${encodeURIComponent(merchantUpi)}&pn=${cleanPaytmName}&am=${amount}&cu=INR&tn=${referenceId}&tr=${referenceId}&mc=4722&&sign=AAuN7izDWN5cb8A5scnUiNME+LkZqI2DWgkXlN1McoP6WZABa/KkFTiLvuPRP6/nWK8BPg/rPhb+u4QMrUEX10UsANTDbJaALcSM9b8Wk218X+55T/zOzb7xoiB+BcX8yYuYayELImXJHIgL/c7nkAnHrwUCmbM97nRbCVVRvU0ku3Tr&featuretype=money_transfer`;
+  const paytmIntent = `paytmmp://cash_wallet?pa=${encodeURIComponent(merchantUpi)}&pn=${cleanPaytmName}&am=${amount}&cu=INR&tn=${referenceId}&featuretype=money_transfer`;
   
   const phonepeData = {
     contact: { cbsName: "", nickName: merchantName, vpa: merchantUpi, type: "VPA" },
