@@ -1,32 +1,77 @@
 const { PrismaClient } = require('@prisma/client');
 const readline = require('readline');
+const fs = require('fs');
+const path = require('path');
 const prisma = new PrismaClient();
 
+// UI Configuration
+const SCREEN_HEIGHT = 30;
+const LEFT_WIDTH = 28;
+const RIGHT_WIDTH = 58;
+
 // State
+let selectedIndex = 0;
+let botsList = [];
+let latestIntents = [];
+let logsBuffer = [];
 let stats = {
-  activeBots: 0,
-  totalBots: 0,
   dbStatus: 'CONNECTING...',
   totalVolume: 0,
   matchedCount: 0,
   lastUpdated: 'NEVER',
 };
 
-async function fetchData() {
+// Key Helper for Clean Text Clipping
+function clip(str, len) {
+  str = String(str || '');
+  if (str.length > len) {
+    return str.substring(0, len - 3) + '...';
+  }
+  return str.padEnd(len);
+}
+
+async function updateState() {
   try {
-    // 1. Get bot stats
-    const bots = await prisma.googlePayAccount.findMany({
+    // 1. Get bot list
+    botsList = await prisma.googlePayAccount.findMany({
       orderBy: { name: 'asc' }
     });
-    stats.totalBots = bots.length;
-    stats.activeBots = bots.filter(b => b.sessionStatus === 'ONLINE').length;
 
-    // 2. Get latest payments and total volume
-    const latestIntents = await prisma.paymentIntent.findMany({
-      take: 8,
+    // Clamp selected index if list changes
+    if (botsList.length > 0) {
+      selectedIndex = Math.max(0, Math.min(selectedIndex, botsList.length - 1));
+    }
+
+    // 2. Read logs of selected bot
+    logsBuffer = [];
+    if (botsList.length > 0 && selectedIndex < botsList.length) {
+      const selectedBot = botsList[selectedIndex];
+      const logPath = path.join(__dirname, '.sessions', `session-${selectedBot.name}`, 'bot.log');
+      
+      if (fs.existsSync(logPath)) {
+        try {
+          const content = fs.readFileSync(logPath, 'utf8');
+          const lines = content.split(/\r?\n/).filter(Boolean);
+          // Get last 15 lines
+          logsBuffer = lines.slice(-15);
+        } catch (e) {
+          logsBuffer = [`Error reading logs: ${e.message}`];
+        }
+      } else {
+        logsBuffer = [`No log sessions found. Bot might be offline.`];
+      }
+    } else {
+      logsBuffer = ['No active processes selected.'];
+    }
+
+    // 3. Get latest matched intents
+    latestIntents = await prisma.paymentIntent.findMany({
+      take: 6,
       orderBy: { createdAt: 'desc' },
+      include: { transaction: true }
     });
 
+    // 4. Overall stats
     const successfulIntents = await prisma.paymentIntent.findMany({
       where: { status: 'SUCCESS' },
       select: { amount: true }
@@ -34,111 +79,125 @@ async function fetchData() {
     stats.matchedCount = successfulIntents.length;
     stats.totalVolume = successfulIntents.reduce((sum, item) => sum + Number(item.amount), 0);
 
-    // 3. Get latest transactions
-    const latestTxns = await prisma.transaction.findMany({
-      take: 8,
-      orderBy: { timestamp: 'desc' }
-    });
-
     stats.dbStatus = 'ONLINE';
     stats.lastUpdated = new Date().toLocaleTimeString();
-
-    return { bots, latestIntents, latestTxns };
   } catch (e) {
-    stats.dbStatus = `DISCONNECTED: ${e.message.substring(0, 30)}`;
-    return null;
+    stats.dbStatus = `DISCONNECTED: ${e.message.substring(0, 20)}`;
   }
 }
 
-function render(data) {
-  // Clear screen and reset cursor position
+function render() {
+  // Clear screen and reset cursor position to top-left
   process.stdout.write('\x1b[2J\x1b[H');
 
-  const blue = '\x1b[36m';
+  const cyan = '\x1b[36m';
   const green = '\x1b[32m';
   const yellow = '\x1b[33m';
   const red = '\x1b[31m';
   const reset = '\x1b[0m';
   const bold = '\x1b[1m';
   const dim = '\x1b[2m';
+  const bgSelected = '\x1b[46m\x1b[30m'; // Cyan background, black text
 
-  // 1. HEADER
-  console.log(`${blue}┌──────────────────────────────────────────────────────────────────────────────┐${reset}`);
-  console.log(`${blue}│${reset}${bold}  ⚡ PAYXMINT REAL-TIME CONTROL DASHBOARD & FLEET MONITOR v2.0  ${reset}${blue}│${reset}`);
-  console.log(`${blue}└──────────────────────────────────────────────────────────────────────────────┘${reset}`);
-  
-  const dbColor = stats.dbStatus === 'ONLINE' ? green : red;
-  console.log(`  ${bold}DB:${reset} ${dbColor}${stats.dbStatus}${reset}  │  ${bold}Active Bots:${reset} ${green}${stats.activeBots}/${stats.totalBots}${reset}  │  ${bold}Matches:${reset} ${yellow}${stats.matchedCount}${reset}  │  ${bold}Vol:${reset} ${green}₹${stats.totalVolume.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${reset}`);
-  console.log(`  ${dim}Last Sync: ${stats.lastUpdated} | Press [r] to Refresh, [q] to Exit${reset}`);
-  console.log(`${blue}────────────────────────────────────────────────────────────────────────────────${reset}`);
+  // 1. HEADER ROW
+  console.log(`${cyan}┌─────────────────────────────┬────────────────────────────────────────────────────────┐${reset}`);
+  const titleText = `${bold}  󱦶  PAYXMINT CONTROL FLEET  ${reset}${cyan}│${reset}${bold}  󱥿  PROCESS ACTIVITY LOGS (Tailed Live)               ${reset}${cyan}│${reset}`;
+  console.log(`${cyan}│${reset}${titleText}`);
+  console.log(`${cyan}├─────────────────────────────┼────────────────────────────────────────────────────────┤${reset}`);
 
-  if (!data) {
-    console.log(`\n  ${red}⚠️ Database connection paused or offline. Retrying connection...${reset}`);
-    return;
+  // Grid drawing space
+  for (let i = 0; i < 15; i++) {
+    let leftSide = '';
+    let rightSide = '';
+
+    // LEFT PANEL: Process List
+    if (i < botsList.length) {
+      const bot = botsList[i];
+      const isSelected = i === selectedIndex;
+      const selectIndicator = isSelected ? '● ' : '○ ';
+      const statusIcon = bot.sessionStatus === 'ONLINE' ? `${green}● online${reset}` : (bot.sessionStatus === 'ERROR' ? `${red}● error${reset}` : `${yellow}● offline${reset}`);
+      
+      const rawText = `${selectIndicator}${clip(bot.name, 12)} (${statusIcon})`;
+      const padLen = LEFT_WIDTH - 2 - (bot.sessionStatus === 'ONLINE' ? 8 : (bot.sessionStatus === 'ERROR' ? 7 : 9));
+      
+      if (isSelected) {
+        // Highlight active selected process row
+        leftSide = ` ${bgSelected}${clip(bot.name, 12).padEnd(14)} │ ${bot.sessionStatus.padEnd(8)}${reset} `;
+      } else {
+        leftSide = ` ${dim}${selectIndicator}${reset}${clip(bot.name, 12)} │ ${statusIcon} `;
+      }
+    } else if (i === botsList.length && botsList.length === 0) {
+      leftSide = ` ${dim}No active bots.${reset}`.padEnd(LEFT_WIDTH + 8);
+    } else {
+      leftSide = ' '.repeat(LEFT_WIDTH);
+    }
+
+    // RIGHT PANEL: selected bot log tail
+    if (i < logsBuffer.length) {
+      const logLine = logsBuffer[i];
+      // Format timestamps or ENGINE tags slightly for color
+      let formattedLine = logLine;
+      if (formattedLine.includes('[ENGINE-A]')) formattedLine = formattedLine.replace('[ENGINE-A]', `${green}[ENGINE-A]${reset}`);
+      if (formattedLine.includes('[ENGINE-B]')) formattedLine = formattedLine.replace('[ENGINE-B]', `${yellow}[ENGINE-B]${reset}`);
+      if (formattedLine.includes('[CRITICAL]') || formattedLine.includes('failed')) formattedLine = formattedLine.replace(/CRITICAL|failed/g, `${red}$&${reset}`);
+      if (formattedLine.includes('[DUAL]')) formattedLine = formattedLine.replace('[DUAL]', `${cyan}[DUAL]${reset}`);
+      
+      rightSide = ` ${clip(formattedLine, RIGHT_WIDTH - 2)}`;
+    } else {
+      rightSide = ' '.repeat(RIGHT_WIDTH);
+    }
+
+    // Clean padding adjustments for escape codes
+    const leftFill = leftSide.padEnd(LEFT_WIDTH + (leftSide.includes('\x1b') ? 18 : 0));
+    const rightFill = rightSide.padEnd(RIGHT_WIDTH + (rightSide.includes('\x1b') ? 18 : 0));
+    console.log(`${cyan}│${reset}${leftFill}${cyan}│${reset}${rightFill}${cyan}│${reset}`);
   }
 
-  // 2. SCRAPER FLEET PANEL
-  console.log(` ${bold}󱦶  SCRAPER FLEET STATUS (Google Pay Nodes)${reset}`);
-  console.log(`   ${dim}${'VPA Name'.padEnd(16)} │ ${'UPI ID'.padEnd(24)} │ ${'Status'.padEnd(8)} │ ${'Session'.padEnd(8)} │ ${'Daily Quota (Used/Total)'}${reset}`);
-  console.log(`   ${'─'.repeat(16)}┼${'─'.repeat(26)}┼${'─'.repeat(10)}┼${'─'.repeat(10)}┼${'─'.repeat(25)}`);
-  
-  if (data.bots.length === 0) {
-    console.log(`   ${dim}No active bot accounts registered in the database.${reset}`);
-  } else {
-    data.bots.forEach(bot => {
-      const statusColor = bot.status === 'ACTIVE' ? green : red;
-      const sessionColor = bot.sessionStatus === 'ONLINE' ? green : (bot.sessionStatus === 'ERROR' ? red : yellow);
-      const quotaStr = `₹${Number(bot.usedQuota).toFixed(0)}/₹${Number(bot.totalQuota).toFixed(0)}`;
-      console.log(`   ${bot.name.padEnd(16)} │ ${bot.upiId.padEnd(24)} │ ${statusColor}${bot.status.padEnd(8)}${reset} │ ${sessionColor}${bot.sessionStatus.padEnd(8)}${reset} │ ${quotaStr}`);
-    });
-  }
+  // 2. MIDDLE RECONCILIATION SEPARATOR
+  console.log(`${cyan}├─────────────────────────────┴────────────────────────────────────────────────────────┤${reset}`);
+  console.log(`${cyan}│${reset}${bold}  󰡏  REAL-TIME TRANSACTION MATCHING & RECONCILIATION FEED (Live Hub Matches)          ${reset}${cyan}│${reset}`);
+  console.log(`${cyan}├──────────────────────────────────────────────────────────────────────────────────────┤${reset}`);
+  console.log(`${cyan}│${reset}   ${dim}${'Order Ref ID'.padEnd(20)} │ ${'Amount'.padEnd(12)} │ ${'Status'.padEnd(12)} │ ${'UTR / Bank Reference ID'.padEnd(24)} │ ${'Payer'}${reset}   ${cyan}│${reset}`);
+  console.log(`${cyan}│${reset}   ${'─'.repeat(20)}┼${'─'.repeat(14)}┼${'─'.repeat(14)}┼${'─'.repeat(26)}┼${'─'.repeat(12)}   ${cyan}│${reset}`);
 
-  console.log(`${blue}────────────────────────────────────────────────────────────────────────────────${reset}`);
-
-  // 3. LIVE TRANSACTIONS PANEL
-  console.log(` ${bold}󱥿  LIVE CAPTURED BANK TRANSACTIONS (Google Pay Sync)${reset}`);
-  console.log(`   ${dim}${'UTR/External Txn ID'.padEnd(24)} │ ${'Amount'.padEnd(12)} │ ${'Payer UPI ID'.padEnd(24)} │ ${'Order Note/Ref'}${reset}`);
-  console.log(`   ${'─'.repeat(24)}┼${'─'.repeat(14)}┼${'─'.repeat(26)}┼${'─'.repeat(20)}`);
-
-  if (data.latestTxns.length === 0) {
-    console.log(`   ${dim}No Google Pay transactions synced to database yet.${reset}`);
-  } else {
-    data.latestTxns.forEach(txn => {
-      const noteStr = txn.note ? txn.note.substring(0, 18) : 'N/A';
-      console.log(`   ${txn.externalId.substring(0, 22).padEnd(24)} │ ${green}₹${Number(txn.amount).toFixed(2).padEnd(10)}${reset} │ ${String(txn.payerUpiId || 'unknown').substring(0, 22).padEnd(24)} │ ${noteStr}`);
-    });
-  }
-
-  console.log(`${blue}────────────────────────────────────────────────────────────────────────────────${reset}`);
-
-  // 4. ACTIVE PAYMENT INTENTS PANEL
-  console.log(` ${bold}󰡏  ACTIVE PAYMENT INTENTS (Merchant Orders)${reset}`);
-  console.log(`   ${dim}${'Order Reference ID'.padEnd(20)} │ ${'Order Amount'.padEnd(14)} │ ${'Status'.padEnd(12)} │ ${'Created At'.padEnd(12)} │ ${'Customer'}${reset}`);
-  console.log(`   ${'─'.repeat(20)}┼${'─'.repeat(16)}┼${'─'.repeat(14)}┼${'─'.repeat(14)}┼${'─'.repeat(15)}`);
-
-  if (data.latestIntents.length === 0) {
-    console.log(`   ${dim}No active merchant payment intents found in the database.${reset}`);
-  } else {
-    data.latestIntents.forEach(intent => {
+  // Render bottom matching rows
+  for (let i = 0; i < 6; i++) {
+    if (i < latestIntents.length) {
+      const intent = latestIntents[i];
       const statusColor = intent.status === 'SUCCESS' ? green : (intent.status === 'PENDING' ? yellow : red);
-      const timeStr = new Date(intent.createdAt).toLocaleTimeString();
-      console.log(`   ${intent.referenceId.padEnd(20)} │ ${green}₹${Number(intent.amount).toFixed(2).padEnd(12)}${reset} │ ${statusColor}${intent.status.padEnd(12)}${reset} │ ${timeStr.padEnd(12)} │ ${intent.customerMobile || 'N/A'}`);
-    });
+      const utrStr = intent.transaction?.utr || 'Awaiting Sync...';
+      const payerStr = intent.payerName || 'N/A';
+      
+      const rowContent = `   ${intent.referenceId.padEnd(20)} │ ${green}₹${Number(intent.amount).toFixed(2).padEnd(10)}${reset} │ ${statusColor}${intent.status.padEnd(12)}${reset} │ ${utrStr.padEnd(24)} │ ${clip(payerStr, 12)}`;
+      const fillLen = 82 + (rowContent.includes('\x1b') ? 18 : 0);
+      console.log(`${cyan}│${reset}${rowContent.padEnd(fillLen)}${cyan}│${reset}`);
+    } else {
+      console.log(`${cyan}│${reset}${' '.repeat(82)}${cyan}│${reset}`);
+    }
   }
 
-  console.log(`${blue}────────────────────────────────────────────────────────────────────────────────${reset}`);
+  // 3. STATS SUMMARY FOOTER
+  console.log(`${cyan}├──────────────────────────────────────────────────────────────────────────────────────┤${reset}`);
+  const dbStatusStr = stats.dbStatus === 'ONLINE' ? `${green}ONLINE${reset}` : `${red}${stats.dbStatus}${reset}`;
+  const statsLine = `  ${bold}DB Status:${reset} ${dbStatusStr}  │  ${bold}Total Reconciled Volume:${reset} ${green}₹${stats.totalVolume.toLocaleString('en-IN', { minimumFractionDigits: 2 })}${reset}  │  ${bold}Sync Time:${reset} ${yellow}${stats.lastUpdated}${reset}`;
+  const statsFill = 86 + (statsLine.includes('\x1b') ? 18 : 0);
+  console.log(`${cyan}│${reset}${statsLine.padEnd(statsFill)}${cyan}│${reset}`);
+  
+  // 4. KEYBOARD CONTROLS
+  console.log(`${cyan}└──────────────────────────────────────────────────────────────────────────────────────┘${reset}`);
+  console.log(`  ${bold}CONTROLS:${reset} Press ${bold}[↑ / Down]${reset} to Select Bot  │  ${bold}[r]${reset} Instant Refresh  │  ${bold}[q]${reset} Safe Exit Monitor`);
 }
 
 async function loop() {
-  const data = await fetchData();
-  render(data);
+  await updateState();
+  render();
 }
 
-// Start auto-refresh interval (2 seconds)
-const intervalId = setInterval(loop, 2000);
+// Tick loop (every 1 second for live scrolling logs!)
+const intervalId = setInterval(loop, 1000);
 loop();
 
-// Setup keyboard listeners
+// Setup Keyboard interaction
 readline.emitKeypressEvents(process.stdin);
 if (process.stdin.isTTY) {
   process.stdin.setRawMode(true);
@@ -159,7 +218,21 @@ process.stdin.on('keypress', (str, key) => {
     process.exit(0);
   }
   
+  if (key.name === 'up') {
+    if (selectedIndex > 0) {
+      selectedIndex--;
+      loop();
+    }
+  }
+  
+  if (key.name === 'down') {
+    if (selectedIndex < botsList.length - 1) {
+      selectedIndex++;
+      loop();
+    }
+  }
+  
   if (key.name === 'r') {
-    loop(); // Trigger instant refresh
+    loop();
   }
 });
