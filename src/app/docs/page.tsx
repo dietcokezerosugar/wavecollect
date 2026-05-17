@@ -186,9 +186,41 @@ export default function DocsPage() {
                 </div>
                 Developer Integration Reference
               </h1>
-              <p className="text-slate-500 font-medium text-[15px] leading-relaxed max-w-3xl">
-                Welcome to the official PayxMint API documentation. Use this reference to integrate high-fidelity UPI automated payments and payouts securely into your core applications.
+              <p className="text-slate-500 font-medium text-[15px] leading-relaxed max-w-3xl mb-6">
+                Welcome to the official PayxMint API documentation. Use this reference to integrate high-fidelity UPI automated payments securely into your core applications.
               </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl text-xs font-semibold">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-blue-600 block mb-2">Intent Status Codes</span>
+                  <div className="space-y-1.5 font-mono text-[11px] text-slate-650">
+                    <div className="flex justify-between items-center bg-white p-1.5 rounded border border-slate-150">
+                      <span className="font-bold text-slate-800">PENDING</span>
+                      <span className="text-slate-400">Created, awaiting UPI scan</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-white p-1.5 rounded border border-slate-150">
+                      <span className="font-bold text-emerald-600">SUCCESS</span>
+                      <span className="text-slate-400">Paid and reconciled by engine</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-white p-1.5 rounded border border-slate-150">
+                      <span className="font-bold text-rose-600">EXPIRED</span>
+                      <span className="text-slate-400">Time window elapsed before payment</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl text-xs font-semibold flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-blue-600 block mb-2">Integration Testing (Simulator)</span>
+                    <p className="text-slate-500 text-[11.5px] leading-relaxed mb-3 font-medium">
+                      Simulate successful payment state transitions during development by sending an incoming POST request to the simulation endpoint using your active <code className="font-mono text-blue-600 bg-blue-50 px-1 rounded font-bold">order_id</code>.
+                    </p>
+                  </div>
+                  <div className="bg-white p-2 rounded border border-slate-150 font-mono text-[10.5px] text-slate-700 break-all select-all font-semibold">
+                    POST /api/v1/simulate-payment {"{ \"order_id\": \"your_order_id\" }"}
+                  </div>
+                </div>
+              </div>
             </section>
 
             {/* Section: API Configuration */}
