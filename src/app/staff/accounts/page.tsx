@@ -219,13 +219,13 @@ export default function StaffAccountReview() {
       </div>
 
       {/* Interactive Batch Command Panel */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl p-6 space-y-4">
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.02)] p-6 space-y-4">
          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
-               <h3 className="text-white text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                  <Terminal className="w-4 h-4 text-indigo-400" /> Multi-Account Batch Terminal
+               <h3 className="text-slate-900 text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                  <Terminal className="w-4 h-4 text-blue-650" /> Multi-Account Batch Terminal
                </h3>
-               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">
                   Select multiple nodes below to generate a single-block copyable execution command.
                </p>
             </div>
@@ -239,17 +239,17 @@ export default function StaffAccountReview() {
                      setSelectedIds(accounts.map(a => a.id));
                    }
                  }}
-                 className="text-[10px] font-black text-slate-400 hover:text-white uppercase transition-colors mr-2 border border-slate-700 rounded-lg px-2.5 py-1.5 hover:bg-slate-800"
+                 className="text-[10px] font-black text-slate-500 hover:text-slate-950 uppercase transition-colors mr-2 border border-slate-200 rounded-lg px-2.5 py-1.5 hover:bg-slate-50"
                >
                   {selectedIds.length === accounts.length ? 'Deselect All' : 'Select All'}
                </button>
-               <span className="text-[10px] font-black text-indigo-400 uppercase bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20">
+               <span className="text-[10px] font-black text-blue-600 uppercase bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
                   {selectedIds.length} Nodes Selected
                </span>
                {selectedIds.length > 0 && (
                   <button 
                     onClick={() => setSelectedIds([])}
-                    className="text-[10px] font-black text-rose-400 hover:text-rose-300 uppercase transition-colors"
+                    className="text-[10px] font-black text-rose-500 hover:text-rose-600 uppercase transition-colors"
                   >
                      Clear Selection
                   </button>
@@ -271,20 +271,20 @@ export default function StaffAccountReview() {
                 onClick={() => setBatchAction(act.id)}
                 className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all ${
                   batchAction === act.id 
-                    ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg' 
-                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-650/15' 
+                    : 'bg-slate-50 border-slate-100 text-slate-650 hover:bg-slate-100'
                 }`}
               >
                  <span className="text-[10px] font-black uppercase tracking-wider">{act.label}</span>
-                 <span className={`text-[8px] font-mono mt-0.5 ${batchAction === act.id ? 'text-indigo-200' : 'text-slate-500'}`}>{act.desc}</span>
+                 <span className={`text-[8px] font-mono mt-0.5 ${batchAction === act.id ? 'text-blue-200' : 'text-slate-400'}`}>{act.desc}</span>
               </button>
             ))}
          </div>
 
           {/* Log Window Mode Sub-Selector (Only visible when View Logs is selected) */}
           {batchAction === 'logs' && (
-             <div className="bg-slate-800/40 border border-slate-800/80 rounded-lg p-4 space-y-3">
-                <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">
+             <div className="bg-slate-50 border border-slate-100 rounded-lg p-4 space-y-3">
+                <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest">
                    Log Window Mode
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -299,12 +299,12 @@ export default function StaffAccountReview() {
                        onClick={() => setLogMode(mode.id)}
                        className={`text-left px-3.5 py-2.5 rounded border transition-all flex flex-col justify-center ${
                          logMode === mode.id
-                           ? 'bg-indigo-600 border-indigo-500 text-white shadow shadow-indigo-600/30'
-                           : 'bg-[#0F172A] border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                           ? 'bg-blue-650 border-blue-600 text-white shadow shadow-blue-600/10'
+                           : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 shadow-sm'
                        }`}
                      >
                         <span className="text-[10px] font-black uppercase tracking-wider">{mode.label}</span>
-                        <span className={`text-[8px] mt-0.5 font-medium leading-tight ${logMode === mode.id ? 'text-indigo-200' : 'text-slate-500'}`}>{mode.desc}</span>
+                        <span className={`text-[8px] mt-0.5 font-medium leading-tight ${logMode === mode.id ? 'text-blue-100' : 'text-slate-400'}`}>{mode.desc}</span>
                      </button>
                    ))}
                 </div>
@@ -312,25 +312,25 @@ export default function StaffAccountReview() {
           )}
 
          {/* Generated Terminal Block */}
-         <div className="relative rounded-lg overflow-hidden border border-slate-800 bg-[#0F172A] shadow-inner">
-            <div className="flex items-center justify-between px-4 py-2 bg-slate-800/40 border-b border-white/5">
-               <span className="text-[9px] font-mono text-slate-500">GENERATED SHELL COMMAND BLOCK</span>
+         <div className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50 shadow-inner">
+            <div className="flex items-center justify-between px-4 py-2 bg-slate-100 border-b border-slate-200">
+               <span className="text-[9px] font-mono text-slate-500 uppercase">GENERATED SHELL COMMAND BLOCK</span>
                {selectedIds.length > 0 && (
                   <button 
                     onClick={() => {
                       copyToClipboard(getBatchCommand(), 'batch-copy');
                     }}
-                    className={`flex items-center gap-1 px-3 py-1 rounded text-[9px] font-black uppercase tracking-widest transition-all ${
+                    className={`flex items-center gap-1 px-3 py-1 rounded text-[9px] font-black uppercase tracking-widest transition-all shadow-sm ${
                       copiedId === 'batch-copy' 
                         ? 'bg-emerald-600 text-white' 
-                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
                      {copiedId === 'batch-copy' ? '✓ Copied!' : 'Copy Command Block'}
                   </button>
                )}
             </div>
-            <pre className="p-4 overflow-x-auto text-[11px] font-mono leading-relaxed text-slate-300 min-h-[64px] max-h-48 whitespace-pre">
+            <pre className="p-4 overflow-x-auto text-[11px] font-mono leading-relaxed text-slate-700 min-h-[64px] max-h-48 whitespace-pre font-semibold">
                {getBatchCommand()}
             </pre>
          </div>
