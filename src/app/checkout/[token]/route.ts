@@ -35,9 +35,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   // Extract UPI ID
   const upiMatch = upiDeepLink.match(/pa=([^&]+)/);
   const merchantUpi = upiMatch ? decodeURIComponent(upiMatch[1]) : "merchant@upi";
+  const cleanName = encodeURIComponent(merchantName).replace(/%20/g, "+");
 
   // Intents
-  const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR&tn=${referenceId}&featuretype=money_transfer`;
+  const paytmIntent = `paytmmp://cash_wallet?pa=${merchantUpi}&pn=${cleanName}&am=${amount}&cu=INR&tn=${referenceId}&featuretype=money_transfer`;
 
   const phonepePayload = JSON.stringify({
     contact: { cbsName: "", nickName: merchantName, vpa: merchantUpi, type: "VPA" },
