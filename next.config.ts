@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   },
   // Allow data: URIs for QR codes in next/image
   experimental: {},
+  allowedDevOrigins: ['192.168.2.62'],
   async headers() {
     return [
       {

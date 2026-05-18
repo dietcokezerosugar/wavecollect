@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
+import { generatePhonePeIntent, generatePaytmIntent, generateGPayIntent } from "@/lib/intentHelpers";
 
 interface Props {
   token: string;
@@ -152,21 +153,28 @@ export default function PaymentPageClient({
   const merchantUpi = upiMatch ? decodeURIComponent(upiMatch[1]) : "merchant@upi";
 
   // Intent links
-  const cleanPaytmName = encodeURIComponent(merchantName).replace(/%20/g, "+");
-  const paytmIntent = `paytmmp://cash_wallet?pa=${encodeURIComponent(merchantUpi)}&pn=${cleanPaytmName}&am=${amount}&cu=INR&tn=${referenceId}&featuretype=money_transfer`;
+  const paytmIntent = generatePaytmIntent({
+    merchant_upi: merchantUpi,
+    merchant_business_name: merchantName,
+    amount: amount,
+    order_id: referenceId,
+    isAndroid: isAndroid
+  });
   
-  const phonepeData = {
-    contact: { cbsName: "", nickName: merchantName, vpa: merchantUpi, type: "VPA" },
-    p2pPaymentCheckoutParams: {
-      note: referenceId, isByDefaultKnownContact: true, enableSpeechToText: false,
-      allowAmountEdit: false, showQrCodeOption: false, disableViewHistory: true,
-      shouldShowUnsavedContactBanner: false, isRecurring: false, checkoutType: "DEFAULT",
-      transactionContext: "p2p", initialAmount: Math.round(amount * 100),
-      disableNotesEdit: true, showKeyboard: false, currency: "INR", shouldShowMaskedNumber: true,
-    },
-  };
-  const phonepeBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(phonepeData))));
-  const phonepeIntent = `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
+  const phonepeIntent = generatePhonePeIntent({
+    merchant_upi: merchantUpi,
+    amount: amount,
+    order_id: referenceId,
+    isAndroid: isAndroid
+  });
+
+  const gpayIntent = generateGPayIntent({
+    merchant_upi: merchantUpi,
+    merchant_business_name: merchantName,
+    amount: amount,
+    order_id: referenceId,
+    isAndroid: isAndroid
+  });
 
   if (!mounted) return <div style={styles.pageWrap}></div>;
 
@@ -253,11 +261,11 @@ export default function PaymentPageClient({
             </div>
           </div>
 
-          {/* Android -> Show Deep Links below QR (No GPay per request, No Other Apps) */}
-          {isAndroid && (
+          {/* Mobile -> Show Deep Links below QR */}
+          {(isAndroid || isIOS) && (
             <div style={{ ...styles.deepLinkSection, marginTop: 24, paddingTop: 24, borderTop: "1px solid #e2e8f0" }}>
               <p style={styles.instruction}>Or pay directly using</p>
-              <div style={styles.appGrid}>
+              <div style={{ ...styles.appGrid, gridTemplateColumns: "1fr 1fr" }}>
                 <a href={phonepeIntent} style={styles.appButton}>
                   <PhonePeIcon />
                   <span style={styles.appName}>PhonePe</span>

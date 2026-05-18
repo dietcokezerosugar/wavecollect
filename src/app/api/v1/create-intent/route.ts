@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { IdempotencyService } from "@/services/routing/IdempotencyService";
 import { parseSafeJson } from "@/lib/safe-body";
 import { generateAlphanumericId } from "@/lib/security";
+import { buildUpiDeeplink, generatePhonePeIntent, generatePaytmIntent, generateGPayIntent } from "@/lib/intentHelpers";
 
 // Simple in-memory rate limiter
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
@@ -139,32 +140,35 @@ export async function POST(req: NextRequest) {
     const merchantName = apiKeyRecord.merchant.brandName || apiKeyRecord.merchant.businessName || apiKeyRecord.merchant.name;
     const payeeVpa = allocatedAccount ? allocatedAccount.upiId.trim() : "merchant@upi";
 
-    const cleanName = encodeURIComponent(merchantName).replace(/%20/g, "+");
-    const cleanUpiLink = `upi://pay?pa=${payeeVpa}&pn=${cleanName}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tn=${finalOrderId}`;
-    const cleanPaytmLink = `paytmmp://cash_wallet?pa=${encodeURIComponent(payeeVpa)}&pn=${cleanName}&am=${parseFloat(amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent(finalOrderId)}&featuretype=money_transfer`;
-
-    const phonepePayload = JSON.stringify({
-      contact: { cbsName: "", nickName: merchantName, vpa: payeeVpa, type: "VPA" },
-      p2pPaymentCheckoutParams: {
-        note: finalOrderId,
-        isByDefaultKnownContact: true,
-        enableSpeechToText: false,
-        allowAmountEdit: false,
-        showQrCodeOption: false,
-        disableViewHistory: true,
-        shouldShowUnsavedContactBanner: false,
-        isRecurring: false,
-        checkoutType: "DEFAULT",
-        transactionContext: "p2p",
-        initialAmount: Math.round(parseFloat(amount) * 100),
-        disableNotesEdit: true,
-        showKeyboard: false,
-        currency: "INR",
-        shouldShowMaskedNumber: true
-      }
+    const cleanUpiLink = buildUpiDeeplink({
+      pa: payeeVpa,
+      pn: merchantName,
+      am: amount,
+      tn: finalOrderId
     });
-    const phonepeBase64 = Buffer.from(phonepePayload).toString("base64");
-    const cleanPhonepeLink = `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
+
+    const cleanPaytmLink = generatePaytmIntent({
+      merchant_upi: payeeVpa,
+      merchant_business_name: merchantName,
+      amount: parseFloat(amount),
+      order_id: finalOrderId,
+      isAndroid: true // For API we expose Android proprietary as default in legacy fields
+    });
+
+    const cleanPhonepeLink = generatePhonePeIntent({
+      merchant_upi: payeeVpa,
+      order_id: finalOrderId,
+      amount: parseFloat(amount),
+      isAndroid: true
+    });
+
+    const cleanGPayLink = generateGPayIntent({
+      merchant_upi: payeeVpa,
+      merchant_business_name: merchantName,
+      amount: parseFloat(amount),
+      order_id: finalOrderId,
+      isAndroid: true
+    });
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const responseData = {
@@ -180,7 +184,8 @@ export async function POST(req: NextRequest) {
       upi_links: {
         upi: cleanUpiLink,
         paytm: cleanPaytmLink,
-        phonepe: cleanPhonepeLink
+        phonepe: cleanPhonepeLink,
+        gpay: cleanGPayLink,
       },
       qr_data: intent.qrData,
       metadata: (intent as any).metadata,

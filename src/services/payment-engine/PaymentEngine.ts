@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 import { GatewayRouter } from "../routing/GatewayRouter";
 import { validateIpWhitelist } from "@/lib/security";
+import { buildUpiDeeplink } from "@/lib/intentHelpers";
 
 export interface PaymentIntentOptions {
   amount: number;
@@ -109,9 +110,12 @@ export class PaymentEngine {
 
     // ── 5. Generate UPI Deep Link (exactly like BloomXHub) ───────────
     const merchantName = keyData.merchant.brandName || keyData.merchant.businessName || keyData.merchant.name;
-    // Full UPI link with raw @ and space as +, containing only the 5 essential parameters
-    const cleanName = encodeURIComponent(merchantName).replace(/%20/g, "+");
-    const upiDeepLink = `upi://pay?pa=${account.upiId.trim()}&pn=${cleanName}&am=${amount.toFixed(2)}&cu=INR&tn=${orderId}`;
+    const upiDeepLink = buildUpiDeeplink({
+      pa: account.upiId.trim(),
+      pn: merchantName,
+      am: amount,
+      tn: orderId
+    });
 
     // ── 6. Generate cryptographically strong payment token ────────────
     const paymentToken = crypto.randomBytes(32).toString("hex");
@@ -174,9 +178,12 @@ export class PaymentEngine {
     const { account } = routingResult;
 
     const orderId = `RCG_${Math.floor(Date.now() / 1000)}_${Math.floor(Math.random() * 1000)}`;
-    // Full UPI link for recharge QR with raw @ and space as +, containing only 5 essential parameters
-    const cleanName = encodeURIComponent("PayxMint SaaS").replace(/%20/g, "+");
-    const upiDeepLink = `upi://pay?pa=${account.upiId.trim()}&pn=${cleanName}&am=${amount.toFixed(2)}&cu=INR&tn=${orderId}`;
+    const upiDeepLink = buildUpiDeeplink({
+      pa: account.upiId.trim(),
+      pn: "PayxMint SaaS",
+      am: amount,
+      tn: orderId
+    });
 
     const paymentToken = crypto.randomBytes(32).toString("hex");
 
